@@ -1,0 +1,202 @@
+{
+  "schema_version": "1.0",
+  "briefing_id": "00000000-0000-0000-0000-000000003001",
+  "instrument": {
+    "instrument_id": "XSHG:600000",
+    "symbol": "600000",
+    "exchange": "XSHG",
+    "market": "CN",
+    "asset_class": "equity",
+    "currency": "CNY"
+  },
+  "comparison_since": "2026-07-24T16:00:00Z",
+  "as_of": "2026-07-25T01:00:00Z",
+  "generated_at": "2026-07-25T01:01:00Z",
+  "ingestion_progress": {
+    "source_id": "synthetic_exchange_announcement",
+    "capability": "statutory.announcements",
+    "business_watermark": "2026-07-25T00:54:00Z",
+    "batch_audit_id": "00000000-0000-0000-0000-000000004101",
+    "advance_state": "advanced",
+    "data_mode": "synthetic_development_only"
+  },
+  "sections": {
+    "statutory_announcements": {
+      "items": [{
+        "event_id": "00000000-0000-0000-0000-000000001001",
+        "event_revision": 1,
+        "headline": "Synthetic statutory announcement",
+        "fact_summary": "A synthetic board resolution was published.",
+        "inference": null,
+        "change_type": "new",
+        "published_at": "2026-07-25T00:00:00Z",
+        "first_seen_at": "2026-07-25T00:05:00Z",
+        "source_roles": ["statutory"],
+        "evidence_ids": ["00000000-0000-0000-0000-000000002001"]
+      }]
+    },
+    "financial_changes": {
+      "items": [{
+        "event_id": "00000000-0000-0000-0000-000000001002",
+        "event_revision": 2,
+        "headline": "Synthetic revenue correction",
+        "fact_summary": "Revenue was corrected to CNY 125000000.00.",
+        "inference": null,
+        "change_type": "correction",
+        "published_at": "2026-07-25T00:10:00Z",
+        "first_seen_at": "2026-07-25T00:15:00Z",
+        "source_roles": ["statutory"],
+        "evidence_ids": [
+          "00000000-0000-0000-0000-000000002002",
+          "00000000-0000-0000-0000-000000002003"
+        ]
+      }]
+    },
+    "market_snapshot": {
+      "items": [{
+        "event_id": "00000000-0000-0000-0000-000000001003",
+        "event_revision": 2,
+        "headline": "Synthetic closing-price contradiction",
+        "fact_summary": "Professional sources disagree on the closing price.",
+        "inference": "The value remains unresolved pending source reconciliation.",
+        "change_type": "contradiction",
+        "published_at": "2026-07-25T00:20:00Z",
+        "first_seen_at": "2026-07-25T00:24:00Z",
+        "source_roles": ["professional_market", "professional_information"],
+        "evidence_ids": [
+          "00000000-0000-0000-0000-000000002004",
+          "00000000-0000-0000-0000-000000002005"
+        ]
+      }]
+    },
+    "company_industry_news": {
+      "items": [{
+        "event_id": "00000000-0000-0000-0000-000000001005",
+        "event_revision": 2,
+        "headline": "Synthetic company news with degraded coverage",
+        "fact_summary": "One qualified source remains available while another is unavailable.",
+        "inference": null,
+        "change_type": "update",
+        "published_at": "2026-07-25T00:40:00Z",
+        "first_seen_at": "2026-07-25T00:41:00Z",
+        "source_roles": ["professional_information"],
+        "evidence_ids": ["00000000-0000-0000-0000-000000002007"]
+      }]
+    },
+    "macro_flashes": {
+      "items": [{
+        "event_id": "00000000-0000-0000-0000-000000001004",
+        "event_revision": 1,
+        "headline": "Synthetic macro flash pending verification",
+        "fact_summary": "A discovery-only macro claim has not passed timeliness verification.",
+        "inference": null,
+        "change_type": "new",
+        "published_at": "2026-07-25T00:30:00Z",
+        "first_seen_at": "2026-07-25T00:31:00Z",
+        "source_roles": ["discovery"],
+        "evidence_ids": ["00000000-0000-0000-0000-000000002006"]
+      }]
+    }
+  },
+  "source_coverage": [
+    {
+      "source_id": "synthetic_exchange_announcement",
+      "capability": "statutory.announcements",
+      "source_role": "statutory",
+      "status": "ok",
+      "observed_at": "2026-07-25T00:55:00Z",
+      "last_success_at": "2026-07-25T00:54:00Z",
+      "license_id": "synthetic-test-license-v1",
+      "gap_reason": null,
+      "progress": {
+        "business_watermark": "2026-07-25T00:54:00Z",
+        "batch_audit_id": "00000000-0000-0000-0000-000000004101",
+        "advance_state": "advanced",
+        "data_mode": "synthetic_development_only"
+      }
+    },
+    {
+      "source_id": "synthetic_market_primary",
+      "capability": "market.snapshot",
+      "source_role": "professional_market",
+      "status": "delayed",
+      "observed_at": "2026-07-25T00:55:00Z",
+      "last_success_at": "2026-07-25T00:40:00Z",
+      "license_id": "synthetic-test-license-v1",
+      "gap_reason": "Synthetic feed delay",
+      "progress": {
+        "business_watermark": "2026-07-25T00:40:00Z",
+        "batch_audit_id": "00000000-0000-0000-0000-000000004102",
+        "advance_state": "not_advanced",
+        "data_mode": "synthetic_development_only"
+      }
+    },
+    {
+      "source_id": "synthetic_information_outage",
+      "capability": "company.news",
+      "source_role": "professional_information",
+      "status": "unavailable",
+      "observed_at": "2026-07-25T00:55:00Z",
+      "last_success_at": "2026-07-24T23:30:00Z",
+      "license_id": "synthetic-test-license-v1",
+      "gap_reason": "Synthetic single-source outage",
+      "progress": {
+        "business_watermark": "2026-07-24T23:30:00Z",
+        "batch_audit_id": "00000000-0000-0000-0000-000000004103",
+        "advance_state": "not_advanced",
+        "data_mode": "synthetic_development_only"
+      }
+    },
+    {
+      "source_id": "synthetic_rights_blocked",
+      "capability": "industry.news",
+      "source_role": "professional_information",
+      "status": "rights_blocked",
+      "observed_at": "2026-07-25T00:55:00Z",
+      "last_success_at": null,
+      "license_id": "synthetic-test-license-v1",
+      "gap_reason": "Synthetic rights policy blocks retrieval",
+      "progress": {
+        "business_watermark": null,
+        "batch_audit_id": "00000000-0000-0000-0000-000000004104",
+        "advance_state": "not_advanced",
+        "data_mode": "synthetic_development_only"
+      }
+    },
+    {
+      "source_id": "synthetic_not_qualified",
+      "capability": "company.fact",
+      "source_role": "discovery",
+      "status": "not_qualified",
+      "observed_at": "2026-07-25T00:55:00Z",
+      "last_success_at": null,
+      "license_id": "synthetic-test-license-v1",
+      "gap_reason": "Discovery-only source cannot establish a company fact",
+      "progress": {
+        "business_watermark": null,
+        "batch_audit_id": "00000000-0000-0000-0000-000000004105",
+        "advance_state": "not_advanced",
+        "data_mode": "synthetic_development_only"
+      }
+    },
+    {
+      "source_id": "synthetic_discovery_wire",
+      "capability": "macro.flash",
+      "source_role": "discovery",
+      "status": "timeliness_unverified",
+      "observed_at": "2026-07-25T00:55:00Z",
+      "last_success_at": null,
+      "license_id": "synthetic-test-license-v1",
+      "gap_reason": "Discovery source has no qualified publication timestamp",
+      "progress": {
+        "business_watermark": null,
+        "batch_audit_id": "00000000-0000-0000-0000-000000004106",
+        "advance_state": "not_advanced",
+        "data_mode": "synthetic_development_only"
+      }
+    }
+  ],
+  "omitted_duplicate_count": 1,
+  "ruleset_version": "r1-contract-freeze-v1",
+  "disclaimer": "本系统仅供个人信息整理与研究，不构成证券投资建议、收益承诺或交易指令。"
+}

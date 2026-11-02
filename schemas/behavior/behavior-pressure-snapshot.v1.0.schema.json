@@ -1,0 +1,686 @@
+{
+  "$defs": {
+    "EmpiricalRankMapping": {
+      "additionalProperties": false,
+      "description": "Auditable raw-composite to empirical mid-rank mapping for the research score.",
+      "properties": {
+        "equal_count": {
+          "minimum": 1,
+          "title": "Equal Count",
+          "type": "integer"
+        },
+        "less_count": {
+          "minimum": 0,
+          "title": "Less Count",
+          "type": "integer"
+        },
+        "mapped_score": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Mapped Score",
+          "type": "integer"
+        },
+        "population_count": {
+          "maximum": 10000,
+          "minimum": 1000,
+          "title": "Population Count",
+          "type": "integer"
+        },
+        "raw_total": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Raw Total",
+          "type": "integer"
+        },
+        "reference_mapping_version": {
+          "pattern": "^[a-z][a-z0-9_.-]{2,99}$",
+          "title": "Reference Mapping Version",
+          "type": "string"
+        },
+        "reference_population_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Reference Population Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "raw_total",
+        "population_count",
+        "less_count",
+        "equal_count",
+        "mapped_score",
+        "reference_mapping_version",
+        "reference_population_hash"
+      ],
+      "title": "EmpiricalRankMapping",
+      "type": "object"
+    },
+    "HistoricalAnalogState": {
+      "enum": [
+        "pending",
+        "ready",
+        "insufficient",
+        "maturity_pending",
+        "incomparable",
+        "failed"
+      ],
+      "title": "HistoricalAnalogState",
+      "type": "string"
+    },
+    "HistoricalAnalogSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "feature_set_version": {
+          "const": "behavior-analog-14d.v1",
+          "default": "behavior-analog-14d.v1",
+          "title": "Feature Set Version",
+          "type": "string"
+        },
+        "ranges": {
+          "items": {
+            "$ref": "#/$defs/HistoricalOutcomeRange"
+          },
+          "maxItems": 5,
+          "title": "Ranges",
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "sample_count": {
+          "maximum": 200,
+          "minimum": 0,
+          "title": "Sample Count",
+          "type": "integer"
+        },
+        "selection_as_of": {
+          "format": "date-time",
+          "title": "Selection As Of",
+          "type": "string"
+        },
+        "selection_semantics_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Selection Semantics Hash",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/HistoricalAnalogState"
+        }
+      },
+      "required": [
+        "state",
+        "sample_count",
+        "selection_as_of",
+        "selection_semantics_hash"
+      ],
+      "title": "HistoricalAnalogSummary",
+      "type": "object"
+    },
+    "HistoricalOutcomeRange": {
+      "additionalProperties": false,
+      "properties": {
+        "median": {
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$",
+          "title": "Median",
+          "type": "string"
+        },
+        "metric": {
+          "enum": [
+            "return_1d",
+            "return_3d",
+            "industry_excess",
+            "mae",
+            "mfe"
+          ],
+          "title": "Metric",
+          "type": "string"
+        },
+        "q1": {
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$",
+          "title": "Q1",
+          "type": "string"
+        },
+        "q3": {
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$",
+          "title": "Q3",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "q1",
+        "median",
+        "q3"
+      ],
+      "title": "HistoricalOutcomeRange",
+      "type": "object"
+    },
+    "IndexAvailability": {
+      "enum": [
+        "ready",
+        "degraded",
+        "abstained"
+      ],
+      "title": "IndexAvailability",
+      "type": "string"
+    },
+    "IndexExplanation": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "text"
+      ],
+      "title": "IndexExplanation",
+      "type": "object"
+    },
+    "InstrumentRef": {
+      "additionalProperties": false,
+      "description": "Market-neutral security identity suitable for future exchanges.",
+      "properties": {
+        "asset_class": {
+          "default": "equity",
+          "pattern": "^[a-z][a-z0-9_]{1,31}$",
+          "title": "Asset Class",
+          "type": "string"
+        },
+        "currency": {
+          "default": "CNY",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "exchange": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Exchange",
+          "type": "string"
+        },
+        "instrument_id": {
+          "pattern": "^[A-Z0-9_]+:[A-Za-z0-9._-]+$",
+          "title": "Instrument Id",
+          "type": "string"
+        },
+        "market": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Market",
+          "type": "string"
+        },
+        "symbol": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Symbol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instrument_id",
+        "symbol",
+        "exchange",
+        "market"
+      ],
+      "title": "InstrumentRef",
+      "type": "object"
+    },
+    "MarketStructureDimension": {
+      "additionalProperties": false,
+      "properties": {
+        "availability": {
+          "$ref": "#/$defs/StructureAvailability"
+        },
+        "dimension": {
+          "$ref": "#/$defs/StructureDimensionName"
+        },
+        "explanation": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Explanation",
+          "type": "string"
+        },
+        "state": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "State"
+        }
+      },
+      "required": [
+        "dimension",
+        "availability",
+        "explanation"
+      ],
+      "title": "MarketStructureDimension",
+      "type": "object"
+    },
+    "PitLineage": {
+      "additionalProperties": false,
+      "properties": {
+        "assessment_revision_known_at": {
+          "format": "date-time",
+          "title": "Assessment Revision Known At",
+          "type": "string"
+        },
+        "comparable_instrument_day_count": {
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Comparable Instrument Day Count",
+          "type": "integer"
+        },
+        "comparison_semantics_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Comparison Semantics Hash",
+          "type": "string"
+        },
+        "data_manifest_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Data Manifest Hash",
+          "type": "string"
+        },
+        "max_input_revision_known_at": {
+          "format": "date-time",
+          "title": "Max Input Revision Known At",
+          "type": "string"
+        },
+        "rights_snapshot_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Rights Snapshot Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data_manifest_hash",
+        "rights_snapshot_hash",
+        "comparison_semantics_hash",
+        "max_input_revision_known_at",
+        "assessment_revision_known_at",
+        "comparable_instrument_day_count"
+      ],
+      "title": "PitLineage",
+      "type": "object"
+    },
+    "PressureBand": {
+      "enum": [
+        "stable",
+        "warming",
+        "attention",
+        "crowded",
+        "fragile"
+      ],
+      "title": "PressureBand",
+      "type": "string"
+    },
+    "PressureCluster": {
+      "additionalProperties": false,
+      "properties": {
+        "availability": {
+          "$ref": "#/$defs/IndexAvailability"
+        },
+        "cluster": {
+          "$ref": "#/$defs/PressureClusterName"
+        },
+        "inherited_from_post_close": {
+          "default": false,
+          "title": "Inherited From Post Close",
+          "type": "boolean"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Score"
+        }
+      },
+      "required": [
+        "score",
+        "availability",
+        "cluster"
+      ],
+      "title": "PressureCluster",
+      "type": "object"
+    },
+    "PressureClusterName": {
+      "enum": [
+        "activity_anomaly",
+        "close_path_rejection",
+        "reference_cost_extension",
+        "short_path_extension",
+        "price_impact",
+        "spread_proxy",
+        "volatility_expansion",
+        "downside_tail_asymmetry",
+        "breadth_background",
+        "idiosyncratic_divergence"
+      ],
+      "title": "PressureClusterName",
+      "type": "string"
+    },
+    "PressureFacet": {
+      "additionalProperties": false,
+      "properties": {
+        "availability": {
+          "$ref": "#/$defs/IndexAvailability"
+        },
+        "facet": {
+          "$ref": "#/$defs/PressureFacetName"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Score"
+        }
+      },
+      "required": [
+        "score",
+        "availability",
+        "facet"
+      ],
+      "title": "PressureFacet",
+      "type": "object"
+    },
+    "PressureFacetName": {
+      "enum": [
+        "activity_divergence",
+        "extension_crowding",
+        "liquidity_fragility",
+        "volatility_tail",
+        "market_industry_divergence"
+      ],
+      "title": "PressureFacetName",
+      "type": "string"
+    },
+    "PressureMode": {
+      "enum": [
+        "post_close",
+        "intraday_10m"
+      ],
+      "title": "PressureMode",
+      "type": "string"
+    },
+    "StructureAvailability": {
+      "enum": [
+        "ready",
+        "degraded",
+        "abstained",
+        "not_applicable"
+      ],
+      "title": "StructureAvailability",
+      "type": "string"
+    },
+    "StructureDimensionName": {
+      "enum": [
+        "trend_organization",
+        "position_recovery",
+        "trading_participation",
+        "volatility_environment",
+        "intraday_acceptance",
+        "relative_environment"
+      ],
+      "title": "StructureDimensionName",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/behavior/behavior-pressure-snapshot.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+    },
+    "assessment_id": {
+      "format": "uuid",
+      "title": "Assessment Id",
+      "type": "string"
+    },
+    "availability": {
+      "$ref": "#/$defs/IndexAvailability"
+    },
+    "band": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PressureBand"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "clusters": {
+      "items": {
+        "$ref": "#/$defs/PressureCluster"
+      },
+      "maxItems": 10,
+      "minItems": 10,
+      "title": "Clusters",
+      "type": "array"
+    },
+    "completeness_percent": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Completeness Percent",
+      "type": "integer"
+    },
+    "disclaimer": {
+      "default": "研究指数，不是下跌概率、买卖建议或目标价。",
+      "title": "Disclaimer",
+      "type": "string"
+    },
+    "drivers": {
+      "items": {
+        "$ref": "#/$defs/IndexExplanation"
+      },
+      "maxItems": 3,
+      "title": "Drivers",
+      "type": "array"
+    },
+    "facets": {
+      "items": {
+        "$ref": "#/$defs/PressureFacet"
+      },
+      "maxItems": 5,
+      "minItems": 5,
+      "title": "Facets",
+      "type": "array"
+    },
+    "formula_version": {
+      "const": "behavior-pressure-research.v1",
+      "default": "behavior-pressure-research.v1",
+      "title": "Formula Version",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "historical_analogs": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HistoricalAnalogSummary"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "instrument": {
+      "$ref": "#/$defs/InstrumentRef"
+    },
+    "mitigators": {
+      "items": {
+        "$ref": "#/$defs/IndexExplanation"
+      },
+      "maxItems": 2,
+      "title": "Mitigators",
+      "type": "array"
+    },
+    "mode": {
+      "$ref": "#/$defs/PressureMode"
+    },
+    "pit_lineage": {
+      "$ref": "#/$defs/PitLineage"
+    },
+    "research_index": {
+      "const": true,
+      "default": true,
+      "title": "Research Index",
+      "type": "boolean"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "score": {
+      "anyOf": [
+        {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Score"
+    },
+    "score_mapping": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EmpiricalRankMapping"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "structure_dimensions": {
+      "items": {
+        "$ref": "#/$defs/MarketStructureDimension"
+      },
+      "maxItems": 6,
+      "minItems": 6,
+      "title": "Structure Dimensions",
+      "type": "array"
+    },
+    "window_end": {
+      "format": "date-time",
+      "title": "Window End",
+      "type": "string"
+    },
+    "window_start": {
+      "format": "date-time",
+      "title": "Window Start",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "instrument",
+    "mode",
+    "score",
+    "band",
+    "availability",
+    "window_start",
+    "window_end",
+    "as_of",
+    "generated_at",
+    "facets",
+    "clusters",
+    "structure_dimensions",
+    "completeness_percent",
+    "pit_lineage"
+  ],
+  "title": "BehaviorPressureSnapshotV1_0",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.behavior.BehaviorPressureSnapshotV1_0",
+  "x-schema-version": "1.0"
+}

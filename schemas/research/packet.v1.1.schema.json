@@ -1,0 +1,1022 @@
+{
+  "$defs": {
+    "CoverageGap": {
+      "additionalProperties": false,
+      "properties": {
+        "actual_end": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual End"
+        },
+        "actual_start": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Start"
+        },
+        "area": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Area",
+          "type": "string"
+        },
+        "detail": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Detail",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "reason_code": {
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+          "title": "Reason Code",
+          "type": "string"
+        },
+        "requested_start": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Start"
+        }
+      },
+      "required": [
+        "area",
+        "reason_code",
+        "detail"
+      ],
+      "title": "CoverageGap",
+      "type": "object"
+    },
+    "FormalDocumentCitation": {
+      "additionalProperties": false,
+      "properties": {
+        "document_id": {
+          "format": "uuid",
+          "title": "Document Id",
+          "type": "string"
+        },
+        "evidence_id": {
+          "format": "uuid",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "extraction_scope": {
+          "enum": [
+            "complete",
+            "prefix_truncated",
+            "selected_pages",
+            "unknown"
+          ],
+          "title": "Extraction Scope",
+          "type": "string"
+        },
+        "fact_locations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/FormalDocumentLocation"
+          },
+          "maxProperties": 9,
+          "minProperties": 1,
+          "title": "Fact Locations",
+          "type": "object"
+        },
+        "retrieval_receipt_id": {
+          "format": "uuid",
+          "title": "Retrieval Receipt Id",
+          "type": "string"
+        },
+        "verification": {
+          "$ref": "#/$defs/FormalDocumentVerification"
+        }
+      },
+      "required": [
+        "document_id",
+        "evidence_id",
+        "verification",
+        "retrieval_receipt_id",
+        "extraction_scope",
+        "fact_locations"
+      ],
+      "title": "FormalDocumentCitation",
+      "type": "object"
+    },
+    "FormalDocumentIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_basis": {
+          "enum": [
+            "official_index",
+            "document_fields"
+          ],
+          "title": "Binding Basis",
+          "type": "string"
+        },
+        "canonical_url": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "pattern": "^https://",
+          "title": "Canonical Url",
+          "type": "string"
+        },
+        "document_kind": {
+          "enum": [
+            "annual",
+            "interim",
+            "announcement",
+            "regulatory",
+            "IR"
+          ],
+          "title": "Document Kind",
+          "type": "string"
+        },
+        "identity_anchors": {
+          "items": {
+            "$ref": "#/$defs/FormalDocumentLocation"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Identity Anchors",
+          "type": "array"
+        },
+        "instrument_id": {
+          "pattern": "^(XSHG|XSHE|XBSE):[0-9]{6}$",
+          "title": "Instrument Id",
+          "type": "string"
+        },
+        "issuer_name": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Issuer Name",
+          "type": "string"
+        },
+        "native_document_id": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Native Document Id",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "document_kind",
+        "issuer_name",
+        "instrument_id",
+        "title",
+        "native_document_id",
+        "canonical_url",
+        "binding_basis",
+        "identity_anchors"
+      ],
+      "title": "FormalDocumentIdentity",
+      "type": "object"
+    },
+    "FormalDocumentLocation": {
+      "additionalProperties": false,
+      "description": "An original normalized character interval or an explicit metadata field.",
+      "properties": {
+        "end": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "maximum": 100000,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End"
+        },
+        "field": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "page_number": {
+          "anyOf": [
+            {
+              "maximum": 350,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Number"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "maximum": 100000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "title": "FormalDocumentLocation",
+      "type": "object"
+    },
+    "FormalDocumentVerification": {
+      "additionalProperties": false,
+      "properties": {
+        "first_seen_at": {
+          "format": "date-time",
+          "title": "First Seen At",
+          "type": "string"
+        },
+        "identity": {
+          "$ref": "#/$defs/FormalDocumentIdentity"
+        },
+        "media_type": {
+          "enum": [
+            "application/pdf",
+            "text/html",
+            "text/plain"
+          ],
+          "title": "Media Type",
+          "type": "string"
+        },
+        "normalized_original_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Normalized Original Sha256",
+          "type": "string"
+        },
+        "pit_cutoff": {
+          "format": "date-time",
+          "title": "Pit Cutoff",
+          "type": "string"
+        },
+        "publication_evidence": {
+          "items": {
+            "$ref": "#/$defs/PublicationDateEvidence"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Publication Evidence",
+          "type": "array"
+        },
+        "published_at": {
+          "format": "date-time",
+          "title": "Published At",
+          "type": "string"
+        },
+        "rights_snapshot_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Rights Snapshot Sha256",
+          "type": "string"
+        },
+        "source_id": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "identity",
+        "publication_evidence",
+        "published_at",
+        "source_id",
+        "normalized_original_sha256",
+        "rights_snapshot_sha256",
+        "first_seen_at",
+        "pit_cutoff",
+        "media_type"
+      ],
+      "title": "FormalDocumentVerification",
+      "type": "object"
+    },
+    "GlobalEventCatalogStatus": {
+      "enum": [
+        "ready_with_matches",
+        "ready_no_matches",
+        "unavailable",
+        "stale",
+        "rights_blocked"
+      ],
+      "title": "GlobalEventCatalogStatus",
+      "type": "string"
+    },
+    "PublicationDateEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical_url": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "pattern": "^https://",
+          "title": "Canonical Url",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "official_index",
+            "official_file_metadata",
+            "document_disclosure",
+            "official_page_structured"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/FormalDocumentLocation"
+        },
+        "observation_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Observation Sha256",
+          "type": "string"
+        },
+        "precision": {
+          "enum": [
+            "day",
+            "instant"
+          ],
+          "title": "Precision",
+          "type": "string"
+        },
+        "published_at": {
+          "format": "date-time",
+          "title": "Published At",
+          "type": "string"
+        },
+        "raw_value": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Raw Value",
+          "type": "string"
+        },
+        "receipt_id": {
+          "format": "uuid",
+          "title": "Receipt Id",
+          "type": "string"
+        },
+        "timezone": {
+          "enum": [
+            "Asia/Shanghai",
+            "UTC"
+          ],
+          "title": "Timezone",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "raw_value",
+        "published_at",
+        "precision",
+        "timezone",
+        "canonical_url",
+        "location",
+        "observation_sha256",
+        "receipt_id"
+      ],
+      "title": "PublicationDateEvidence",
+      "type": "object"
+    },
+    "ResearchEvidenceAcquisitionMode": {
+      "enum": [
+        "built_in_api",
+        "model_assisted_web"
+      ],
+      "title": "ResearchEvidenceAcquisitionMode",
+      "type": "string"
+    },
+    "ResearchEvidenceCitation": {
+      "additionalProperties": false,
+      "properties": {
+        "acquisition_mode": {
+          "$ref": "#/$defs/ResearchEvidenceAcquisitionMode",
+          "default": "built_in_api"
+        },
+        "content_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content Sha256"
+        },
+        "evidence_id": {
+          "format": "uuid",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "first_seen_at": {
+          "format": "date-time",
+          "title": "First Seen At",
+          "type": "string"
+        },
+        "formal_document": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FormalDocumentCitation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "independent_source_group": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Independent Source Group",
+          "type": "string"
+        },
+        "locator": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Locator",
+          "type": "string"
+        },
+        "published_at": {
+          "format": "date-time",
+          "title": "Published At",
+          "type": "string"
+        },
+        "reliability_factor": {
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$",
+          "title": "Reliability Factor",
+          "type": "string"
+        },
+        "revision_known_at": {
+          "format": "date-time",
+          "title": "Revision Known At",
+          "type": "string"
+        },
+        "rights_snapshot_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rights Snapshot Sha256"
+        },
+        "source_label": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Source Label",
+          "type": "string"
+        },
+        "source_level": {
+          "$ref": "#/$defs/ResearchEvidenceSourceLevel",
+          "default": "synthetic"
+        },
+        "source_provider_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Source Provider Id",
+          "type": "string"
+        },
+        "source_role": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Source Role",
+          "type": "string"
+        },
+        "verification_status": {
+          "$ref": "#/$defs/ResearchEvidenceVerificationStatus",
+          "default": "independently_verified"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "source_provider_id",
+        "independent_source_group",
+        "source_role",
+        "source_label",
+        "published_at",
+        "first_seen_at",
+        "revision_known_at",
+        "locator"
+      ],
+      "title": "ResearchEvidenceCitation",
+      "type": "object"
+    },
+    "ResearchEvidenceFact": {
+      "additionalProperties": false,
+      "description": "One PIT-visible input used by deterministic rules and model narration.",
+      "properties": {
+        "data_audit_status": {
+          "default": "not_reviewed",
+          "enum": [
+            "not_reviewed",
+            "passed",
+            "api_validated"
+          ],
+          "title": "Data Audit Status",
+          "type": "string"
+        },
+        "evidence_id": {
+          "format": "uuid",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "key": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Key",
+          "type": "string"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
+        },
+        "source_location": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Location"
+        },
+        "statement": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "unit_verified": {
+          "const": true,
+          "default": true,
+          "title": "Unit Verified",
+          "type": "boolean"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$",
+              "type": "string"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "key",
+        "statement",
+        "evidence_id"
+      ],
+      "title": "ResearchEvidenceFact",
+      "type": "object"
+    },
+    "ResearchEvidenceSourceLevel": {
+      "enum": [
+        "regulatory_official",
+        "company_official",
+        "trusted_media_data",
+        "synthetic"
+      ],
+      "title": "ResearchEvidenceSourceLevel",
+      "type": "string"
+    },
+    "ResearchEvidenceVerificationStatus": {
+      "enum": [
+        "independently_verified",
+        "single_source",
+        "unverified"
+      ],
+      "title": "ResearchEvidenceVerificationStatus",
+      "type": "string"
+    },
+    "ResearchExposureDirectness": {
+      "enum": [
+        "official_direct_naming",
+        "company_disclosed",
+        "one_hop_evidence",
+        "industry_background"
+      ],
+      "title": "ResearchExposureDirectness",
+      "type": "string"
+    },
+    "ResearchExposureEdge": {
+      "additionalProperties": false,
+      "description": "Evidence-backed company exposure; paths longer than one hop are forbidden.",
+      "properties": {
+        "directness": {
+          "$ref": "#/$defs/ResearchExposureDirectness"
+        },
+        "evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "from_entity_id": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "From Entity Id",
+          "type": "string"
+        },
+        "hop_count": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Hop Count",
+          "type": "integer"
+        },
+        "to_entity_id": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "To Entity Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "from_entity_id",
+        "to_entity_id",
+        "directness",
+        "hop_count",
+        "evidence_ids"
+      ],
+      "title": "ResearchExposureEdge",
+      "type": "object"
+    },
+    "ResearchExposureProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "company_id": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Company Id"
+        },
+        "edges": {
+          "items": {
+            "$ref": "#/$defs/ResearchExposureEdge"
+          },
+          "maxItems": 500,
+          "title": "Edges",
+          "type": "array"
+        },
+        "industry_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Industry Ids",
+          "type": "array"
+        },
+        "instrument_id": {
+          "pattern": "^(XSHG|XSHE|XBSE):[0-9]{6}$",
+          "title": "Instrument Id",
+          "type": "string"
+        },
+        "region_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Region Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "instrument_id"
+      ],
+      "title": "ResearchExposureProfile",
+      "type": "object"
+    },
+    "ResearchExternalImpactDirection": {
+      "enum": [
+        "supportive",
+        "adverse",
+        "mixed",
+        "unknown"
+      ],
+      "title": "ResearchExternalImpactDirection",
+      "type": "string"
+    },
+    "ResearchExternalImpactMatch": {
+      "additionalProperties": false,
+      "properties": {
+        "counter_evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Counter Evidence Ids",
+          "type": "array"
+        },
+        "direction": {
+          "$ref": "#/$defs/ResearchExternalImpactDirection"
+        },
+        "directness": {
+          "$ref": "#/$defs/ResearchExposureDirectness"
+        },
+        "event_id": {
+          "format": "uuid",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "event_revision": {
+          "minimum": 1,
+          "title": "Event Revision",
+          "type": "integer"
+        },
+        "event_revision_known_at": {
+          "format": "date-time",
+          "title": "Event Revision Known At",
+          "type": "string"
+        },
+        "hop_count": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Hop Count",
+          "type": "integer"
+        },
+        "impact_channel": {
+          "$ref": "#/$defs/ResearchImpactChannel"
+        },
+        "path": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 2,
+          "title": "Path",
+          "type": "array"
+        },
+        "rule_version": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Rule Version",
+          "type": "string"
+        },
+        "supporting_evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Supporting Evidence Ids",
+          "type": "array"
+        },
+        "uncertainty": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Uncertainty",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event_id",
+        "event_revision",
+        "event_revision_known_at",
+        "directness",
+        "impact_channel",
+        "direction",
+        "path",
+        "hop_count",
+        "supporting_evidence_ids",
+        "rule_version",
+        "uncertainty"
+      ],
+      "title": "ResearchExternalImpactMatch",
+      "type": "object"
+    },
+    "ResearchImpactChannel": {
+      "enum": [
+        "export_demand",
+        "input_cost",
+        "commodity",
+        "fx",
+        "interest_rate",
+        "capital_flow",
+        "sanctions",
+        "logistics",
+        "technology_control",
+        "subsidy",
+        "domestic_substitution",
+        "inflation_policy"
+      ],
+      "title": "ResearchImpactChannel",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/research/packet.v1.1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Bounded source packet assembled before model use.",
+  "properties": {
+    "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+    },
+    "citations": {
+      "items": {
+        "$ref": "#/$defs/ResearchEvidenceCitation"
+      },
+      "maxItems": 500,
+      "title": "Citations",
+      "type": "array"
+    },
+    "coverage_end": {
+      "format": "date-time",
+      "title": "Coverage End",
+      "type": "string"
+    },
+    "coverage_gaps": {
+      "items": {
+        "$ref": "#/$defs/CoverageGap"
+      },
+      "maxItems": 100,
+      "title": "Coverage Gaps",
+      "type": "array"
+    },
+    "coverage_start": {
+      "format": "date-time",
+      "title": "Coverage Start",
+      "type": "string"
+    },
+    "data_manifest_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Data Manifest Sha256",
+      "type": "string"
+    },
+    "exposure_profile": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResearchExposureProfile"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "external_event_catalog_status": {
+      "$ref": "#/$defs/GlobalEventCatalogStatus",
+      "default": "unavailable"
+    },
+    "external_event_catalog_watermark": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "External Event Catalog Watermark"
+    },
+    "external_impact_matches": {
+      "items": {
+        "$ref": "#/$defs/ResearchExternalImpactMatch"
+      },
+      "maxItems": 500,
+      "title": "External Impact Matches",
+      "type": "array"
+    },
+    "facts": {
+      "items": {
+        "$ref": "#/$defs/ResearchEvidenceFact"
+      },
+      "maxItems": 500,
+      "title": "Facts",
+      "type": "array"
+    },
+    "instrument_id": {
+      "pattern": "^(XSHG|XSHE|XBSE):[0-9]{6}$",
+      "title": "Instrument Id",
+      "type": "string"
+    },
+    "instrument_name": {
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Instrument Name",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "1.1",
+      "enum": [
+        "1.0",
+        "1.1"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "web_retrieval_receipt_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Web Retrieval Receipt Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "instrument_id",
+    "instrument_name",
+    "as_of",
+    "coverage_start",
+    "coverage_end",
+    "data_manifest_sha256"
+  ],
+  "title": "ResearchEvidencePacket",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.research.ResearchEvidencePacket",
+  "x-schema-version": "1.1"
+}

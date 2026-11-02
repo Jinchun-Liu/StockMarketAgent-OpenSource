@@ -1,0 +1,529 @@
+{
+  "$defs": {
+    "ActiveTargetRevisionRef": {
+      "additionalProperties": false,
+      "description": "Immutable reference captured by a job before it leaves the scheduler process.",
+      "properties": {
+        "activated_at": {
+          "format": "date-time",
+          "title": "Activated At",
+          "type": "string"
+        },
+        "instrument": {
+          "$ref": "#/$defs/InstrumentRef"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "watchlist_id": {
+          "format": "uuid",
+          "title": "Watchlist Id",
+          "type": "string"
+        },
+        "watchlist_revision": {
+          "minimum": 1,
+          "title": "Watchlist Revision",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "watchlist_id",
+        "watchlist_revision",
+        "instrument",
+        "activated_at"
+      ],
+      "title": "ActiveTargetRevisionRef",
+      "type": "object"
+    },
+    "InstrumentRef": {
+      "additionalProperties": false,
+      "description": "Market-neutral security identity suitable for future exchanges.",
+      "properties": {
+        "asset_class": {
+          "default": "equity",
+          "pattern": "^[a-z][a-z0-9_]{1,31}$",
+          "title": "Asset Class",
+          "type": "string"
+        },
+        "currency": {
+          "default": "CNY",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "exchange": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Exchange",
+          "type": "string"
+        },
+        "instrument_id": {
+          "pattern": "^[A-Z0-9_]+:[A-Za-z0-9._-]+$",
+          "title": "Instrument Id",
+          "type": "string"
+        },
+        "market": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Market",
+          "type": "string"
+        },
+        "symbol": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Symbol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instrument_id",
+        "symbol",
+        "exchange",
+        "market"
+      ],
+      "title": "InstrumentRef",
+      "type": "object"
+    },
+    "JobFailure": {
+      "additionalProperties": false,
+      "description": "Safe failure details; stack traces stay in observability storage.",
+      "properties": {
+        "failed_at": {
+          "format": "date-time",
+          "title": "Failed At",
+          "type": "string"
+        },
+        "reason_code": {
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+          "title": "Reason Code",
+          "type": "string"
+        },
+        "retryable": {
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "safe_message": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Safe Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason_code",
+        "safe_message",
+        "retryable",
+        "failed_at"
+      ],
+      "title": "JobFailure",
+      "type": "object"
+    },
+    "JobStatus": {
+      "enum": [
+        "queued",
+        "running",
+        "succeeded",
+        "degraded",
+        "skipped",
+        "failed",
+        "cancelled",
+        "expired"
+      ],
+      "title": "JobStatus",
+      "type": "string"
+    },
+    "PremarketIngestTaskResultV1_1": {
+      "additionalProperties": false,
+      "description": "R1 1.1 persisted summary with auditable source provenance.",
+      "properties": {
+        "active_target": {
+          "$ref": "#/$defs/ActiveTargetRevisionRef"
+        },
+        "capability": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Capability",
+          "type": "string"
+        },
+        "data_manifest_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data Manifest Hash"
+        },
+        "event_revisions_stored": {
+          "minimum": 0,
+          "title": "Event Revisions Stored",
+          "type": "integer"
+        },
+        "evidence_stored": {
+          "minimum": 0,
+          "title": "Evidence Stored",
+          "type": "integer"
+        },
+        "idempotent_replay": {
+          "default": false,
+          "title": "Idempotent Replay",
+          "type": "boolean"
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Next Cursor"
+        },
+        "provenance": {
+          "$ref": "#/$defs/SourceProvenance"
+        },
+        "reason_codes": {
+          "items": {
+            "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "records_fetched": {
+          "minimum": 0,
+          "title": "Records Fetched",
+          "type": "integer"
+        },
+        "runtime_mode": {
+          "$ref": "#/$defs/SourceRuntimeMode"
+        },
+        "schema_version": {
+          "const": "1.1",
+          "default": "1.1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_id": {
+          "pattern": "^[a-z][a-z0-9_-]{2,99}$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_watermark": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Watermark"
+        },
+        "window_end": {
+          "format": "date-time",
+          "title": "Window End",
+          "type": "string"
+        },
+        "window_start": {
+          "format": "date-time",
+          "title": "Window Start",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "active_target",
+        "source_id",
+        "window_start",
+        "window_end",
+        "records_fetched",
+        "evidence_stored",
+        "event_revisions_stored",
+        "capability",
+        "runtime_mode",
+        "provenance"
+      ],
+      "title": "PremarketIngestTaskResultV1_1",
+      "type": "object",
+      "x-runtime-invariants": [
+        "provenance.runtime_mode equals runtime_mode"
+      ]
+    },
+    "SourceAccessChannel": {
+      "description": "Auditable access channel used to obtain one source record.",
+      "enum": [
+        "demo_replay",
+        "akshare",
+        "official_http",
+        "authorized_api"
+      ],
+      "title": "SourceAccessChannel",
+      "type": "string"
+    },
+    "SourceProvenance": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "demo_replay"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "demo_replay"
+              },
+              "release_tier": {
+                "const": "dev_only"
+              },
+              "rights_status": {
+                "not": {
+                  "const": "approved"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "dev_live"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "akshare"
+              },
+              "release_tier": {
+                "const": "dev_only"
+              },
+              "rights_status": {
+                "const": "unverified"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "authorized"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "authorized_api"
+              },
+              "release_tier": {
+                "const": "authorized"
+              },
+              "rights_status": {
+                "const": "approved"
+              }
+            }
+          }
+        }
+      ],
+      "description": "Stable source lineage shared by ingestion, storage and public read models.",
+      "properties": {
+        "access_channel": {
+          "$ref": "#/$defs/SourceAccessChannel"
+        },
+        "adapter_name": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Adapter Name",
+          "type": "string"
+        },
+        "adapter_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Adapter Version",
+          "type": "string"
+        },
+        "endpoint_name": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,199}$",
+          "title": "Endpoint Name",
+          "type": "string"
+        },
+        "provider": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Provider",
+          "type": "string"
+        },
+        "release_tier": {
+          "$ref": "#/$defs/SourceReleaseTier"
+        },
+        "rights_status": {
+          "$ref": "#/$defs/SourceRightsStatus"
+        },
+        "runtime_mode": {
+          "$ref": "#/$defs/SourceRuntimeMode"
+        },
+        "schema_version": {
+          "const": "1.1",
+          "default": "1.1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_identifier": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Source Identifier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "provider",
+        "access_channel",
+        "adapter_name",
+        "adapter_version",
+        "endpoint_name",
+        "source_identifier",
+        "runtime_mode",
+        "release_tier",
+        "rights_status"
+      ],
+      "title": "SourceProvenance",
+      "type": "object",
+      "x-runtime-invariants": [
+        "runtime_mode determines access_channel, release_tier, and rights_status"
+      ]
+    },
+    "SourceReleaseTier": {
+      "description": "Whether a source result may leave development-only surfaces.",
+      "enum": [
+        "dev_only",
+        "authorized"
+      ],
+      "title": "SourceReleaseTier",
+      "type": "string"
+    },
+    "SourceRightsStatus": {
+      "description": "Publicly safe rights state without exposing contract evidence.",
+      "enum": [
+        "unverified",
+        "approved",
+        "blocked"
+      ],
+      "title": "SourceRightsStatus",
+      "type": "string"
+    },
+    "SourceRuntimeMode": {
+      "description": "Mutually exclusive R1 source execution modes.",
+      "enum": [
+        "demo_replay",
+        "dev_live",
+        "authorized"
+      ],
+      "title": "SourceRuntimeMode",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/jobs/premarket-ingest-result.v1.1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Compatible 1.1 result for the unchanged R1 ingestion task name.",
+  "properties": {
+    "attempt": {
+      "minimum": 1,
+      "title": "Attempt",
+      "type": "integer"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Completed At"
+    },
+    "failure": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/JobFailure"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "job_id": {
+      "format": "uuid",
+      "title": "Job Id",
+      "type": "string"
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PremarketIngestTaskResultV1_1"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "started_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Started At"
+    },
+    "status": {
+      "$ref": "#/$defs/JobStatus"
+    }
+  },
+  "required": [
+    "schema_version",
+    "job_id",
+    "status",
+    "attempt"
+  ],
+  "title": "PremarketIngestJobResultV1_1",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.premarket_jobs.PremarketIngestJobResultV1_1",
+  "x-runtime-invariants": [
+    "status and result or failure fields obey the version 1.0 job outcome rules"
+  ],
+  "x-schema-version": "1.1"
+}

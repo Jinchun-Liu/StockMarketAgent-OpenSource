@@ -1,0 +1,165 @@
+{
+  "$defs": {
+    "MutationContext": {
+      "additionalProperties": false,
+      "description": "Operation context for a state change, requiring a stable idempotency key.",
+      "properties": {
+        "actor_id": {
+          "default": "local-user",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "correlation_id": {
+          "format": "uuid",
+          "title": "Correlation Id",
+          "type": "string"
+        },
+        "deadline_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deadline At"
+        },
+        "idempotency_key": {
+          "maxLength": 200,
+          "minLength": 16,
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "locale": {
+          "default": "zh-CN",
+          "pattern": "^[a-z]{2}(?:-[A-Z]{2})?$",
+          "title": "Locale",
+          "type": "string"
+        },
+        "request_id": {
+          "format": "uuid",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "requested_at": {
+          "format": "date-time",
+          "title": "Requested At",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "Asia/Shanghai",
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Timezone",
+          "type": "string"
+        },
+        "workspace_id": {
+          "default": "default",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Workspace Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "as_of",
+        "idempotency_key"
+      ],
+      "title": "MutationContext",
+      "type": "object"
+    },
+    "PressureMode": {
+      "enum": [
+        "post_close",
+        "intraday_10m"
+      ],
+      "title": "PressureMode",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/jobs/behavior-compute-request.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "context": {
+      "$ref": "#/$defs/MutationContext"
+    },
+    "data_manifest_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Data Manifest Hash",
+      "type": "string"
+    },
+    "diagnostic_semantics_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Diagnostic Semantics Hash",
+      "type": "string"
+    },
+    "formula_version": {
+      "const": "behavior-pressure-research.v1",
+      "default": "behavior-pressure-research.v1",
+      "title": "Formula Version",
+      "type": "string"
+    },
+    "instrument_id": {
+      "const": "XSHG:603986",
+      "default": "XSHG:603986",
+      "title": "Instrument Id",
+      "type": "string"
+    },
+    "mode": {
+      "$ref": "#/$defs/PressureMode"
+    },
+    "rights_snapshot_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Rights Snapshot Hash",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "window_end": {
+      "format": "date-time",
+      "title": "Window End",
+      "type": "string"
+    },
+    "window_start": {
+      "format": "date-time",
+      "title": "Window Start",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "context",
+    "mode",
+    "window_start",
+    "window_end",
+    "diagnostic_semantics_hash",
+    "data_manifest_hash",
+    "rights_snapshot_hash"
+  ],
+  "title": "BehaviorComputeRequest",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.behavior.BehaviorComputeRequest",
+  "x-schema-version": "1.0"
+}

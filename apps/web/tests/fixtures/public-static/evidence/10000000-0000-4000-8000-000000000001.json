@@ -1,0 +1,73 @@
+{
+  "data": {
+    "schema_version": "1.2",
+    "as_of": "2026-07-31T00:55:00Z",
+    "audit_id": "50000000-0000-4000-8000-000000000003",
+    "change_type": "correction",
+    "cluster_id": "50000000-0000-4000-8000-000000000002",
+    "correction": {
+      "kind": "replacement",
+      "slot": "planned_amount",
+      "unit": "CNY",
+      "period": "2026",
+      "previous_value": {"kind": "decimal", "value": "10000000"},
+      "current_value": {"kind": "decimal", "value": "12000000"},
+      "previous_evidence_ids": ["40000000-0000-4000-8000-000000000001"],
+      "current_evidence_ids": ["40000000-0000-4000-8000-000000000002"]
+    },
+    "event_id": "10000000-0000-4000-8000-000000000001",
+    "event_type": "statutory_announcement",
+    "evidence": [
+      {
+        "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "evidence_id": "40000000-0000-4000-8000-000000000001",
+        "event_time": "2026-07-30T23:50:00Z",
+        "fetched_at": "2026-07-31T00:40:00Z",
+        "first_seen_at": "2026-07-31T00:40:00Z",
+        "license_id": "synthetic-public-demo",
+        "published_at": "2026-07-30T23:50:00Z",
+        "revision_known_at": "2026-07-31T00:40:00Z",
+        "rights_snapshot_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "source_id": "cninfo_public_replay",
+        "source_role": "statutory",
+        "source_url": "https://fixture.invalid/correction/previous",
+        "title": "合成公告原版本",
+        "provenance": {"schema_version": "1.2", "provider": "fixture", "access_channel": "demo_replay", "adapter_name": "r1_public_replay", "adapter_version": "1.0.0", "endpoint_name": "statutory", "source_identifier": "replay-correction-previous", "runtime_mode": "public_static", "release_tier": "dev_only", "rights_status": "not_applicable", "quality_tier": "demo_replay", "evidence_role": "authoritative"}
+      },
+      {
+        "content_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "correction_relation": {"kind": "replacement", "prior_evidence_id": "40000000-0000-4000-8000-000000000001"},
+        "evidence_id": "40000000-0000-4000-8000-000000000002",
+        "event_time": "2026-07-31T00:30:00Z",
+        "fetched_at": "2026-07-31T00:44:00Z",
+        "first_seen_at": "2026-07-31T00:44:00Z",
+        "license_id": "synthetic-public-demo",
+        "published_at": "2026-07-31T00:30:00Z",
+        "revision_known_at": "2026-07-31T00:44:00Z",
+        "rights_snapshot_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "source_id": "cninfo_public_replay",
+        "source_role": "statutory",
+        "source_url": "https://fixture.invalid/correction/current",
+        "title": "合成公告更正版本",
+        "provenance": {"schema_version": "1.2", "provider": "fixture", "access_channel": "demo_replay", "adapter_name": "r1_public_replay", "adapter_version": "1.0.0", "endpoint_name": "statutory", "source_identifier": "replay-correction-current", "runtime_mode": "public_static", "release_tier": "dev_only", "rights_status": "not_applicable", "quality_tier": "demo_replay", "evidence_role": "authoritative"}
+      }
+    ],
+    "facts": [{"slot": "planned_amount", "period": "2026", "unit": "CNY", "evidence_ids": ["40000000-0000-4000-8000-000000000002"], "value": {"kind": "decimal", "value": "12000000"}}],
+    "extraction_version": "deterministic-r1-v1",
+    "instrument_ids": ["XSHG:603986"],
+    "revision": 2,
+    "revision_known_at": "2026-07-31T00:44:00Z",
+    "revision_timeline": {
+      "has_older": false,
+      "items": [
+        {"audit_id": "50000000-0000-4000-8000-000000000003", "change_type": "correction", "extraction_version": "deterministic-r1-v1", "revision": 2, "revision_known_at": "2026-07-31T00:44:00Z", "ruleset_version": "r1-functional-replay-v1", "supersedes_revision": 1},
+        {"audit_id": "50000000-0000-4000-8000-000000000004", "change_type": "new", "extraction_version": "deterministic-r1-v1", "revision": 1, "revision_known_at": "2026-07-31T00:40:00Z", "ruleset_version": "r1-functional-replay-v1", "supersedes_revision": null}
+      ]
+    },
+    "ruleset_version": "r1-functional-replay-v1",
+    "runtime_mode": "public_static",
+    "supersedes_revision": 1,
+    "title": "合成公告更正示例"
+  },
+  "meta": {"as_of": "2026-07-31T00:55:00Z", "correlation_id": "00000000-0000-4000-8000-000000000005", "request_id": "00000000-0000-4000-8000-000000000006", "generated_at": "2026-07-31T01:05:00Z", "contract_version": "1.0"}
+}

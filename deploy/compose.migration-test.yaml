@@ -1,0 +1,12 @@
+services:
+  postgres:
+    environment:
+      POSTGRES_DB: stock_assistant_r0p_test
+      POSTGRES_USER: stock_assistant
+      POSTGRES_PASSWORD: synthetic-local-only
+    ports:
+      - name: migration-postgres
+        target: 5432
+        published: "0"
+        host_ip: 127.0.0.1
+        protocol: tcp

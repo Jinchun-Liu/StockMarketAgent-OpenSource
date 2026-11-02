@@ -1,0 +1,12 @@
+StockMarketAgent
+Copyright 2026 Jinchun Liu and contributors.
+
+Project source is distributed under the Apache License, Version 2.0.
+
+The resources/research_methods/ai-berkshire directory includes materials from
+https://github.com/xbtlin/ai-berkshire at the revision recorded in PROVENANCE.json.
+Those materials retain their original MIT License and copyright notice.
+See resources/research_methods/ai-berkshire/LICENSE and THIRD_PARTY.md.
+
+Third-party datasets, API access, model weights and trademarks are not licensed
+by this notice or by the project's Apache-2.0 license.

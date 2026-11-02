@@ -1,0 +1,903 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_version": "1.0",
+  "decisions": [
+    {
+      "id": "r2-private-web-preview-2026-08-28",
+      "capability": "authenticated-private-synthetic-r2-web-and-aws-preview",
+      "status": "accepted",
+      "record": "docs/research/reuse-decisions/2026-08-28-r2-private-web-preview.md",
+      "final_decision": "adapt",
+      "default_route": "Reuse the existing Next.js, FastAPI, generated OpenAPI types, boto3, CloudFormation, public CloudFront and private S3 shell; add oidc-client-ts and PyJWT behind typed PKCE and authorization boundaries, self-host OFL fonts, and build only the owner-isolated R2 UI, strict S3 adapter and independent synthetic preview runtime gaps.",
+      "credible_candidates_available": true,
+      "contains_custom_build": true,
+      "custom_build_gaps": [
+        "v1-compatible and v2-authenticated dual API boundary",
+        "anonymous principal ownership and non-enumerable session access",
+        "evidence lens with desktop drawer and mobile bottom sheet",
+        "two-phase receipt-bound RDS Valkey ECS runtime activation",
+        "SHA-versioned non-destructive static publication to the retained private S3 shell"
+      ],
+      "candidates": [
+        {
+          "name": "oidc-client-ts",
+          "source_url": "https://github.com/authts/oidc-client-ts",
+          "snapshot": "3.5.0",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Provides standards-based Authorization Code with PKCE and browser token lifecycle without adding a client secret or custom OAuth implementation."
+        },
+        {
+          "name": "PyJWT",
+          "source_url": "https://github.com/jpadilla/pyjwt",
+          "snapshot": "2.13.0",
+          "license": "MIT",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Provides strict RS256 and JWK verification while project code retains issuer client token-use time and scope allowlists."
+        },
+        {
+          "name": "IBM Plex and Noto Sans SC Fontsource packages",
+          "source_url": "https://fontsource.org/",
+          "snapshot": "5.3.0",
+          "license": "OFL-1.1 fonts; package tooling MIT",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Creates deterministic self-hosted Latin Chinese and monospace typography without build-time or runtime font CDN access."
+        },
+        {
+          "name": "Apple Human Interface Guidelines",
+          "source_url": "https://developer.apple.com/design/human-interface-guidelines/",
+          "snapshot": "motion materials and accessibility pages reviewed 2026-08-28",
+          "license": "reference only",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Used only for short interruptible motion restrained navigation material and reduced-motion behavior; no assets or interface copied."
+        }
+      ],
+      "third_party_registry_terms": [
+        "oidc-client-ts",
+        "PyJWT",
+        "IBM Plex Sans",
+        "IBM Plex Mono",
+        "Noto Sans SC",
+        "Apple Human Interface Guidelines"
+      ]
+    },
+    {
+      "id": "r2-on-demand-research-2026-08-27",
+      "capability": "a-share-on-demand-evidence-gated-research-with-global-events",
+      "status": "accepted",
+      "record": "docs/research/reuse-decisions/2026-08-27-r2-on-demand-research.md",
+      "final_decision": "adapt",
+      "default_route": "Reuse the repository's FastAPI/Pydantic, PostgreSQL/SQLAlchemy UnitOfWork and outbox, existing market-event evidence and revision tables, Celery/Valkey, SeaweedFS S3, LLM and content-quality Ports, and Next.js; build only A-share PIT search, stock-agnostic global-event refresh, deterministic one-hop event matching, research-session lifecycle and evidence publication rules.",
+      "credible_candidates_available": true,
+      "contains_custom_build": true,
+      "custom_build_gaps": [
+        "point-in-time Shanghai Shenzhen Beijing A-share identity and deterministic code or name disambiguation",
+        "stock-agnostic startup and hourly global-event refresh with idempotent replay correction conflict and fail-closed cursor semantics",
+        "four-level directness twelve-channel deterministic exposure matching with co-occurrence and paths above one hop rejected",
+        "typed distinction between no relevant global event and unavailable stale or rights-blocked catalog states",
+        "seven-day research-session state machine with heartbeat checkpoint stall retry cancellation and purge",
+        "typed fact system-inference and model-hypothesis claims with evidence counterevidence and falsifiability",
+        "deterministic rejection of future revisions invalid units uncited numbers pseudo-independent sources and investment advice",
+        "database-enforced stable-macro-only long-term semantic memory"
+      ],
+      "candidates": [
+        {
+          "name": "Existing StockMarketAgent platform stack",
+          "source_url": "https://github.com/",
+          "snapshot": "repository baseline a33e6d012d6df5b334d868b7012308d6fd30352a reviewed 2026-08-27",
+          "license": "Apache-2.0 project code plus separately registered dependencies",
+          "credible": true,
+          "decision": "adapt",
+          "reason": "Already provides the approved Ports, strong contracts, transaction boundary, job dispatcher, object storage boundary, generated Web types, and PostgreSQL market-event evidence and revision relations without a parallel framework or graph database."
+        },
+        {
+          "name": "AlphaEdu",
+          "source_url": "https://www.alphaedu.space/",
+          "snapshot": "authenticated product workflow reviewed by the project owner and documented 2026-08-24",
+          "license": "proprietary product and data; reference only",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Useful task-entry, multi-perspective, Bull and Bear, unknown, falsification and source-drilldown patterns; no code, data, prompts or free-text contract copied."
+        },
+        {
+          "name": "TIKR Research Hub",
+          "source_url": "https://research.tikr.com/",
+          "snapshot": "public product workflow referenced 2026-08-27",
+          "license": "proprietary product and data; reference only",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Confirms the search-company then load-research workflow but does not supply the project's PIT or evidence-governance guarantees."
+        },
+        {
+          "name": "FinChat",
+          "source_url": "https://finchat.io/",
+          "snapshot": "public product workflow referenced 2026-08-27",
+          "license": "proprietary product and data; reference only",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Confirms company search and research navigation; no product content, code or data reused."
+        },
+        {
+          "name": "Koyfin Equity Research",
+          "source_url": "https://www.koyfin.com/for-investors/equity-research/",
+          "snapshot": "public product workflow referenced 2026-08-27",
+          "license": "proprietary product and data; reference only",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Confirms a company-centred research workspace while remaining unsuitable as the project's evidence or data source."
+        }
+      ],
+      "third_party_registry_terms": [
+        "Existing StockMarketAgent platform stack",
+        "AlphaEdu",
+        "TIKR Research Hub",
+        "FinChat",
+        "Koyfin Equity Research"
+      ]
+    },
+    {
+      "id": "r1-r6-research-source-2026-08-12",
+      "capability": "r1-r6-five-category-research-data",
+      "status": "accepted",
+      "record": "docs/research/reuse-decisions/2026-08-12-r1-r6-research-source.md",
+      "final_decision": "adopt",
+      "default_route": "Use QuantData for the fixed 603986.SH daily-market route and ProMax for the other four fixed DEV_LIVE capabilities behind the existing source boundary; defer auction scoring and formal authorization coverage to their separately governed stages.",
+      "credible_candidates_available": true,
+      "contains_custom_build": false,
+      "custom_build_gaps": [],
+      "candidates": [
+        {
+          "name": "QuantData Tushare-compatible research service",
+          "source_url": "https://quantdata888.duckdns.org",
+          "snapshot": "owner-provided fixed HTTPS endpoint and daily request shape reviewed 2026-08-25; no SDK introduced",
+          "license": "service terms and upstream data rights separate; R1-R6 unverified research preview",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Provides the demonstrated Tushare-compatible daily route while reusing httpx, source records, PIT, cursors and deterministic degradation."
+        },
+        {
+          "name": "ProMax Tushare-compatible research service",
+          "source_url": "https://www.yuque.com/tenglong-emkah/foo0eo/ztr29xs6iarfom71",
+          "snapshot": "provider interface catalog reviewed 2026-08-25; live endpoint matrix revalidated from the Tokyo runtime 2026-08-26; no SDK introduced",
+          "license": "service terms and upstream data rights separate; R1-R6 unverified research preview",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Provides a fixed HTTPS GET gateway with header authentication; the R1 financial route uses the live-validated income operation while anns_d, news and npr remain independently fail-closed."
+        },
+        {
+          "name": "CNINFO Data Service",
+          "source_url": "https://webapi.cninfo.com.cn/",
+          "snapshot": "886 public API documentation details archived locally in the prior research round",
+          "license": "account and per-operation rights require R7 review",
+          "credible": true,
+          "decision": "defer",
+          "reason": "High-quality disclosure candidate, but formal activation is no longer an R1-R6 completion gate."
+        },
+        {
+          "name": "Choice Quant API",
+          "source_url": "https://quantapi.eastmoney.com/Upload/EMQuantAPI_Python.html",
+          "snapshot": "local manuals and account permission screen reviewed 2026-08",
+          "license": "account permission required",
+          "credible": false,
+          "decision": "defer",
+          "reason": "The current account does not expose the quantitative API, so it cannot be a current runtime dependency."
+        },
+        {
+          "name": "Qinghong finance flash API",
+          "source_url": "https://my.feishu.cn/wiki/T7XWwCxtIiOcLIkkXQbc5I1Tntc",
+          "snapshot": "Feishu and Apifox single-source API documentation reviewed 2026-08-20; no SDK introduced",
+          "license": "owner standard-tier account; upstream content rights separate; R1-R6 unverified research preview",
+          "credible": true,
+          "decision": "defer",
+          "reason": "Three fixed metadata feeds fit the existing source boundary, but the documented credential-bearing gateway is HTTP-only; the dormant adapter may be activated only after a fixed HTTPS origin is available."
+        }
+      ],
+      "third_party_registry_terms": [
+        "QuantData Tushare-compatible research service",
+        "ProMax Tushare-compatible research service",
+        "Qinghong finance flash API"
+      ]
+    },
+    {
+      "id": "project-oss-baseline-2026-07-22",
+      "capability": "project-wide-stock-assistant",
+      "status": "accepted",
+      "record": "docs/research/reuse-decisions/2026-07-22-project-open-source-baseline.md",
+      "final_decision": "adapt",
+      "default_route": "Keep the project contracts and domain rules; adapt one selected mature component per generic capability behind Ports.",
+      "credible_candidates_available": true,
+      "contains_custom_build": true,
+      "custom_build_gaps": [
+        "per-action data-rights gate and immutable rights snapshot",
+        "point-in-time A-share entity, industry and region mapping",
+        "evidence fact slots, event revisions, conflicts and material-change decisions",
+        "policy-to-industry-region-company temporal mapping",
+        "deferred post-R6: weighted-fair ten-minute sector scheduling and starvation control",
+        "notification idempotency, cooldown and change-only delivery",
+        "purged grouped walk-forward evaluation and constrained quant-text fusion gates"
+      ],
+      "candidates": [
+        {
+          "name": "daily_stock_analysis",
+          "source_url": "https://github.com/ZhuLinsen/daily_stock_analysis",
+          "snapshot": "v3.27.0 / b36c721",
+          "license": "MIT",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Best application-flow reference, but lacks the required rights, evidence revision, memory and PIT fusion invariants."
+        },
+        {
+          "name": "OpenAshare",
+          "source_url": "https://github.com/ZhiweiChen-coder/OpenAshare",
+          "snapshot": "v0.1.0 pre-release / fed8a10",
+          "license": "MIT",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Strong local A-share workspace overlap, but still a pre-release with incomplete evidence, rights, PIT and engineering controls."
+        },
+        {
+          "name": "Vibe-Trading",
+          "source_url": "https://github.com/HKUDS/Vibe-Trading",
+          "snapshot": "v0.1.11 / 835dea7",
+          "license": "MIT",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Mature Agent and PIT research reference; broker, order, shell and unrestricted tool paths conflict with project boundaries."
+        },
+        {
+          "name": "AlphaSift",
+          "source_url": "https://github.com/ZhuLinsen/alphasift",
+          "snapshot": "main / 9f522747caafd3c0b1ddb7e14d5cf44c8580b6cf",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Closest sector and hotspot subsystem reference, but not an authorized change-only news or strict PIT evidence system."
+        },
+        {
+          "name": "TradingAgents",
+          "source_url": "https://github.com/TauricResearch/TradingAgents",
+          "snapshot": "v0.3.1 / 01477f9",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Useful graph, role and checkpoint patterns, but overseas data assumptions and prior look-ahead defects require isolated reference use."
+        },
+        {
+          "name": "TradingAgents-CN",
+          "source_url": "https://github.com/hsliuping/TradingAgents-CN",
+          "snapshot": "repository reviewed 2026-07-22",
+          "license": "mixed; proprietary app and frontend",
+          "credible": true,
+          "decision": "reject",
+          "reason": "Core application and frontend paths require separate commercial authorization."
+        },
+        {
+          "name": "OpenBB",
+          "source_url": "https://github.com/OpenBB-finance/OpenBB",
+          "snapshot": "repository reviewed 2026-07-22",
+          "license": "AGPL-3.0",
+          "credible": true,
+          "decision": "reject",
+          "reason": "Duplicates the project provider boundary and needs a separate strong-copyleft review without solving A-share data rights."
+        },
+        {
+          "name": "Valkey",
+          "source_url": "https://github.com/valkey-io/valkey",
+          "snapshot": "9.1.0-alpine / sha256:c9b77919daeba2c02ad954d0c844cc4e7142069d177b89c5fd771f405daf9e02",
+          "license": "BSD-3-Clause",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Introduced as the R0P worktree-isolated cache and Celery broker target. Container health and synthetic SET/GET do not clear the remaining production adapter, persistence and recovery gates."
+        },
+        {
+          "name": "SeaweedFS",
+          "source_url": "https://github.com/seaweedfs/seaweedfs",
+          "snapshot": "4.40 / sha256:52194fba4fecd0083c842158b3a902ba6e04a63619b2b0efcd08007bdb6a4602",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Introduced as the R0P worktree-isolated object-storage target. Control-plane health does not clear S3 adapter, version retention, checksum, backup/restore or failure-injection gates."
+        }
+      ],
+      "third_party_registry_terms": [
+        "ZhuLinsen/daily_stock_analysis",
+        "ZhiweiChen-coder/OpenAshare",
+        "HKUDS/Vibe-Trading",
+        "ZhuLinsen/alphasift",
+        "TauricResearch/TradingAgents",
+        "LangGraph",
+        "Valkey",
+        "SeaweedFS",
+        "OpenAI Python SDK",
+        "DeepSeek API",
+        "Trafilatura",
+        "Docling",
+        "TradingView Lightweight Charts",
+        "shadcn/ui",
+        "modelscope/ms-swift",
+        "microsoft/qlib",
+        "Anchore Syft",
+        "Anchore Grype",
+        "Google OSV-Scanner"
+      ]
+    },
+    {
+      "id": "behavior-pressure-baseline-2026-07-22",
+      "capability": "behavior-pressure-analysis",
+      "status": "accepted",
+      "record": "docs/research/reuse-decisions/2026-07-22-behavior-pressure-baseline.md",
+      "final_decision": "adapt",
+      "default_route": "Use Polars for batch transforms, plan TA-Lib for standard primitives, reuse pgvector/scikit-learn/Qlib behind project boundaries, and build only the A-share PIT ten-cluster pressure semantics.",
+      "credible_candidates_available": true,
+      "contains_custom_build": true,
+      "custom_build_gaps": [
+        "A-share point-in-time security, industry, market and same-clock comparison populations",
+        "rights-gated append-only market-data revisions and manifests",
+        "deterministic five-facet and ten-cluster pressure composition with duplicate-vote governance and abstention",
+        "historical analog exact PIT verification and overlap control",
+        "non-probability product semantics and conditional explanations",
+        "persistent two-window band-transition and alert suppression state"
+      ],
+      "candidates": [
+        {
+          "name": "TA-Lib Python",
+          "source_url": "https://github.com/TA-Lib/ta-lib-python",
+          "snapshot": "official repository and PyPI reviewed 2026-07-22; release/hash not yet selected",
+          "license": "BSD-2-Clause",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Selected for future standard technical primitives after release, artifact and golden-vector validation; not installed in this planning round."
+        },
+        {
+          "name": "Polars",
+          "source_url": "https://github.com/pola-rs/polars",
+          "snapshot": "current optional dependency resolved by uv.lock",
+          "license": "MIT",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Existing batch engine for rolling, cross-sectional and Parquet work while project code owns PIT and formula semantics."
+        },
+        {
+          "name": "Microsoft Qlib",
+          "source_url": "https://github.com/microsoft/qlib",
+          "snapshot": "current optional dependency resolved by uv.lock",
+          "license": "MIT",
+          "credible": true,
+          "decision": "adapt",
+          "reason": "Useful for isolated PIT research and walk-forward validation, but excluded from the online API and worker critical path."
+        },
+        {
+          "name": "FinReport",
+          "source_url": "https://github.com/frinkleko/FinReport",
+          "snapshot": "archived repository reviewed 2026-07-22",
+          "license": "MIT",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Relevant factor and report demo, but archived and explicitly not production-ready."
+        },
+        {
+          "name": "vectorbt",
+          "source_url": "https://github.com/polakowo/vectorbt",
+          "snapshot": "repository reviewed 2026-07-22",
+          "license": "Apache-2.0 with Commons Clause",
+          "credible": true,
+          "decision": "reject",
+          "reason": "Source-available restriction and duplicate Qlib/backtest role do not fit the planned permissive baseline."
+        },
+        {
+          "name": "mlfinlab",
+          "source_url": "https://github.com/hudson-and-thames/mlfinlab",
+          "snapshot": "public issue repository reviewed 2026-07-22",
+          "license": "all rights reserved",
+          "credible": true,
+          "decision": "reject",
+          "reason": "The public repository is not a permissively licensed production formula library."
+        }
+      ],
+      "third_party_registry_terms": [
+        "TA-Lib Python",
+        "Polars",
+        "microsoft/qlib",
+        "pgvector/pgvector",
+        "scikit-learn",
+        "frinkleko/FinReport",
+        "vectorbt",
+        "pandas-ta",
+        "hudson-and-thames/mlfinlab"
+      ]
+    },
+    {
+      "id": "chart-structure-indicators-2026-07-22",
+      "capability": "chart-structure-and-technical-indicator-compression",
+      "status": "accepted",
+      "record": "docs/research/reuse-decisions/2026-07-22-chart-structure-indicators.md",
+      "final_decision": "adapt",
+      "default_route": "Keep one pressure score, group core inputs into ten non-duplicating contribution clusters, add six deterministic non-scoring chart states, and reuse one mature primitive or renderer per generic role.",
+      "credible_candidates_available": true,
+      "contains_custom_build": true,
+      "custom_build_gaps": [
+        "indicator role, parent-lineage and duplicate-vote governance",
+        "seven comparison populations separating security, industry and market daily/intraday clocks plus discrete rules",
+        "deterministic six-dimension chart-state semantics with independent abstention",
+        "A-share point-in-time rules, constituents, capital and corporate actions",
+        "non-probability explanations with supporting and counter indicators",
+        "historical analog feature-set freeze after redundancy and leakage gates"
+      ],
+      "candidates": [
+        {
+          "name": "TA-Lib Python",
+          "source_url": "https://github.com/TA-Lib/ta-lib-python",
+          "snapshot": "official repository reviewed 2026-07-22; release/hash not yet selected",
+          "license": "BSD-2-Clause",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Future single source for standard technical primitives and golden-vector comparison; project code owns state semantics."
+        },
+        {
+          "name": "STUMPY",
+          "source_url": "https://github.com/stumpy-dev/stumpy",
+          "snapshot": "v1.14.1 / repository reviewed 2026-07-22",
+          "license": "BSD-3-Clause",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Mature matrix-profile implementation for offline motif and discord research, but not justified in the online path."
+        },
+        {
+          "name": "ruptures",
+          "source_url": "https://github.com/deepcharles/ruptures",
+          "snapshot": "v1.1.10 / repository reviewed 2026-07-22",
+          "license": "BSD-2-Clause",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Credible offline change-point candidate whose revisions and prefix-only PIT semantics must be proven before product use."
+        },
+        {
+          "name": "tsfresh",
+          "source_url": "https://github.com/blue-yonder/tsfresh",
+          "snapshot": "v0.21.1 / repository reviewed 2026-07-22",
+          "license": "MIT",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Useful only for offline candidate discovery because automatic hundreds-feature extraction creates multiple-testing and redundancy risk."
+        },
+        {
+          "name": "TradingView Lightweight Charts",
+          "source_url": "https://github.com/tradingview/lightweight-charts",
+          "snapshot": "official repository reviewed 2026-07-22; npm release/hash not yet selected",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Selected as the sole financial OHLCV and intraday renderer; backend remains the only indicator calculator."
+        },
+        {
+          "name": "bukosabino/ta",
+          "source_url": "https://github.com/bukosabino/ta",
+          "snapshot": "repository and PyPI reviewed 2026-07-22",
+          "license": "MIT",
+          "credible": true,
+          "decision": "reject",
+          "reason": "Duplicates TA-Lib and its documented fill-NaN workflow conflicts with explicit abstention."
+        },
+        {
+          "name": "KLineChart",
+          "source_url": "https://github.com/klinecharts/KLineChart",
+          "snapshot": "repository reviewed 2026-07-22",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "reject",
+          "reason": "Bundled browser-side indicator computation would create a second business-rule source beside the backend."
+        }
+      ],
+      "third_party_registry_terms": [
+        "TA-Lib Python",
+        "Polars",
+        "microsoft/qlib",
+        "scikit-learn",
+        "statsmodels",
+        "stumpy-dev/STUMPY",
+        "deepcharles/ruptures",
+        "blue-yonder/tsfresh",
+        "TradingView Lightweight Charts",
+        "Apache ECharts",
+        "bukosabino/ta",
+        "KLineChart"
+      ]
+    },
+    {
+      "id": "external-context-2026-07-22",
+      "capability": "overnight-global-market-and-cross-border-event-context",
+      "status": "accepted",
+      "record": "docs/research/reuse-decisions/2026-07-22-external-context.md",
+      "final_decision": "adapt",
+      "default_route": "Reuse project boundaries and PostgreSQL; plan one exchange-calendar and one SDMX adapter, while project code owns cross-time-zone PIT, one-hop exposure, non-probability state and post-open feedback semantics.",
+      "credible_candidates_available": true,
+      "contains_custom_build": true,
+      "custom_build_gaps": [
+        "same-session and same-cutoff cross-time-zone normalization",
+        "A-share long-holiday, foreign-closure, DST and unpriced-event semantics",
+        "evidence-backed one-hop operating exposure for one active A-share target",
+        "independent revisions for external facts, target impact inference and post-open feedback",
+        "six-block non-probability external context with support and counter-evidence",
+        "rights lineage for retention, derivation, derived display and model-input purposes"
+      ],
+      "candidates": [
+        {
+          "name": "exchange_calendars",
+          "source_url": "https://github.com/gerrymanoim/exchange_calendars",
+          "snapshot": "4.13.2 / PyPI release 2026-03-10; exact artifacts resolved in uv.lock",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "adapt",
+          "reason": "Pinned for XSHG natural-day and session generation behind TradingCalendarPort; official exchange calendars remain authoritative and every emitted day is stamped with the request as-of and adapter version."
+        },
+        {
+          "name": "sdmx1",
+          "source_url": "https://github.com/khaeru/sdmx",
+          "snapshot": "official documentation, repository and PyPI reviewed 2026-07-22; release/hash not yet selected",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Credible future SDMX adapter candidate for individually authorized endpoints; no client is installed until provider rights and payload contracts exist."
+        },
+        {
+          "name": "PostgreSQL bitemporal relations",
+          "source_url": "https://www.postgresql.org/",
+          "snapshot": "existing project infrastructure",
+          "license": "PostgreSQL License",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "One-hop transmission relationships fit existing transactional and audit boundaries, so a graph database is not justified."
+        },
+        {
+          "name": "GDELT",
+          "source_url": "https://www.gdeltproject.org/",
+          "snapshot": "official data documentation reviewed 2026-07-22",
+          "license": "data terms require per-use review",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Offline event discovery and context only; never sufficient to establish a company fact or operating exposure."
+        },
+        {
+          "name": "OpenSanctions",
+          "source_url": "https://www.opensanctions.org/docs/",
+          "snapshot": "official documentation and licensing guidance reviewed 2026-07-22",
+          "license": "code and aggregated data rights differ; business data use requires separate review",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Data-model reference and candidate discovery only; aggregated data is disabled without an explicit license."
+        },
+        {
+          "name": "ACLED",
+          "source_url": "https://acleddata.com/terms-use",
+          "snapshot": "official licensing terms reviewed 2026-07-22",
+          "license": "proprietary/commercial data terms",
+          "credible": true,
+          "decision": "reject",
+          "reason": "Licensing and current single-target product fit do not justify a default production dependency."
+        },
+        {
+          "name": "yfinance",
+          "source_url": "https://github.com/ranaroussi/yfinance",
+          "snapshot": "official repository reviewed 2026-07-22",
+          "license": "Apache-2.0 code; upstream data rights separate and restricted",
+          "credible": true,
+          "decision": "reject",
+          "reason": "Code licensing does not grant upstream market-data retention, derivation or display rights and cannot serve as a production fallback."
+        },
+        {
+          "name": "FRED API",
+          "source_url": "https://fred.stlouisfed.org/docs/api/terms_of_use.html",
+          "snapshot": "official terms reviewed 2026-07-22",
+          "license": "service terms",
+          "credible": true,
+          "decision": "reject",
+          "reason": "Current software/AI-development and caching restrictions do not fit the planned path without separate written permission."
+        }
+      ],
+      "third_party_registry_terms": [
+        "exchange_calendars",
+        "sdmx1",
+        "PostgreSQL",
+        "GDELT",
+        "OpenSanctions",
+        "ACLED",
+        "yfinance",
+        "FRED API",
+        "OpenBB"
+      ]
+    },
+    {
+      "id": "r1-continuous-preview-runtime-2026-08-04",
+      "capability": "r1-versioned-public-snapshot-runtime",
+      "status": "accepted",
+      "record": "docs/research/reuse-decisions/2026-08-04-r1-continuous-preview-runtime.md",
+      "final_decision": "adapt",
+      "default_route": "Reuse the already-selected exchange_calendars adapter and the AWS Python SDK; keep snapshot contracts, public scanning, evidence joins, CAS publication and catch-up policy project-owned.",
+      "credible_candidates_available": true,
+      "contains_custom_build": true,
+      "custom_build_gaps": [
+        "cross-document snapshot contract and evidence revision joins",
+        "public-secret and internal-state fail-closed scanning",
+        "assets-manifest-readback-pointer publication ordering",
+        "structural-partial versus active-retryable catch-up policy",
+        "bounded LKG freshness semantics over XSHG sessions"
+      ],
+      "candidates": [
+        {
+          "name": "Boto3 / Botocore",
+          "source_url": "https://boto3.amazonaws.com/v1/documentation/api/latest/index.html",
+          "snapshot": "boto3 1.43.51 / PyPI release 2026-07-17; exact artifacts resolved in uv.lock",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Uses ECS task-role credential refresh, bounded standard retries, S3 request/response checksums, SSE-S3 and native IfMatch/IfNoneMatch without shelling out or storing static AWS credentials."
+        },
+        {
+          "name": "AWS CLI v2",
+          "source_url": "https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html",
+          "snapshot": "official documentation reviewed 2026-08-04",
+          "license": "Apache-2.0 distribution components; AWS service terms separate",
+          "credible": true,
+          "decision": "reject",
+          "reason": "Appropriate for operator deployment scripts, but subprocess JSON parsing and process-level failures are a weaker fit for transactional in-process snapshot publication."
+        },
+        {
+          "name": "MinIO Python client",
+          "source_url": "https://github.com/minio/minio-py",
+          "snapshot": "existing compatibility dependency reviewed 2026-08-04",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "reject",
+          "reason": "Does not provide the selected AWS-native task-role, S3 checksum and conditional-write semantics as directly, and a new MinIO deployment is already rejected."
+        }
+      ],
+      "third_party_registry_terms": [
+        "exchange_calendars",
+        "Boto3 / Botocore",
+        "AWS CLI v2",
+        "MinIO Python client"
+      ]
+    },
+    {
+      "id": "openapi-contract-toolchain-2026-07-23",
+      "capability": "openapi-contract-generation-and-compatibility",
+      "status": "accepted",
+      "record": "docs/research/reuse-decisions/2026-07-23-openapi-contract-toolchain.md",
+      "final_decision": "adopt",
+      "default_route": "Use exact openapi-typescript 7.13.0 behind local-reference, implicit-config and no-network guards for deterministic static frontend types, plus digest-pinned oasdiff 1.25.1 for merge-base breaking-change checks; do not generate a second HTTP client or maintain a parallel compatibility engine.",
+      "credible_candidates_available": true,
+      "contains_custom_build": false,
+      "custom_build_gaps": [],
+      "candidates": [
+        {
+          "name": "openapi-typescript",
+          "source_url": "https://github.com/openapi-ts/openapi-typescript",
+          "snapshot": "7.13.0 / release commit 5709d33 / npm integrity sha512-EFP392gcqXS7ntPvbhBzbF8TyBA+baIYEm791Hy5YkjDYKTnk/Tn5OQeKm5BIZvJihpp8Zzr4hzx0Irde1LNGQ==",
+          "license": "MIT",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Small static-type generator with official alphabetize and check modes; repository guards reject remote references and implicit Redocly configuration and block network because the unguarded tool can resolve external refs. It preserves the existing fetch wrapper and does not introduce a generated SDK."
+        },
+        {
+          "name": "Hey API @hey-api/openapi-ts",
+          "source_url": "https://github.com/hey-api/hey-api",
+          "snapshot": "0.99.0 / release commit c9dc0b9 / npm integrity sha512-SePU/5oEWWkvUBYmvzdYRctseoLuskyhs4ET0RvLIcmzc8yLQoA2R+KtBIQ8bPsoSUB0m4E5SmBnl6aGSA0szQ==",
+          "license": "MIT",
+          "credible": true,
+          "decision": "reject",
+          "reason": "Its SDK, client and plugin generation surface exceeds the static-type requirement, and the pre-1.0 release line still publishes breaking changes."
+        },
+        {
+          "name": "OpenAPI Generator",
+          "source_url": "https://github.com/OpenAPITools/openapi-generator",
+          "snapshot": "v7.24.0 / release commit 203d486",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "reject",
+          "reason": "The Java, template and multi-language SDK toolchain is mature but unnecessarily broad for one TypeScript type artifact."
+        },
+        {
+          "name": "oasdiff",
+          "source_url": "https://github.com/oasdiff/oasdiff",
+          "snapshot": "v1.25.1 / release commit 0a97c00 / OCI index sha256:3a0556fff855d1e1c91ebeedf4800772090cbdb4f319e0b4ee3be549bd5b5072",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Focused breaking-change CLI with a verified multi-architecture immutable image, suitable for local merge-base snapshot comparison without a language runtime dependency."
+        },
+        {
+          "name": "OpenAPITools/openapi-diff",
+          "source_url": "https://github.com/OpenAPITools/openapi-diff",
+          "snapshot": "2.1.7 / release reviewed 2026-07-23",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "reject",
+          "reason": "It duplicates the selected compatibility role while adding a Java or Maven runtime and report features the current gate does not need."
+        }
+      ],
+      "third_party_registry_terms": [
+        "openapi-typescript",
+        "oasdiff",
+        "Hey API `@hey-api/openapi-ts`",
+        "OpenAPI Generator",
+        "OpenAPITools/openapi-diff"
+      ]
+    },
+    {
+      "id": "r1-functional-dependencies-2026-08-02",
+      "capability": "r1-functional-data-cross-check-and-browser-acceptance",
+      "status": "accepted",
+      "record": "docs/research/reuse-decisions/2026-08-02-r1-functional-dependencies.md",
+      "final_decision": "adopt",
+      "default_route": "Use exact BaoStock 0.9.3 behind the existing source boundary for development-only market-data cross-checks and exact Playwright 1.62.1 for local browser acceptance; do not add another source Port or browser runner.",
+      "credible_candidates_available": true,
+      "contains_custom_build": false,
+      "custom_build_gaps": [],
+      "candidates": [
+        {
+          "name": "BaoStock",
+          "source_url": "https://pypi.org/project/baostock/0.9.3/",
+          "snapshot": "0.9.3 / exact uv lock artifact hashes",
+          "license": "BSD-3-Clause",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Provides a small independent A-share market-data SDK for development-only cross-checks behind the existing source boundary; upstream data rights remain separately gated."
+        },
+        {
+          "name": "AKShare",
+          "source_url": "https://github.com/akfamily/akshare",
+          "snapshot": "1.18.70 / existing uv lock artifact hashes",
+          "license": "MIT code; upstream data rights separate",
+          "credible": true,
+          "decision": "reference",
+          "reason": "Remains the existing primary development adapter dependency, but cannot provide an independent cross-check of its own result."
+        },
+        {
+          "name": "Playwright",
+          "source_url": "https://github.com/microsoft/playwright",
+          "snapshot": "1.62.1 / npm integrity sha512-DTcUc8qii+cpHvtOwggMtBRMjKZHXYWdw8syRYu2vtzuq4Wxphqq4NfCs5Zt44L6mA8rfDfj+PHnxFc/FeK6mQ==",
+          "license": "Apache-2.0",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "One exact development dependency provides Chromium desktop/mobile acceptance, deep-route and network-request assertions without entering the application runtime."
+        },
+        {
+          "name": "Cypress",
+          "source_url": "https://github.com/cypress-io/cypress",
+          "snapshot": "official project reviewed 2026-08-02; no package introduced",
+          "license": "MIT",
+          "credible": true,
+          "decision": "reject",
+          "reason": "A second browser runner would duplicate the selected Playwright role and enlarge the development supply chain."
+        }
+      ],
+      "third_party_registry_terms": [
+        "BaoStock",
+        "Playwright"
+      ]
+    },
+    {
+      "id": "r2-ashare-instrument-catalog-2026-08-31",
+      "capability": "r2-complete-offline-ashare-instrument-search",
+      "status": "accepted_for_private_dev_preview",
+      "record": "docs/research/reuse-decisions/2026-08-31-r2-ashare-instrument-catalog.md",
+      "final_decision": "adapt",
+      "default_route": "Use the already locked AKShare 1.18.70 adapters for official Shanghai, Shenzhen and Beijing current/delisted directories only after exact non-commercial FETCH and RETAIN rights validation; search the immutable DEV_ONLY/UNVERIFIED catalog with zero runtime network, preserve strict InstrumentMasterDataPort 1.1 responses and expose legal-name verification only through opt-in InstrumentMasterDataV2Port.",
+      "credible_candidates_available": true,
+      "contains_custom_build": true,
+      "custom_build_gaps": [
+        "Normalize three exchange directories into existing canonical instrument IDs without adding a vendor-specific Port.",
+        "Preserve real retrieval-time PIT visibility, rights snapshot hashes, current Beijing codes, rights-gated and evidence-linked exchange-announced code-change aliases, and explicit legal-name verification state in an offline resource.",
+        "Keep strict v1 search clients unchanged while giving the authenticated Web an opt-in v1.1 directory-search boundary."
+      ],
+      "candidates": [
+        {
+          "name": "AKShare exchange stock-list adapters",
+          "source_url": "https://github.com/akfamily/akshare",
+          "snapshot": "1.18.70 / existing uv lock artifact hashes / directory snapshot retrieved 2026-08-31",
+          "license": "MIT code; official exchange legal statements permit non-commercial browsing and download",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Existing locked adapters parse the official current and delisted exchange directories; the builder validates exact private non-commercial metadata retention rights before any network access."
+        },
+        {
+          "name": "BaoStock stock-basic directory",
+          "source_url": "https://pypi.org/project/baostock/0.9.3/",
+          "snapshot": "0.9.3 / existing uv lock artifact hashes / delisted snapshot retrieved 2026-08-31",
+          "license": "BSD-3-Clause SDK; upstream data rights separate",
+          "credible": true,
+          "decision": "reject",
+          "reason": "Its SDK license does not establish upstream directory retention rights; official SSE and SZSE delisted directories provide the required identities instead."
+        },
+        {
+          "name": "Custom direct exchange protocol clients",
+          "source_url": "https://www.sse.com.cn/assortment/stock/list/share/",
+          "snapshot": "evaluated 2026-08-31; no new client introduced",
+          "license": "upstream directory rights separate",
+          "credible": true,
+          "decision": "reject",
+          "reason": "Would duplicate the locked adapters' XLSX and paginated response parsing while increasing schema-drift and maintenance risk."
+        }
+      ],
+      "third_party_registry_terms": [
+        "AKShare"
+      ]
+    },
+    {
+      "id": "r2-readable-research-and-controlled-web-2026-08-30",
+      "capability": "r2-deepseek-method-library-readable-score-and-controlled-web-completion",
+      "status": "accepted",
+      "record": "docs/research/reuse-decisions/2026-08-30-r2-readable-research.md",
+      "final_decision": "adapt",
+      "default_route": "Retain ai-berkshire at fd83d06 as provenance-only MIT method source, consume its existing reader overlay through safe typed profiles for the single DeepSeek provider behind the existing LLM Port, use Tavily only for current-run gap discovery behind the existing vendor-neutral Port with bounded stateless credential failover, and render deterministic server-compiled Markdown with exact react-markdown and remark-gfm versions. Historical replay never calls live discovery; DeepSeek supplies evidence-rubric judgments and Chinese explanations while project code validates complete evidence scope, PIT and every published score. R2 recovery reuses the same LLM Port for semantic support assessment with exact fact/excerpt bindings; deterministic reader compilation replaces the separate reader-generation call. Existing PostgreSQL transactions persist one fenced checkpoint and coordinate deployment-wide provider permits; Celery/outbox remains the queue. No new dependency or orchestration framework. Synthetic v4 scenarios use the same score assessment with explicit scenario basis, coefficient one and zero real-source confidence; optional scorecard and reader reuse available_result and the existing checkpoint without new services or tables. The approved 2026-09-08 real preview starts empty, reuses Flash for planning and extraction and a separate Pro call for source-text audit before the existing three report calls. pypdf 6.18.0 supplies bounded text-only PDF extraction in the existing governed adapter; checkpoint 1.3 retains candidates, verdicts and per-gap attempts. Synthetic fixtures remain offline and historical artifacts retain their versions. The 2026-09-11 repair uses the existing SourceDiscoveryPort with a code-bound CNINFO public annual-report index for initial real identity/business acquisition; Tavily remains the bounded directed fallback. Reuse governed HTTPS/DNS/robots/body/deadline checks, never supply facts from index metadata, add no dependency and do not unlock the historical R1 runner. The approved 2026-09-14 reliability repair reuses the existing checkpoint JSONB for immutable original observations and offset windows, and stable narrative-slot patches with pending-only re-audit. LlamaIndex document identity/cache, Unstructured original element provenance and LangGraph checkpoint persistence are design references only; no library, vector store or second executor is adopted. Evidence of project benefit is limited to fixed regressions until same-version real acceptance completes.",
+      "credible_candidates_available": true,
+      "contains_custom_build": true,
+      "custom_build_gaps": [
+        "typed method catalog and automatic or bounded manual selection",
+        "six-dimension evidence-rubric assessment with deterministic formula validation and isolated synthetic-scenario scoring with truthful zero real-source confidence and missing-dimension abstention",
+        "current-run-only gap discovery with hostname-bound rights SSRF robots PIT source-independence gates, audit receipts and bounded stateless Tavily credential failover",
+        "complete-claim reader edition with a Simplified Chinese and closed numeric-expression publication guard, retained-history projection, visible coverage gaps and safe Markdown compiler",
+        "domain evidence entailment and honest retained-result completeness are not supplied by citation-ID validation; resume fencing must bind owner, job, PIT and expiry at the existing repository boundary"
+      ],
+      "candidates": [
+        {
+          "name": "xbtlin/ai-berkshire",
+          "source_url": "https://github.com/xbtlin/ai-berkshire",
+          "snapshot": "fd83d06347c6e3ee50133cda6962f40e226b5252",
+          "license": "MIT",
+          "credible": true,
+          "decision": "adapt",
+          "reason": "Provides a broad research-method vocabulary and reader-memo reference, while the project adaptation removes out-of-bound behavior and adds typed evidence, PIT and publication gates."
+        },
+        {
+          "name": "Tavily Search API",
+          "source_url": "https://docs.tavily.com/documentation/api-reference/endpoint/search",
+          "snapshot": "official Search API reviewed 2026-08-30; no SDK dependency",
+          "license": "service terms",
+          "credible": true,
+          "decision": "adopt_adapter",
+          "reason": "A narrow URL-discovery call avoids building a search index; the adapter accepts a legacy singleton or at most ten unique ordered keys, rotates only on authentication failure (401/403), request rate limiting (429), or plan usage exhaustion (432) within one shared 15-second discovery deadline, classifies 429/432 as TAVILY_QUOTA_EXHAUSTED, keeps no persistent cursor, discards answer and raw-content features, and never treats discovery output as evidence."
+        },
+        {
+          "name": "react-markdown and remark-gfm",
+          "source_url": "https://github.com/remarkjs/react-markdown",
+          "snapshot": "react-markdown 10.1.0; remark-gfm 4.0.1; exact npm lock",
+          "license": "MIT",
+          "credible": true,
+          "decision": "adopt",
+          "reason": "Mature AST-based Markdown rendering supports the reader document without raw HTML or a custom Markdown parser."
+        },
+        {
+          "name": "pypdf",
+          "source_url": "https://pypdf.readthedocs.io/en/stable/user/extract-text.html",
+          "snapshot": "6.18.0; exact uv.lock hashes; PyPI metadata verified 2026-09-08",
+          "license": "BSD-3-Clause",
+          "credible": true,
+          "decision": "adopt_adapter",
+          "reason": "Pure Python text-PDF parser preserves page and layout context without OCR or model weights; existing Docling is broader than this bounded text-only requirement. Run in a credential-free child process with byte, page, stream, output, CPU, memory and elapsed-time bounds; scanned or ambiguous tables remain gaps."
+        },
+        {
+          "name": "CNINFO public annual-report index",
+          "source_url": "https://www.cninfo.com.cn/new/commonUrl/pageOfSearch?url=disclosure/list/search",
+          "snapshot": "Public indexes verified 2026-09-11; cninfo-annual-discovery.v1.0; AKShare reference commit 8e95744b79ae22326308ccd2b4e62650c5b53c55",
+          "license": "Public data terms separate; DEV_ONLY/UNVERIFIED; AKShare MIT reference only, no copied code",
+          "credible": true,
+          "decision": "adapt",
+          "reason": "Code-bound index returned target annual reports missed by keyword discovery. Existing governed transport, one page up to five, separate PDF/audit; no credentials or signatures."
+        }
+      ],
+      "third_party_registry_terms": [
+        "xbtlin/ai-berkshire",
+        "Tavily Search API",
+        "react-markdown",
+        "remark-gfm",
+        "pypdf",
+        "CNINFO public annual-report index"
+      ]
+    }
+  ]
+}

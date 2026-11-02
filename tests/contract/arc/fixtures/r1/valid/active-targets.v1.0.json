@@ -1,0 +1,121 @@
+[
+  {
+    "name": "selection-by-instrument-id",
+    "model": "ActiveTargetSelectionRequest",
+    "payload": {
+      "schema_version": "1.0",
+      "instrument_id": "XSHG:600000",
+      "symbol": null,
+      "exchange": null,
+      "expected_revision": null
+    }
+  },
+  {
+    "name": "selection-by-symbol-exchange",
+    "model": "ActiveTargetSelectionRequest",
+    "payload": {
+      "schema_version": "1.0",
+      "instrument_id": null,
+      "symbol": "600000",
+      "exchange": "XSHG",
+      "expected_revision": 2
+    }
+  },
+  {
+    "name": "no-active-target",
+    "model": "ActiveTargetState",
+    "payload": {
+      "schema_version": "1.0",
+      "found": false,
+      "active_target": null,
+      "as_of": "2026-07-25T01:00:00Z"
+    }
+  },
+  {
+    "name": "repeat-activation-noop",
+    "model": "ActiveTargetMutationResult",
+    "payload": {
+      "schema_version": "1.0",
+      "state": {
+        "schema_version": "1.0",
+        "found": true,
+        "active_target": {
+          "instrument": {
+            "instrument_id": "XSHG:600000",
+            "symbol": "600000",
+            "exchange": "XSHG",
+            "market": "CN",
+            "asset_class": "equity",
+            "currency": "CNY"
+          },
+          "revision": 2,
+          "activated_at": "2026-07-25T00:30:00Z"
+        },
+        "as_of": "2026-07-25T01:00:00Z"
+      },
+      "previous_revision": 2,
+      "created": false,
+      "changed": false,
+      "idempotent_replay": false,
+      "stored_at": "2026-07-25T00:59:00Z"
+    }
+  },
+  {
+    "name": "idempotency-replay",
+    "model": "ActiveTargetMutationResult",
+    "payload": {
+      "schema_version": "1.0",
+      "state": {
+        "schema_version": "1.0",
+        "found": true,
+        "active_target": {
+          "instrument": {
+            "instrument_id": "XSHG:600000",
+            "symbol": "600000",
+            "exchange": "XSHG",
+            "market": "CN",
+            "asset_class": "equity",
+            "currency": "CNY"
+          },
+          "revision": 2,
+          "activated_at": "2026-07-25T00:30:00Z"
+        },
+        "as_of": "2026-07-25T01:00:00Z"
+      },
+      "previous_revision": 2,
+      "created": false,
+      "changed": false,
+      "idempotent_replay": true,
+      "stored_at": "2026-07-25T00:59:00Z"
+    }
+  },
+  {
+    "name": "switch-target-revision",
+    "model": "ActiveTargetMutationResult",
+    "payload": {
+      "schema_version": "1.0",
+      "state": {
+        "schema_version": "1.0",
+        "found": true,
+        "active_target": {
+          "instrument": {
+            "instrument_id": "XSHG:600000",
+            "symbol": "600000",
+            "exchange": "XSHG",
+            "market": "CN",
+            "asset_class": "equity",
+            "currency": "CNY"
+          },
+          "revision": 3,
+          "activated_at": "2026-07-25T00:58:00Z"
+        },
+        "as_of": "2026-07-25T01:00:00Z"
+      },
+      "previous_revision": 2,
+      "created": false,
+      "changed": true,
+      "idempotent_replay": false,
+      "stored_at": "2026-07-25T00:59:00Z"
+    }
+  }
+]

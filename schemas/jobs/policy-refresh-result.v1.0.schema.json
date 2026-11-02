@@ -1,0 +1,85 @@
+{
+  "$id": "https://stock-market-agent.local/schemas/jobs/policy-refresh-result.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "completed_at": {
+      "format": "date-time",
+      "title": "Completed At",
+      "type": "string"
+    },
+    "cursor_advanced": {
+      "title": "Cursor Advanced",
+      "type": "boolean"
+    },
+    "event_revisions_created": {
+      "minimum": 0,
+      "title": "Event Revisions Created",
+      "type": "integer"
+    },
+    "events_seen": {
+      "minimum": 0,
+      "title": "Events Seen",
+      "type": "integer"
+    },
+    "evidence_created": {
+      "minimum": 0,
+      "title": "Evidence Created",
+      "type": "integer"
+    },
+    "idempotent_replay": {
+      "default": false,
+      "title": "Idempotent Replay",
+      "type": "boolean"
+    },
+    "manifest_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Manifest Sha256",
+      "type": "string"
+    },
+    "scheduled_for": {
+      "format": "date-time",
+      "title": "Scheduled For",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_id": {
+      "const": "r2_global_official_synthetic",
+      "default": "r2_global_official_synthetic",
+      "title": "Source Id",
+      "type": "string"
+    },
+    "watermark": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Watermark"
+    }
+  },
+  "required": [
+    "schema_version",
+    "scheduled_for",
+    "completed_at",
+    "events_seen",
+    "event_revisions_created",
+    "evidence_created",
+    "manifest_sha256",
+    "cursor_advanced"
+  ],
+  "title": "PolicyRefreshResult",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.global_events.PolicyRefreshResult",
+  "x-schema-version": "1.0"
+}

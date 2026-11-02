@@ -1,0 +1,585 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Private S3 and CloudFront delivery for the StockMarketAgent public static demo.
+  The caller fixes the deployment region and stack name; this template creates no
+  public S3 endpoint, identity role, logging destination, or custom domain. An optional
+  reviewed ALB origin serves same-origin /api paths without caching.
+
+Parameters:
+  ProductSha:
+    Type: String
+    AllowedPattern: "^[0-9a-f]{40}$"
+    Description: Exact Git commit used to build the static public demo
+  ApiOriginDomainName:
+    Type: String
+    Default: ""
+    AllowedPattern: >-
+      ^$|^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?\.elb\.amazonaws\.com$
+  ApiOriginVerifySecretArn:
+    Type: String
+    Default: ""
+    AllowedPattern: >-
+      ^$|^arn:aws:secretsmanager:ap-northeast-1:[0-9]{12}:secret:[A-Za-z0-9/_+=.@-]{1,512}$
+  CognitoDomainName:
+    Type: String
+    Default: ""
+    AllowedPattern: >-
+      ^$|^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.auth\.ap-northeast-1\.amazoncognito\.com$
+  PrivatePreviewApiNoCachePolicyId:
+    Type: String
+    Default: ""
+    AllowedPattern: >-
+      ^$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+  PrivatePreviewApiOriginRequestPolicyId:
+    Type: String
+    Default: ""
+    AllowedPattern: >-
+      ^$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+
+Conditions:
+  HasApiOrigin:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: ApiOriginDomainName
+          - ""
+  HasCognitoDomain:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: CognitoDomainName
+          - ""
+  HasExternalPrivatePreviewPolicies:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: PrivatePreviewApiNoCachePolicyId
+          - ""
+  CreatePrivatePreviewPolicies:
+    Fn::And:
+      - Condition: HasApiOrigin
+      - Fn::Not:
+          - Condition: HasExternalPrivatePreviewPolicies
+
+Rules:
+  ApiOriginRequiresVerificationSecret:
+    Assertions:
+      - Assert:
+          Fn::Or:
+            - Fn::Equals: [{Ref: ApiOriginDomainName}, ""]
+            - Fn::Not:
+                - Fn::Equals: [{Ref: ApiOriginVerifySecretArn}, ""]
+        AssertDescription: API origin requires the R2 runtime origin verification secret ARN.
+      - Assert:
+          Fn::Or:
+            - Fn::Equals: [{Ref: ApiOriginVerifySecretArn}, ""]
+            - Fn::Not:
+                - Fn::Equals: [{Ref: ApiOriginDomainName}, ""]
+        AssertDescription: API origin verification secret requires the R2 runtime ALB domain.
+  PrivatePreviewPolicyIdsArePaired:
+    Assertions:
+      - Assert:
+          Fn::Or:
+            - Fn::Equals: [{Ref: PrivatePreviewApiNoCachePolicyId}, ""]
+            - Fn::Not:
+                - Fn::Equals: [{Ref: PrivatePreviewApiOriginRequestPolicyId}, ""]
+        AssertDescription: Existing R2 cache policy requires the matching origin request policy.
+      - Assert:
+          Fn::Or:
+            - Fn::Equals: [{Ref: PrivatePreviewApiOriginRequestPolicyId}, ""]
+            - Fn::Not:
+                - Fn::Equals: [{Ref: PrivatePreviewApiNoCachePolicyId}, ""]
+        AssertDescription: Existing R2 origin request policy requires the matching cache policy.
+      - Assert:
+          Fn::Or:
+            - Fn::Equals: [{Ref: PrivatePreviewApiNoCachePolicyId}, ""]
+            - Fn::Not:
+                - Fn::Equals: [{Ref: ApiOriginDomainName}, ""]
+        AssertDescription: Existing R2 policies may only be supplied with the R2 API origin.
+
+Resources:
+  PublicDemoBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Project
+          Value: stockmarketagent-public-demo
+        - Key: ManagedBy
+          Value: cloudformation
+        - Key: ProductSha
+          Value:
+            Ref: ProductSha
+
+  PublicDemoOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      OriginAccessControlConfig:
+        Description: Signed access from the public demo distribution to its private S3 origin
+        Name:
+          Fn::Sub: "${AWS::StackName}-oac"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  PublicDemoRewriteFunction:
+    Type: AWS::CloudFront::Function
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AutoPublish: true
+      FunctionCode: |
+        function handler(event) {
+          var request = event.request;
+          var uri = request.uri;
+
+          if (/^\/evidence\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/?$/.test(uri)) {
+            request.uri = "/evidence/current/index.html";
+            return request;
+          }
+
+          if (uri === "" || uri === "/") {
+            request.uri = "/index.html";
+            return request;
+          }
+
+          var normalizedUri = uri.length > 1 && uri.endsWith("/") ? uri.slice(0, -1) : uri;
+          var staticRoutes = {
+            "/auth/callback": true,
+            "/details": true,
+            "/evidence/current": true,
+            "/history": true,
+            "/research": true
+          };
+          if (staticRoutes[normalizedUri]) {
+            request.uri = normalizedUri + "/index.html";
+            return request;
+          }
+
+          var lastSegment = uri.substring(uri.lastIndexOf("/") + 1);
+          if (!lastSegment.includes(".")) {
+            request.uri = "/404.html";
+          }
+
+          return request;
+        }
+      FunctionConfig:
+        Comment: Rewrite known static routes and extensionless misses safely
+        Runtime: cloudfront-js-2.0
+      Name:
+        Fn::Sub: "${AWS::StackName}-route-rewrite"
+
+  PublicDemoShortCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      CachePolicyConfig:
+        Comment: Short cache for public demo HTML and JSON documents
+        DefaultTTL: 60
+        MaxTTL: 300
+        MinTTL: 0
+        Name:
+          Fn::Sub: "${AWS::StackName}-short"
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          EnableAcceptEncodingBrotli: true
+          EnableAcceptEncodingGzip: true
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: none
+
+  PublicDemoNoCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      CachePolicyConfig:
+        Comment: Never cache the mutable public snapshot pointer
+        DefaultTTL: 0
+        MaxTTL: 0
+        MinTTL: 0
+        Name:
+          Fn::Sub: "${AWS::StackName}-no-cache"
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          EnableAcceptEncodingBrotli: false
+          EnableAcceptEncodingGzip: false
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: none
+
+  PrivatePreviewApiNoCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Condition: CreatePrivatePreviewPolicies
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      CachePolicyConfig:
+        Comment: Never cache authenticated R2 preview API responses
+        DefaultTTL: 0
+        MaxTTL: 0
+        MinTTL: 0
+        Name:
+          Fn::Sub: "${AWS::StackName}-r2-api-no-cache"
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          EnableAcceptEncodingBrotli: false
+          EnableAcceptEncodingGzip: false
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: none
+
+  PublicApiOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Condition: HasApiOrigin
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      OriginRequestPolicyConfig:
+        Comment: Forward only public API negotiation and resumable-stream headers
+        CookiesConfig:
+          CookieBehavior: none
+        HeadersConfig:
+          HeaderBehavior: whitelist
+          Headers:
+            - Accept
+            - Last-Event-ID
+            - X-Correlation-ID
+            - X-Request-ID
+        Name:
+          Fn::Sub: "${AWS::StackName}-api-origin"
+        QueryStringsConfig:
+          QueryStringBehavior: all
+
+  PrivatePreviewApiOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Condition: CreatePrivatePreviewPolicies
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      OriginRequestPolicyConfig:
+        Comment: Forward authenticated R2 requests except the viewer Host header
+        CookiesConfig:
+          CookieBehavior: none
+        HeadersConfig:
+          HeaderBehavior: allExcept
+          Headers:
+            - Host
+        Name:
+          Fn::Sub: "${AWS::StackName}-r2-api-origin"
+        QueryStringsConfig:
+          QueryStringBehavior: all
+
+  PublicDemoImmutableCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      CachePolicyConfig:
+        Comment: Immutable one-year cache for content-addressed Next.js assets
+        DefaultTTL: 31536000
+        MaxTTL: 31536000
+        MinTTL: 31536000
+        Name:
+          Fn::Sub: "${AWS::StackName}-immutable"
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          EnableAcceptEncodingBrotli: true
+          EnableAcceptEncodingGzip: true
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: none
+
+  PublicDemoSecurityHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Comment: Browser security headers for the read-only public demo
+        CustomHeadersConfig:
+          Items:
+            - Header: Permissions-Policy
+              Override: true
+              Value: camera=(), microphone=(), geolocation=()
+        Name:
+          Fn::Sub: "${AWS::StackName}-security-headers"
+        SecurityHeadersConfig:
+          ContentSecurityPolicy:
+            ContentSecurityPolicy:
+              Fn::Sub:
+                - >-
+                  default-src 'self'; script-src 'self' 'unsafe-inline';
+                  style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;
+                  connect-src 'self' ${CognitoConnectSource}; object-src 'none';
+                  base-uri 'self'; frame-ancestors 'none'; form-action 'self';
+                  upgrade-insecure-requests
+                - CognitoConnectSource:
+                    Fn::If:
+                      - HasCognitoDomain
+                      - Fn::Sub: "https://${CognitoDomainName}"
+                      - ""
+            Override: true
+          ContentTypeOptions:
+            Override: true
+          FrameOptions:
+            FrameOption: DENY
+            Override: true
+          ReferrerPolicy:
+            Override: true
+            ReferrerPolicy: strict-origin-when-cross-origin
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 31536000
+            IncludeSubdomains: true
+            Override: true
+            Preload: true
+          XSSProtection:
+            ModeBlock: true
+            Override: true
+            Protection: true
+
+  PublicDemoDistribution:
+    Type: AWS::CloudFront::Distribution
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      DistributionConfig:
+        CacheBehaviors:
+          - Fn::If:
+              - HasApiOrigin
+              - AllowedMethods:
+                  - DELETE
+                  - GET
+                  - HEAD
+                  - OPTIONS
+                  - PATCH
+                  - POST
+                  - PUT
+                CachePolicyId:
+                  Fn::If:
+                    - HasExternalPrivatePreviewPolicies
+                    - Ref: PrivatePreviewApiNoCachePolicyId
+                    - Ref: PrivatePreviewApiNoCachePolicy
+                CachedMethods:
+                  - GET
+                  - HEAD
+                  - OPTIONS
+                Compress: false
+                OriginRequestPolicyId:
+                  Fn::If:
+                    - HasExternalPrivatePreviewPolicies
+                    - Ref: PrivatePreviewApiOriginRequestPolicyId
+                    - Ref: PrivatePreviewApiOriginRequestPolicy
+                PathPattern: "api/v2/*"
+                ResponseHeadersPolicyId:
+                  Ref: PublicDemoSecurityHeadersPolicy
+                TargetOriginId: runtime-api-origin
+                ViewerProtocolPolicy: redirect-to-https
+              - Ref: AWS::NoValue
+          - Fn::If:
+              - HasApiOrigin
+              - AllowedMethods:
+                  - GET
+                  - HEAD
+                  - OPTIONS
+                CachePolicyId:
+                  Ref: PublicDemoNoCachePolicy
+                CachedMethods:
+                  - GET
+                  - HEAD
+                Compress: false
+                OriginRequestPolicyId:
+                  Ref: PublicApiOriginRequestPolicy
+                PathPattern: "api/*"
+                ResponseHeadersPolicyId:
+                  Ref: PublicDemoSecurityHeadersPolicy
+                TargetOriginId: runtime-api-origin
+                ViewerProtocolPolicy: redirect-to-https
+              - Ref: AWS::NoValue
+          - AllowedMethods:
+              - GET
+              - HEAD
+            CachePolicyId:
+              Ref: PublicDemoNoCachePolicy
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+            PathPattern: "data/current.json"
+            ResponseHeadersPolicyId:
+              Ref: PublicDemoSecurityHeadersPolicy
+            TargetOriginId: private-s3-origin
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - GET
+              - HEAD
+            CachePolicyId:
+              Ref: PublicDemoImmutableCachePolicy
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+            PathPattern: "data/snapshots/*"
+            ResponseHeadersPolicyId:
+              Ref: PublicDemoSecurityHeadersPolicy
+            TargetOriginId: private-s3-origin
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - GET
+              - HEAD
+            CachePolicyId:
+              Ref: PublicDemoImmutableCachePolicy
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+            PathPattern: "_next/static/*"
+            ResponseHeadersPolicyId:
+              Ref: PublicDemoSecurityHeadersPolicy
+            TargetOriginId: private-s3-origin
+            ViewerProtocolPolicy: redirect-to-https
+        Comment: StockMarketAgent read-only public static demo
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          CachePolicyId:
+            Ref: PublicDemoShortCachePolicy
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN:
+                Fn::GetAtt:
+                  - PublicDemoRewriteFunction
+                  - FunctionARN
+          ResponseHeadersPolicyId:
+            Ref: PublicDemoSecurityHeadersPolicy
+          TargetOriginId: private-s3-origin
+          ViewerProtocolPolicy: redirect-to-https
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2and3
+        IPV6Enabled: true
+        Origins:
+          - DomainName:
+              Fn::GetAtt:
+                - PublicDemoBucket
+                - RegionalDomainName
+            Id: private-s3-origin
+            OriginAccessControlId:
+              Ref: PublicDemoOriginAccessControl
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+          - Fn::If:
+              - HasApiOrigin
+              - CustomOriginConfig:
+                  HTTPPort: 80
+                  OriginKeepaliveTimeout: 5
+                  OriginProtocolPolicy: http-only
+                  OriginReadTimeout: 60
+                  OriginSSLProtocols:
+                    - TLSv1.2
+                DomainName:
+                  Ref: ApiOriginDomainName
+                Id: runtime-api-origin
+                OriginCustomHeaders:
+                  - HeaderName: X-StockMarketAgent-Origin-Verify
+                    HeaderValue:
+                      Fn::Sub: "{{resolve:secretsmanager:${ApiOriginVerifySecretArn}:SecretString:header_value}}"
+              - Ref: AWS::NoValue
+        PriceClass: PriceClass_200
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+      Tags:
+        - Key: Project
+          Value: stockmarketagent-public-demo
+        - Key: ManagedBy
+          Value: cloudformation
+        - Key: ProductSha
+          Value:
+            Ref: ProductSha
+
+  PublicDemoBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Bucket:
+        Ref: PublicDemoBucket
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - PublicDemoBucket
+                  - Arn
+              - Fn::Sub: "${PublicDemoBucket.Arn}/*"
+            Sid: DenyInsecureTransport
+          - Action: s3:GetObject
+            Condition:
+              StringEquals:
+                AWS:SourceArn:
+                  Fn::Sub: >-
+                    arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${PublicDemoDistribution}
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Resource:
+              Fn::Sub: "${PublicDemoBucket.Arn}/*"
+            Sid: AllowOnlyThisCloudFrontDistribution
+        Version: "2012-10-17"
+
+Outputs:
+  ProductSha:
+    Description: Exact product commit bound to this deployment
+    Value:
+      Ref: ProductSha
+  BucketName:
+    Description: Private bucket containing the static public demo
+    Value:
+      Ref: PublicDemoBucket
+  DistributionDomainName:
+    Description: CloudFront HTTPS hostname for the public demo
+    Value:
+      Fn::GetAtt:
+        - PublicDemoDistribution
+        - DomainName
+  DistributionId:
+    Description: CloudFront distribution ID used for scoped invalidations
+    Value:
+      Ref: PublicDemoDistribution
+  PublicDemoUrl:
+    Description: Public HTTPS URL for the static demo
+    Value:
+      Fn::Sub: "https://${PublicDemoDistribution.DomainName}"

@@ -1,0 +1,905 @@
+{
+  "run_id": "r2-fixed-audit-20260914-v1",
+  "gold_sha256": "a30284ee51e692526115077f2a90190c7c8badf869c9dcb7b7cc05ccabb7adc8",
+  "repetitions": 1,
+  "physical_requests": 8,
+  "logical_calls": 8,
+  "structure_repairs": 0,
+  "transport_retries": 0,
+  "fee": "UNKNOWN",
+  "results": [
+    {
+      "group": "conditional_premise",
+      "variant": "legacy",
+      "payload": {
+        "schema_version": "3.1",
+        "verdicts": [
+          {
+            "item_id": "hypothesis:0",
+            "supported": false,
+            "reason": "statement 的 source_support 通过，但 directional_mechanism 未通过：statement 仅复述了事实中的条件风险，未解释已知事实如何支持看跌方向的具体机制。",
+            "reason_code": "INFERENCE_UNSUPPORTED",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "supported": true,
+                "reason": "statement 准确复述了事实中的条件风险：若客户延迟付款，公司回款可能放缓，形成现金回收方面的风险。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "uncertainty",
+                "supported": true,
+                "reason": "uncertainty 正确指出该判断为条件分析，不能据此认定条件已发生，与事实中风险是否发生尚不确定一致。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "supported": true,
+                "reason": "证伪条件表述为若后续资料否定上述条件或传导关系，应重新核对该判断，符合条件化推理的核验要求。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "statement",
+                "supported": false,
+                "reason": "statement 仅复述了事实中的条件风险，未解释已知事实如何支持看跌方向的具体机制，因此不满足 directional_mechanism。",
+                "criterion": "directional_mechanism"
+              }
+            ]
+          },
+          {
+            "item_id": "hypothesis:1",
+            "supported": false,
+            "reason": "statement 的 source_support 通过，但 directional_mechanism 未通过：statement 仅复述了事实中的条件风险，未解释已知事实如何支持看跌方向的具体机制。",
+            "reason_code": "INFERENCE_UNSUPPORTED",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "supported": true,
+                "reason": "statement 准确复述了事实中的条件风险：如果客户付款延迟，现金回收速度可能下降；这一条件不能解释为风险已经发生。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "uncertainty",
+                "supported": true,
+                "reason": "uncertainty 正确指出该判断为条件分析，不能据此认定条件已发生，与事实中风险是否发生尚不确定一致。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "supported": true,
+                "reason": "证伪条件表述为若后续资料否定上述条件或传导关系，应重新核对该判断，符合条件化推理的核验要求。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "statement",
+                "supported": false,
+                "reason": "statement 仅复述了事实中的条件风险，未解释已知事实如何支持看跌方向的具体机制，因此不满足 directional_mechanism。",
+                "criterion": "directional_mechanism"
+              }
+            ]
+          },
+          {
+            "item_id": "hypothesis:2",
+            "supported": false,
+            "reason": "statement 的 source_support 未通过：statement 声称公司应收账款余额已经上升，但事实显示应收账款余额从 120 万元下降至 100 万元，方向相反。",
+            "reason_code": "VALUE_MISMATCH",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "supported": false,
+                "reason": "statement 声称公司应收账款余额已经上升，但事实显示应收账款余额从 120 万元下降至 100 万元，方向相反。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "uncertainty",
+                "supported": true,
+                "reason": "uncertainty 正确指出该判断为条件分析，不能据此认定条件已发生，与事实中风险是否发生尚不确定一致。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "supported": true,
+                "reason": "证伪条件表述为若后续资料否定上述条件或传导关系，应重新核对该判断，符合条件化推理的核验要求。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "statement",
+                "supported": false,
+                "reason": "statement 基于错误的应收账款上升前提，未解释已知事实如何支持看跌方向的具体机制，因此不满足 directional_mechanism。",
+                "criterion": "directional_mechanism"
+              }
+            ]
+          },
+          {
+            "item_id": "hypothesis:3",
+            "supported": false,
+            "reason": "statement 的 source_support 未通过：statement 声称公司回款风险已经发生并导致资金损失，但事实明确表示该风险是否发生尚不确定，且未提及资金损失。",
+            "reason_code": "VALUE_MISMATCH",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "supported": false,
+                "reason": "statement 声称公司回款风险已经发生并导致资金损失，但事实明确表示该风险是否发生尚不确定，且未提及资金损失。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "uncertainty",
+                "supported": true,
+                "reason": "uncertainty 正确指出该判断为条件分析，不能据此认定条件已发生，与事实中风险是否发生尚不确定一致。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "supported": true,
+                "reason": "证伪条件表述为若后续资料否定上述条件或传导关系，应重新核对该判断，符合条件化推理的核验要求。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "statement",
+                "supported": false,
+                "reason": "statement 基于错误的风险已发生前提，未解释已知事实如何支持看跌方向的具体机制，因此不满足 directional_mechanism。",
+                "criterion": "directional_mechanism"
+              }
+            ]
+          }
+        ]
+      },
+      "verdicts": {
+        "hypothesis:0": false,
+        "hypothesis:1": false,
+        "hypothesis:2": false,
+        "hypothesis:3": false
+      },
+      "false_accept": [],
+      "false_reject": [
+        "hypothesis:0",
+        "hypothesis:1"
+      ],
+      "input_tokens": 3688,
+      "output_tokens": 1441,
+      "seconds": 14.003703624000025
+    },
+    {
+      "group": "conditional_premise",
+      "variant": "leaf",
+      "payload": {
+        "schema_version": "4.0",
+        "verdicts": [
+          {
+            "item_id": "hypothesis:0",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若客户延迟付款，公司回款可能放缓，形成现金回收方面的风险。",
+                "reason": "选中事实披露：若客户延迟付款，可能使公司回款放缓；该风险是否发生尚不确定。statement准确复述了条件与可能结果，未将条件当作已发生事实，且未添加无依据的额外判断。"
+              },
+              {
+                "field_path": "uncertainty",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "该判断为条件分析，不能据此认定条件已发生。",
+                "reason": "选中事实明确说明风险是否发生尚不确定，uncertainty的表述与事实一致，正确限定为条件分析，未将条件当作已发生事实。"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若后续资料否定上述条件或传导关系，应重新核对该判断。",
+                "reason": "该证伪条件为通用逻辑表述，与选中事实无冲突；事实未提供否定该条件或传导关系的信息，因此该条件作为未来观察项成立。"
+              },
+              {
+                "field_path": "statement",
+                "criterion": "directional_mechanism",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若客户延迟付款，公司回款可能放缓，形成现金回收方面的风险。",
+                "reason": "statement明确解释了已知事实如何支持看跌方向：客户延迟付款这一条件通过影响回款速度，传导至现金回收风险。该机制直接来源于选中事实，且保留了条件性，未将风险当作已发生。"
+              }
+            ]
+          },
+          {
+            "item_id": "hypothesis:1",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "如果客户付款延迟，现金回收速度可能下降；这一条件不能解释为风险已经发生。",
+                "reason": "选中事实披露：若客户延迟付款，可能使公司回款放缓；该风险是否发生尚不确定。statement准确复述了条件与可能结果，并明确说明条件不能解释为风险已发生，与事实一致。"
+              },
+              {
+                "field_path": "uncertainty",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "该判断为条件分析，不能据此认定条件已发生。",
+                "reason": "选中事实明确说明风险是否发生尚不确定，uncertainty的表述与事实一致，正确限定为条件分析，未将条件当作已发生事实。"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若后续资料否定上述条件或传导关系，应重新核对该判断。",
+                "reason": "该证伪条件为通用逻辑表述，与选中事实无冲突；事实未提供否定该条件或传导关系的信息，因此该条件作为未来观察项成立。"
+              },
+              {
+                "field_path": "statement",
+                "criterion": "directional_mechanism",
+                "reason_code": "SUPPORTED",
+                "target_quote": "如果客户付款延迟，现金回收速度可能下降；这一条件不能解释为风险已经发生。",
+                "reason": "statement明确解释了已知事实如何支持看跌方向：客户付款延迟这一条件通过影响现金回收速度，传导至风险。该机制直接来源于选中事实，且保留了条件性，未将风险当作已发生。"
+              }
+            ]
+          },
+          {
+            "item_id": "hypothesis:2",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "criterion": "source_support",
+                "reason_code": "VALUE_MISMATCH",
+                "target_quote": "公司应收账款余额已经上升，如果客户再延迟付款，回款风险可能进一步增加。",
+                "reason": "选中事实显示2025年末应收账款余额100万元，2024年末120万元，余额实际下降而非上升。statement中“应收账款余额已经上升”与事实数值方向相反，属于数值方向错误。"
+              },
+              {
+                "field_path": "uncertainty",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "该判断为条件分析，不能据此认定条件已发生。",
+                "reason": "选中事实明确说明风险是否发生尚不确定，uncertainty的表述与事实一致，正确限定为条件分析，未将条件当作已发生事实。"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若后续资料否定上述条件或传导关系，应重新核对该判断。",
+                "reason": "该证伪条件为通用逻辑表述，与选中事实无冲突；事实未提供否定该条件或传导关系的信息，因此该条件作为未来观察项成立。"
+              },
+              {
+                "field_path": "statement",
+                "criterion": "directional_mechanism",
+                "reason_code": "VALUE_MISMATCH",
+                "target_quote": "公司应收账款余额已经上升，如果客户再延迟付款，回款风险可能进一步增加。",
+                "reason": "statement中“应收账款余额已经上升”与选中事实的数值方向相反，导致机制的前提错误；基于错误前提的传导关系不成立，因此方向机制不通过。"
+              }
+            ]
+          },
+          {
+            "item_id": "hypothesis:3",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "criterion": "source_support",
+                "reason_code": "COUNTER_MEANING_INVALID",
+                "target_quote": "公司回款风险已经发生并导致资金损失，若客户延迟付款，损失还会增加。",
+                "reason": "选中事实明确说明该风险是否发生尚不确定，而statement断言“回款风险已经发生并导致资金损失”，将未确定的条件当作已发生事实，与事实含义相反。"
+              },
+              {
+                "field_path": "uncertainty",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "该判断为条件分析，不能据此认定条件已发生。",
+                "reason": "选中事实明确说明风险是否发生尚不确定，uncertainty的表述与事实一致，正确限定为条件分析，未将条件当作已发生事实。"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若后续资料否定上述条件或传导关系，应重新核对该判断。",
+                "reason": "该证伪条件为通用逻辑表述，与选中事实无冲突；事实未提供否定该条件或传导关系的信息，因此该条件作为未来观察项成立。"
+              },
+              {
+                "field_path": "statement",
+                "criterion": "directional_mechanism",
+                "reason_code": "COUNTER_MEANING_INVALID",
+                "target_quote": "公司回款风险已经发生并导致资金损失，若客户延迟付款，损失还会增加。",
+                "reason": "statement将未确定的条件当作已发生事实，并在此基础上构建机制，与选中事实的含义相反，因此方向机制不成立。"
+              }
+            ]
+          }
+        ]
+      },
+      "verdicts": {
+        "hypothesis:0": true,
+        "hypothesis:1": true,
+        "hypothesis:2": false,
+        "hypothesis:3": false
+      },
+      "false_accept": [],
+      "false_reject": [],
+      "input_tokens": 3785,
+      "output_tokens": 1789,
+      "seconds": 16.984377096999992
+    },
+    {
+      "group": "historical_summary",
+      "variant": "legacy",
+      "payload": {
+        "schema_version": "3.1",
+        "verdicts": [
+          {
+            "item_id": "section:0",
+            "supported": true,
+            "reason": "摘要准确复述了分红预案披露日期和后续实施确认，与事实一致。",
+            "reason_code": "SUPPORTED",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "supported": true,
+                "reason": "事实显示2026年4月10日披露分红预案，6月20日公告确认已实施，摘要表述一致。",
+                "criterion": "source_support"
+              }
+            ]
+          },
+          {
+            "item_id": "section:1",
+            "supported": false,
+            "reason": "摘要声称截至2026年9月14日分红仍未实施，但事实显示2026年6月20日已确认实施，与事实矛盾。",
+            "reason_code": "VALUE_MISMATCH",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "supported": false,
+                "reason": "事实显示分红已于2026年6月19日发放，摘要却称截至研究截止日仍未实施，与事实不符。",
+                "criterion": "source_support"
+              }
+            ]
+          },
+          {
+            "item_id": "section:2",
+            "supported": true,
+            "reason": "摘要准确反映了条件风险的性质，未将条件认定为已发生，与事实一致。",
+            "reason_code": "SUPPORTED",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "supported": true,
+                "reason": "事实显示若客户延迟付款可能使回款放缓，且风险是否发生尚不确定；摘要表述为条件风险且未认定已发生，与事实一致。",
+                "criterion": "source_support"
+              }
+            ]
+          },
+          {
+            "item_id": "section:3",
+            "supported": false,
+            "reason": "摘要声称公司已获得稳定增长的订单，但选中事实中无任何订单相关信息，该判断缺乏依据。",
+            "reason_code": "INSUFFICIENT_EVIDENCE",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "supported": false,
+                "reason": "选中事实仅涉及分红预案、实施和客户延迟付款风险，未提及订单或增长，无法支持该判断。",
+                "criterion": "source_support"
+              }
+            ]
+          }
+        ]
+      },
+      "verdicts": {
+        "section:0": true,
+        "section:1": false,
+        "section:2": true,
+        "section:3": false
+      },
+      "false_accept": [],
+      "false_reject": [],
+      "input_tokens": 3239,
+      "output_tokens": 548,
+      "seconds": 8.287980549999986
+    },
+    {
+      "group": "historical_summary",
+      "variant": "leaf",
+      "payload": {
+        "schema_version": "4.0",
+        "verdicts": [
+          {
+            "item_id": "section:0",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "2026年4月10日披露的是分红预案；6月20日公告确认该次分红已实施。",
+                "reason": "事实management.dividend_plan显示2026年4月10日公告提出2025年度分红预案；事实management.dividend_execution显示2026年6月20日公告确认该次分红已实施，现金红利发放日为2026年6月19日。摘要内容与事实一致。"
+              }
+            ]
+          },
+          {
+            "item_id": "section:1",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "criterion": "source_support",
+                "reason_code": "VALUE_MISMATCH",
+                "target_quote": "虽然曾披露分红预案，但截至2026年9月14日仍未实施。",
+                "reason": "事实management.dividend_execution显示2026年6月20日公告确认该次分红已实施，现金红利发放日为2026年6月19日，研究截止日为2026年9月14日。摘要声称截至2026年9月14日仍未实施，与事实矛盾。"
+              }
+            ]
+          },
+          {
+            "item_id": "section:2",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若客户延迟付款，回款可能放缓；这是条件风险，不能认定已经发生。",
+                "reason": "事实risk.resilience显示：若客户延迟付款，可能使公司回款放缓；该风险是否发生尚不确定。摘要准确复述了条件风险及不确定性。"
+              },
+              {
+                "field_path": "summary",
+                "criterion": "summary_consistency",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若客户延迟付款，回款可能放缓；这是条件风险，不能认定已经发生。",
+                "reason": "摘要与bear_case论点一致，准确反映了条件风险且未认定已发生，与事实risk.resilience相符。"
+              }
+            ]
+          },
+          {
+            "item_id": "section:3",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "criterion": "source_support",
+                "reason_code": "INSUFFICIENT_EVIDENCE",
+                "target_quote": "公司已经获得稳定增长的订单，这是当前看多判断的依据。",
+                "reason": "本次证据未覆盖公司已获得稳定增长订单的事实；事实中无相关订单信息，不能支持该判断。"
+              },
+              {
+                "field_path": "summary",
+                "criterion": "summary_consistency",
+                "reason_code": "INSUFFICIENT_EVIDENCE",
+                "target_quote": "公司已经获得稳定增长的订单，这是当前看多判断的依据。",
+                "reason": "摘要声称公司已获得稳定增长的订单，但本次证据未覆盖该事实，无法与bull_case论点保持一致。"
+              }
+            ]
+          }
+        ]
+      },
+      "verdicts": {
+        "section:0": true,
+        "section:1": false,
+        "section:2": true,
+        "section:3": false
+      },
+      "false_accept": [],
+      "false_reject": [],
+      "input_tokens": 3364,
+      "output_tokens": 748,
+      "seconds": 7.4965869110000085
+    },
+    {
+      "group": "amount_scope_grade",
+      "variant": "legacy",
+      "payload": {
+        "schema_version": "3.1",
+        "verdicts": [
+          {
+            "item_id": "section:0",
+            "supported": true,
+            "reason": "摘要中的经营现金流30万元和净利润20万元与事实一致，且明确同主体、同期、同币种、同合并口径，比较关系正确。",
+            "reason_code": "SUPPORTED",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "supported": true,
+                "reason": "事实显示甲公司2025年度经营现金流30万元，净利润20万元，均为合并报表口径，摘要中的数值、主体、期间、币种和口径均一致，且30万元高于20万元。",
+                "criterion": "source_support"
+              }
+            ]
+          },
+          {
+            "item_id": "section:1",
+            "supported": false,
+            "reason": "摘要声称经营现金流30万元低于净利润20万元，但事实显示30万元高于20万元，大小关系错误。",
+            "reason_code": "VALUE_MISMATCH",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "supported": false,
+                "reason": "事实显示经营现金流30万元，净利润20万元，30万元高于20万元，摘要中的“低于”与事实不符。",
+                "criterion": "source_support"
+              }
+            ]
+          },
+          {
+            "item_id": "section:2",
+            "supported": false,
+            "reason": "摘要将甲公司经营现金流与乙公司净利润比较，但主体不同，且期间和币种也不同（甲公司2025年度人民币，乙公司2024年度美元），不能得出同主体、同期、同币种、同口径的结论。",
+            "reason_code": "SUBJECT_MISMATCH",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "supported": false,
+                "reason": "事实显示甲公司经营现金流30万元（2025年度人民币），乙公司净利润40万元（2024年度美元），主体、期间、币种均不同，摘要中的“同主体、同期、同币种、同口径”前提不成立，且比较本身无意义。",
+                "criterion": "source_support"
+              }
+            ]
+          },
+          {
+            "item_id": "score:0",
+            "supported": true,
+            "reason": "评分等级为弃权，理由为所给材料未提供可比基准，无法形成等级判断；所选事实仅提供单一公司财务数据，无历史或可比基准，弃权合理。",
+            "reason_code": "SUPPORTED",
+            "field_checks": [
+              {
+                "field_path": "grade",
+                "supported": true,
+                "reason": "所选事实仅提供甲公司2025年度经营现金流和净利润，无历史或可比基准，无法形成等级判断，弃权等级合理。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "reasons[0]",
+                "supported": true,
+                "reason": "理由“所给材料未提供可比基准，无法形成等级判断”与事实一致，所选事实确实未提供可比基准。",
+                "criterion": "source_support"
+              }
+            ]
+          }
+        ]
+      },
+      "verdicts": {
+        "section:0": true,
+        "section:1": false,
+        "section:2": false,
+        "score:0": true
+      },
+      "false_accept": [],
+      "false_reject": [],
+      "input_tokens": 3105,
+      "output_tokens": 711,
+      "seconds": 8.035625302000028
+    },
+    {
+      "group": "amount_scope_grade",
+      "variant": "leaf",
+      "payload": {
+        "schema_version": "4.0",
+        "verdicts": [
+          {
+            "item_id": "section:0",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "测试甲公司2025年度经营现金流30万元，高于同期同币种同合并口径的净利润20万元。",
+                "reason": "事实显示甲公司2025年度经营现金流30万元，净利润20万元，均为合并报表口径，且30万元大于20万元，因此摘要中的比较关系正确。"
+              }
+            ]
+          },
+          {
+            "item_id": "section:1",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "criterion": "source_support",
+                "reason_code": "VALUE_MISMATCH",
+                "target_quote": "测试甲公司2025年度经营现金流30万元，低于同期同币种同合并口径的净利润20万元。",
+                "reason": "事实显示经营现金流30万元大于净利润20万元，摘要却声称低于，数值比较方向错误。"
+              }
+            ]
+          },
+          {
+            "item_id": "section:2",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "criterion": "source_support",
+                "reason_code": "SUBJECT_MISMATCH",
+                "target_quote": "测试甲公司经营现金流30万元低于测试乙公司净利润40万元，因此同主体、同期、同币种、同口径的现金流低于利润。",
+                "reason": "摘要比较了甲公司现金流与乙公司净利润，但结论声称同主体，主体不一致，且乙公司净利润为扣非口径，与甲公司口径不同，无法支持同口径结论。"
+              }
+            ]
+          },
+          {
+            "item_id": "score:0",
+            "field_checks": [
+              {
+                "field_path": "grade",
+                "criterion": "assessment_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "abstain",
+                "reason": "所给材料仅包含甲公司现金流和净利润数据，未提供可比基准，无法形成等级判断，弃权合理。"
+              },
+              {
+                "field_path": "reasons[0]",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "所给材料未提供可比基准，无法形成等级判断。",
+                "reason": "事实仅包含现金流和净利润数据，未提供可比基准，因此该理由属实。"
+              }
+            ]
+          }
+        ]
+      },
+      "verdicts": {
+        "section:0": true,
+        "section:1": false,
+        "section:2": false,
+        "score:0": true
+      },
+      "false_accept": [],
+      "false_reject": [],
+      "input_tokens": 3202,
+      "output_tokens": 583,
+      "seconds": 6.3113184630000205
+    },
+    {
+      "group": "counter_and_gap",
+      "variant": "legacy",
+      "payload": {
+        "schema_version": "3.1",
+        "verdicts": [
+          {
+            "item_id": "hypothesis:0",
+            "supported": true,
+            "reason": "statement、uncertainty、falsification_conditions[0]均与选中事实一致；statement解释了已知事实如何支持看空方向，directional_mechanism通过。",
+            "reason_code": "SUPPORTED",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "supported": true,
+                "reason": "事实披露单一供应商中断可能使生产停滞，且备选渠道未证明覆盖全部需求；statement准确复述该条件风险，未夸大。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "uncertainty",
+                "supported": true,
+                "reason": "事实本身为条件性披露，uncertainty说明不能认定条件已发生，与事实一致。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "supported": true,
+                "reason": "该条件为通用复核条件，不夹带与事实相反的前提，可通过。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "statement",
+                "supported": true,
+                "reason": "statement明确说明单一供应商中断导致生产停滞的传导路径，并指出备选渠道的限制，构成方向性机制。",
+                "criterion": "directional_mechanism"
+              }
+            ]
+          },
+          {
+            "item_id": "hypothesis:1",
+            "supported": false,
+            "reason": "statement声称备选渠道已证明覆盖全部需求且风险消除，与事实“未证明能覆盖全部需求”直接矛盾。",
+            "reason_code": "COUNTER_MEANING_INVALID",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "supported": false,
+                "reason": "事实明确未证明备选渠道覆盖全部需求，statement却称已证明覆盖且风险消除，与事实相反。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "uncertainty",
+                "supported": true,
+                "reason": "uncertainty仅说明条件分析不能认定条件已发生，与事实一致。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "supported": true,
+                "reason": "该条件为通用复核条件，不夹带与事实相反的前提，可通过。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "statement",
+                "supported": false,
+                "reason": "statement基于错误前提“备选渠道已证明覆盖全部需求”，未解释事实如何支持看空方向，机制不成立。",
+                "criterion": "directional_mechanism"
+              }
+            ]
+          },
+          {
+            "item_id": "hypothesis:2",
+            "supported": false,
+            "reason": "statement仅复述资料缺口，未解释已知事实如何支持看多方向，directional_mechanism不通过。",
+            "reason_code": "INSUFFICIENT_EVIDENCE",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "supported": true,
+                "reason": "事实明确本次资料未提供客户集中度和订单期限，statement准确复述该缺口。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "uncertainty",
+                "supported": true,
+                "reason": "uncertainty说明条件分析不能认定条件已发生，与事实一致。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "supported": true,
+                "reason": "该条件为通用复核条件，不夹带与事实相反的前提，可通过。",
+                "criterion": "source_support"
+              },
+              {
+                "field_path": "statement",
+                "supported": false,
+                "reason": "statement仅列出资料缺口，未解释已知事实如何支持看多方向，不构成方向性机制。",
+                "criterion": "directional_mechanism"
+              }
+            ]
+          },
+          {
+            "item_id": "section:0",
+            "supported": true,
+            "reason": "summary准确反映资料缺口，未将缺口当作实质论点，与事实一致。",
+            "reason_code": "SUPPORTED",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "supported": true,
+                "reason": "事实明确本次资料未提供客户集中度和订单期限，summary据此说明客户结构未知且不把缺口当作实质论点，符合事实。",
+                "criterion": "source_support"
+              }
+            ]
+          }
+        ]
+      },
+      "verdicts": {
+        "hypothesis:0": true,
+        "hypothesis:1": false,
+        "hypothesis:2": false,
+        "section:0": true
+      },
+      "false_accept": [],
+      "false_reject": [],
+      "input_tokens": 3635,
+      "output_tokens": 1079,
+      "seconds": 10.614424223000015
+    },
+    {
+      "group": "counter_and_gap",
+      "variant": "leaf",
+      "payload": {
+        "schema_version": "4.0",
+        "verdicts": [
+          {
+            "item_id": "hypothesis:0",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若单一供应商供货中断，公司生产可能停滞；备选渠道可限制这一风险，但尚不能认定可覆盖全部需求。",
+                "reason": "事实披露单一供应商供货中断可能使生产停滞，且备选渠道未证明能覆盖全部需求，statement准确复述该条件风险与限制。"
+              },
+              {
+                "field_path": "uncertainty",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "该判断为条件分析，不能据此认定条件已发生。",
+                "reason": "事实仅提供条件性风险，未确认事件已发生，uncertainty正确说明该判断为条件分析。"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若后续资料否定上述条件或传导关系，应重新核对该判断。",
+                "reason": "该证伪条件为通用逻辑表述，与事实无冲突，且未夹带无依据前提。"
+              },
+              {
+                "field_path": "statement",
+                "criterion": "directional_mechanism",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若单一供应商供货中断，公司生产可能停滞；备选渠道可限制这一风险，但尚不能认定可覆盖全部需求。",
+                "reason": "statement明确说明单一供应商中断导致生产停滞的传导机制，并指出备选渠道的限制作用，构成方向性机制。"
+              },
+              {
+                "field_path": "statement",
+                "criterion": "counter_meaning",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若单一供应商供货中断，公司生产可能停滞；备选渠道可限制这一风险，但尚不能认定可覆盖全部需求。",
+                "reason": "反证事实指出备选渠道未证明覆盖全部需求，statement已包含该限制，未削弱论点。"
+              }
+            ]
+          },
+          {
+            "item_id": "hypothesis:1",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "criterion": "source_support",
+                "reason_code": "COUNTER_MEANING_INVALID",
+                "target_quote": "若单一供应商供货中断，公司生产可能停滞；备选渠道已证明可覆盖全部需求，因此风险已经消除。",
+                "reason": "事实明确备选渠道未证明能覆盖全部需求，statement却声称已证明覆盖全部需求且风险消除，与事实相反。"
+              },
+              {
+                "field_path": "uncertainty",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "该判断为条件分析，不能据此认定条件已发生。",
+                "reason": "事实仅提供条件性风险，未确认事件已发生，uncertainty正确说明该判断为条件分析。"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若后续资料否定上述条件或传导关系，应重新核对该判断。",
+                "reason": "该证伪条件为通用逻辑表述，与事实无冲突，且未夹带无依据前提。"
+              },
+              {
+                "field_path": "statement",
+                "criterion": "directional_mechanism",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若单一供应商供货中断，公司生产可能停滞；备选渠道已证明可覆盖全部需求，因此风险已经消除。",
+                "reason": "statement包含单一供应商中断导致生产停滞的传导机制，但备选渠道覆盖全部需求的断言无事实支持，机制部分仍成立。"
+              },
+              {
+                "field_path": "statement",
+                "criterion": "counter_meaning",
+                "reason_code": "COUNTER_MEANING_INVALID",
+                "target_quote": "若单一供应商供货中断，公司生产可能停滞；备选渠道已证明可覆盖全部需求，因此风险已经消除。",
+                "reason": "反证事实指出备选渠道未证明覆盖全部需求，statement却声称已证明覆盖全部需求，未正确限制论点。"
+              }
+            ]
+          },
+          {
+            "item_id": "hypothesis:2",
+            "field_checks": [
+              {
+                "field_path": "statement",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "本次资料没有客户集中度和订单期限，无法评价客户结构。",
+                "reason": "事实明确本次资料未提供客户集中度和订单期限，statement准确复述该资料缺口。"
+              },
+              {
+                "field_path": "uncertainty",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "该判断为条件分析，不能据此认定条件已发生。",
+                "reason": "事实仅提供资料缺口，未确认任何条件已发生，uncertainty正确说明该判断为条件分析。"
+              },
+              {
+                "field_path": "falsification_conditions[0]",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "若后续资料否定上述条件或传导关系，应重新核对该判断。",
+                "reason": "该证伪条件为通用逻辑表述，与事实无冲突，且未夹带无依据前提。"
+              },
+              {
+                "field_path": "statement",
+                "criterion": "directional_mechanism",
+                "reason_code": "INSUFFICIENT_EVIDENCE",
+                "target_quote": "本次资料没有客户集中度和订单期限，无法评价客户结构。",
+                "reason": "statement仅陈述资料缺口，未解释任何已知事实如何支持方向，不构成方向性机制。"
+              }
+            ]
+          },
+          {
+            "item_id": "section:0",
+            "field_checks": [
+              {
+                "field_path": "summary",
+                "criterion": "source_support",
+                "reason_code": "SUPPORTED",
+                "target_quote": "本次资料没有客户集中度和订单期限，因此客户结构保持未知，不把资料缺口当作实质看多或看空论点。",
+                "reason": "事实明确本次资料未提供客户集中度和订单期限，summary准确总结该资料缺口并保持未知状态。"
+              }
+            ]
+          }
+        ]
+      },
+      "verdicts": {
+        "hypothesis:0": true,
+        "hypothesis:1": false,
+        "hypothesis:2": false,
+        "section:0": true
+      },
+      "false_accept": [],
+      "false_reject": [],
+      "input_tokens": 3758,
+      "output_tokens": 1528,
+      "seconds": 13.926052830000003
+    }
+  ]
+}

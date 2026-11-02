@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "product_commit": "797976eb5dc349ffff182750492e052818008d29",
+  "generated_at": "2026-07-31T01:05:00Z",
+  "runtime_mode": "PUBLIC_STATIC",
+  "release_tier": "DEV_ONLY",
+  "data_mode": "DEMO_REPLAY"
+}

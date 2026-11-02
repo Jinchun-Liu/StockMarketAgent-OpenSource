@@ -1,0 +1,60 @@
+{
+  "$id": "https://stock-market-agent.local/schemas/events/event-evidence-selector.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Point-in-time query for one selected event revision and its bounded timeline.",
+  "properties": {
+    "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+    },
+    "revision": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Revision"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "timeline_before_revision": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Timeline Before Revision"
+    },
+    "timeline_limit": {
+      "default": 20,
+      "maximum": 50,
+      "minimum": 1,
+      "title": "Timeline Limit",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "as_of"
+  ],
+  "title": "EventEvidenceRevisionSelector",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.event_views.EventEvidenceRevisionSelector",
+  "x-schema-version": "1.0"
+}

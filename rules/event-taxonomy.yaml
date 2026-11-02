@@ -1,0 +1,55 @@
+version: "2026-07-21.1"
+effective_from: "2026-07-21T00:00:00+08:00"
+change_reason: initial engineering baseline
+
+events:
+  earnings_growth:
+    family: financial_results
+    candidate_terms: [业绩大增, 预增, 扭亏为盈, 营收增长, 净利润增长]
+    default_direction: positive
+    required_slots: [period, metric, value_or_range]
+  earnings_loss:
+    family: financial_results
+    candidate_terms: [业绩亏损, 预亏, 由盈转亏, 大幅下滑]
+    default_direction: negative
+    required_slots: [period, metric, value_or_range]
+  share_repurchase:
+    family: capital_action
+    candidate_terms: [回购, 注销回购股份]
+    default_direction: positive
+    required_slots: [status, amount_or_quantity]
+  shareholder_reduction:
+    family: capital_action
+    candidate_terms: [减持, 拟减持, 集中竞价减持]
+    default_direction: negative
+    required_slots: [shareholder, status, percentage_or_quantity]
+  major_order:
+    family: operations
+    candidate_terms: [大额订单, 中标, 签订合同, 战略合作]
+    default_direction: mixed
+    required_slots: [counterparty, amount_or_unknown, binding_status]
+  policy_support:
+    family: policy
+    candidate_terms: [政策扶持, 补贴, 专项资金, 试点, 鼓励发展]
+    default_direction: mixed
+    required_slots: [issuer, region, industry_scope, effective_time]
+  regulatory_penalty:
+    family: compliance
+    candidate_terms: [监管处罚, 行政处罚, 立案调查, 警示函]
+    default_direction: negative
+    required_slots: [authority, subject, status]
+  litigation:
+    family: legal
+    candidate_terms: [诉讼, 仲裁, 判决, 被执行]
+    default_direction: mixed
+    required_slots: [status, amount_or_unknown, counterparty]
+  correction:
+    family: disclosure_quality
+    candidate_terms: [更正公告, 补充公告, 取消, 终止]
+    default_direction: mixed
+    required_slots: [corrected_event, changed_facts]
+
+modifiers:
+  negation_terms: [不构成, 未发生, 不存在, 无重大影响, 尚未, 否认]
+  uncertainty_terms: [拟, 计划, 可能, 预计, 意向, 尚需审批]
+  cancellation_terms: [取消, 终止, 未通过, 失效]

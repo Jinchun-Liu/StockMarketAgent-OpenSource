@@ -1,0 +1,383 @@
+[
+  {
+    "name": "statutory-announcement-new",
+    "model": "EventEvidenceView",
+    "payload": {
+      "schema_version": "1.0",
+      "event_id": "00000000-0000-0000-0000-000000001001",
+      "cluster_id": "00000000-0000-0000-0000-000000009001",
+      "revision": 1,
+      "change_type": "new",
+      "instrument_ids": ["XSHG:600000"],
+      "event_type": "statutory.announcement",
+      "title": "Synthetic statutory announcement",
+      "as_of": "2026-07-25T01:00:00Z",
+      "revision_known_at": "2026-07-25T00:07:00Z",
+      "supersedes_revision": null,
+      "extraction_version": "r1-extractor-v1",
+      "ruleset_version": "r1-event-rules-v1",
+      "audit_id": "00000000-0000-0000-0000-000000005001",
+      "revision_timeline": {
+        "before_revision": null,
+        "items": [
+          {
+            "revision": 1,
+            "change_type": "new",
+            "revision_known_at": "2026-07-25T00:07:00Z",
+            "supersedes_revision": null,
+            "extraction_version": "r1-extractor-v1",
+            "ruleset_version": "r1-event-rules-v1",
+            "audit_id": "00000000-0000-0000-0000-000000005001"
+          }
+        ],
+        "has_older": false,
+        "next_before_revision": null
+      },
+      "facts": [
+        {
+          "slot": "announcement.subject",
+          "value": {"kind": "text", "value": "Synthetic board resolution"},
+          "unit": null,
+          "period": null,
+          "evidence_ids": ["00000000-0000-0000-0000-000000002001"]
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "00000000-0000-0000-0000-000000002001",
+          "source_id": "synthetic_exchange_announcement",
+          "source_role": "statutory",
+          "source_url": "https://exchange.invalid/announcement/1001",
+          "title": "Synthetic statutory announcement source",
+          "published_at": "2026-07-25T00:00:00Z",
+          "first_seen_at": "2026-07-25T00:05:00Z",
+          "fetched_at": "2026-07-25T00:06:00Z",
+          "revision_known_at": "2026-07-25T00:07:00Z",
+          "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "license_id": "synthetic-test-license-v1",
+          "rights_snapshot_hash": "1111111111111111111111111111111111111111111111111111111111111111"
+        }
+      ]
+    }
+  },
+  {
+    "name": "financial-correction",
+    "model": "EventEvidenceView",
+    "payload": {
+      "schema_version": "1.0",
+      "event_id": "00000000-0000-0000-0000-000000001002",
+      "cluster_id": "00000000-0000-0000-0000-000000009002",
+      "revision": 2,
+      "change_type": "correction",
+      "instrument_ids": ["XSHG:600000"],
+      "event_type": "financial.correction",
+      "title": "Synthetic revenue correction",
+      "as_of": "2026-07-25T01:00:00Z",
+      "revision_known_at": "2026-07-25T00:17:00Z",
+      "supersedes_revision": 1,
+      "extraction_version": "r1-extractor-v1",
+      "ruleset_version": "r1-event-rules-v1",
+      "audit_id": "00000000-0000-0000-0000-000000005002",
+      "revision_timeline": {
+        "before_revision": null,
+        "items": [
+          {
+            "revision": 2,
+            "change_type": "correction",
+            "revision_known_at": "2026-07-25T00:17:00Z",
+            "supersedes_revision": 1,
+            "extraction_version": "r1-extractor-v1",
+            "ruleset_version": "r1-event-rules-v1",
+            "audit_id": "00000000-0000-0000-0000-000000005002"
+          },
+          {
+            "revision": 1,
+            "change_type": "new",
+            "revision_known_at": "2026-07-24T23:07:00Z",
+            "supersedes_revision": null,
+            "extraction_version": "r1-extractor-v1",
+            "ruleset_version": "r1-event-rules-v1",
+            "audit_id": "00000000-0000-0000-0000-000000005092"
+          }
+        ],
+        "has_older": false,
+        "next_before_revision": null
+      },
+      "facts": [
+        {
+          "slot": "financial.revenue",
+          "value": {"kind": "decimal", "value": "125000000.00"},
+          "unit": "CNY",
+          "period": "2026-H1",
+          "evidence_ids": ["00000000-0000-0000-0000-000000002003"]
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "00000000-0000-0000-0000-000000002002",
+          "source_id": "synthetic_exchange_original",
+          "source_role": "statutory",
+          "source_url": "https://exchange.invalid/financial/1002/original",
+          "title": "Synthetic original financial disclosure",
+          "published_at": "2026-07-24T23:00:00Z",
+          "first_seen_at": "2026-07-24T23:05:00Z",
+          "fetched_at": "2026-07-24T23:06:00Z",
+          "revision_known_at": "2026-07-24T23:07:00Z",
+          "content_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "license_id": "synthetic-test-license-v1",
+          "rights_snapshot_hash": "2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        {
+          "evidence_id": "00000000-0000-0000-0000-000000002003",
+          "source_id": "synthetic_exchange_correction",
+          "source_role": "statutory",
+          "source_url": "https://exchange.invalid/financial/1002/correction",
+          "title": "Synthetic corrected financial disclosure",
+          "published_at": "2026-07-25T00:10:00Z",
+          "first_seen_at": "2026-07-25T00:15:00Z",
+          "fetched_at": "2026-07-25T00:16:00Z",
+          "revision_known_at": "2026-07-25T00:17:00Z",
+          "content_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "license_id": "synthetic-test-license-v1",
+          "rights_snapshot_hash": "3333333333333333333333333333333333333333333333333333333333333333",
+          "correction_relation": {
+            "kind": "replacement",
+            "prior_evidence_id": "00000000-0000-0000-0000-000000002002"
+          }
+        }
+      ],
+      "correction": {
+        "kind": "replacement",
+        "slot": "financial.revenue",
+        "unit": "CNY",
+        "period": "2026-H1",
+        "previous_value": {"kind": "decimal", "value": "120000000.00"},
+        "current_value": {"kind": "decimal", "value": "125000000.00"},
+        "previous_evidence_ids": ["00000000-0000-0000-0000-000000002002"],
+        "current_evidence_ids": ["00000000-0000-0000-0000-000000002003"]
+      }
+    }
+  },
+  {
+    "name": "numeric-contradiction",
+    "model": "EventEvidenceView",
+    "payload": {
+      "schema_version": "1.0",
+      "event_id": "00000000-0000-0000-0000-000000001003",
+      "cluster_id": "00000000-0000-0000-0000-000000009003",
+      "revision": 2,
+      "change_type": "contradiction",
+      "instrument_ids": ["XSHG:600000"],
+      "event_type": "market.numeric_conflict",
+      "title": "Synthetic closing-price contradiction",
+      "as_of": "2026-07-25T01:00:00Z",
+      "revision_known_at": "2026-07-25T00:26:00Z",
+      "supersedes_revision": 1,
+      "extraction_version": "r1-extractor-v1",
+      "ruleset_version": "r1-event-rules-v1",
+      "audit_id": "00000000-0000-0000-0000-000000005003",
+      "revision_timeline": {
+        "before_revision": null,
+        "items": [
+          {
+            "revision": 2,
+            "change_type": "contradiction",
+            "revision_known_at": "2026-07-25T00:26:00Z",
+            "supersedes_revision": 1,
+            "extraction_version": "r1-extractor-v1",
+            "ruleset_version": "r1-event-rules-v1",
+            "audit_id": "00000000-0000-0000-0000-000000005003"
+          },
+          {
+            "revision": 1,
+            "change_type": "new",
+            "revision_known_at": "2026-07-25T00:19:00Z",
+            "supersedes_revision": null,
+            "extraction_version": "r1-extractor-v1",
+            "ruleset_version": "r1-event-rules-v1",
+            "audit_id": "00000000-0000-0000-0000-000000005093"
+          }
+        ],
+        "has_older": false,
+        "next_before_revision": null
+      },
+      "facts": [
+        {
+          "slot": "market.close",
+          "value": {"kind": "decimal", "value": "10.25"},
+          "unit": "CNY",
+          "period": "2026-07-24",
+          "evidence_ids": ["00000000-0000-0000-0000-000000002004"]
+        },
+        {
+          "slot": "market.close",
+          "value": {"kind": "decimal", "value": "10.35"},
+          "unit": "CNY",
+          "period": "2026-07-24",
+          "evidence_ids": ["00000000-0000-0000-0000-000000002005"]
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "00000000-0000-0000-0000-000000002004",
+          "source_id": "synthetic_market_primary",
+          "source_role": "professional_market",
+          "source_url": "https://market.invalid/quote/1003/a",
+          "title": "Synthetic professional market source A",
+          "published_at": "2026-07-25T00:20:00Z",
+          "first_seen_at": "2026-07-25T00:21:00Z",
+          "fetched_at": "2026-07-25T00:22:00Z",
+          "revision_known_at": "2026-07-25T00:23:00Z",
+          "content_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "license_id": "synthetic-test-license-v1",
+          "rights_snapshot_hash": "4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        {
+          "evidence_id": "00000000-0000-0000-0000-000000002005",
+          "source_id": "synthetic_market_secondary",
+          "source_role": "professional_information",
+          "source_url": "https://information.invalid/quote/1003/b",
+          "title": "Synthetic professional information source B",
+          "published_at": "2026-07-25T00:20:00Z",
+          "first_seen_at": "2026-07-25T00:24:00Z",
+          "fetched_at": "2026-07-25T00:25:00Z",
+          "revision_known_at": "2026-07-25T00:26:00Z",
+          "content_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "license_id": "synthetic-test-license-v1",
+          "rights_snapshot_hash": "5555555555555555555555555555555555555555555555555555555555555555"
+        }
+      ]
+    }
+  },
+  {
+    "name": "macro-flash-timeliness-unverified",
+    "model": "EventEvidenceView",
+    "payload": {
+      "schema_version": "1.0",
+      "event_id": "00000000-0000-0000-0000-000000001004",
+      "cluster_id": "00000000-0000-0000-0000-000000009004",
+      "revision": 1,
+      "change_type": "new",
+      "instrument_ids": ["XSHG:600000"],
+      "event_type": "macro.flash",
+      "title": "Synthetic macro flash pending verification",
+      "as_of": "2026-07-25T01:00:00Z",
+      "revision_known_at": "2026-07-25T00:33:00Z",
+      "supersedes_revision": null,
+      "extraction_version": "r1-extractor-v1",
+      "ruleset_version": "r1-event-rules-v1",
+      "audit_id": "00000000-0000-0000-0000-000000005004",
+      "revision_timeline": {
+        "before_revision": null,
+        "items": [
+          {
+            "revision": 1,
+            "change_type": "new",
+            "revision_known_at": "2026-07-25T00:33:00Z",
+            "supersedes_revision": null,
+            "extraction_version": "r1-extractor-v1",
+            "ruleset_version": "r1-event-rules-v1",
+            "audit_id": "00000000-0000-0000-0000-000000005004"
+          }
+        ],
+        "has_older": false,
+        "next_before_revision": null
+      },
+      "facts": [
+        {
+          "slot": "macro.claim",
+          "value": {"kind": "text", "value": "Synthetic unverified macro claim"},
+          "unit": null,
+          "period": null,
+          "evidence_ids": ["00000000-0000-0000-0000-000000002006"]
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "00000000-0000-0000-0000-000000002006",
+          "source_id": "synthetic_discovery_wire",
+          "source_role": "discovery",
+          "source_url": "https://discovery.invalid/macro/1004",
+          "title": "Synthetic discovery-only macro source",
+          "published_at": "2026-07-25T00:30:00Z",
+          "first_seen_at": "2026-07-25T00:31:00Z",
+          "fetched_at": "2026-07-25T00:32:00Z",
+          "revision_known_at": "2026-07-25T00:33:00Z",
+          "content_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "license_id": "synthetic-test-license-v1",
+          "rights_snapshot_hash": "6666666666666666666666666666666666666666666666666666666666666666"
+        }
+      ]
+    }
+  },
+  {
+    "name": "single-source-outage",
+    "model": "EventEvidenceView",
+    "payload": {
+      "schema_version": "1.0",
+      "event_id": "00000000-0000-0000-0000-000000001005",
+      "cluster_id": "00000000-0000-0000-0000-000000009005",
+      "revision": 2,
+      "change_type": "update",
+      "instrument_ids": ["XSHG:600000"],
+      "event_type": "company.news",
+      "title": "Synthetic company news with degraded coverage",
+      "as_of": "2026-07-25T01:00:00Z",
+      "revision_known_at": "2026-07-25T00:43:00Z",
+      "supersedes_revision": 1,
+      "extraction_version": "r1-extractor-v1",
+      "ruleset_version": "r1-event-rules-v1",
+      "audit_id": "00000000-0000-0000-0000-000000005005",
+      "revision_timeline": {
+        "before_revision": null,
+        "items": [
+          {
+            "revision": 2,
+            "change_type": "update",
+            "revision_known_at": "2026-07-25T00:43:00Z",
+            "supersedes_revision": 1,
+            "extraction_version": "r1-extractor-v1",
+            "ruleset_version": "r1-event-rules-v1",
+            "audit_id": "00000000-0000-0000-0000-000000005005"
+          },
+          {
+            "revision": 1,
+            "change_type": "new",
+            "revision_known_at": "2026-07-25T00:35:00Z",
+            "supersedes_revision": null,
+            "extraction_version": "r1-extractor-v1",
+            "ruleset_version": "r1-event-rules-v1",
+            "audit_id": "00000000-0000-0000-0000-000000005095"
+          }
+        ],
+        "has_older": false,
+        "next_before_revision": null
+      },
+      "facts": [
+        {
+          "slot": "company.news",
+          "value": {"kind": "text", "value": "Synthetic surviving-source report"},
+          "unit": null,
+          "period": null,
+          "evidence_ids": ["00000000-0000-0000-0000-000000002007"]
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "00000000-0000-0000-0000-000000002007",
+          "source_id": "synthetic_information_survivor",
+          "source_role": "professional_information",
+          "source_url": "https://information.invalid/news/1005",
+          "title": "Synthetic surviving professional source",
+          "published_at": "2026-07-25T00:40:00Z",
+          "first_seen_at": "2026-07-25T00:41:00Z",
+          "fetched_at": "2026-07-25T00:42:00Z",
+          "revision_known_at": "2026-07-25T00:43:00Z",
+          "content_sha256": "abababababababababababababababababababababababababababababababab",
+          "license_id": "synthetic-test-license-v1",
+          "rights_snapshot_hash": "7777777777777777777777777777777777777777777777777777777777777777"
+        }
+      ]
+    }
+  }
+]

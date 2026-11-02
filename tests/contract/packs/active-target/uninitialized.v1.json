@@ -1,0 +1,15 @@
+{
+  "data": {
+    "schema_version": "1.0",
+    "found": false,
+    "active_target": null,
+    "as_of": "2026-07-28T01:05:00Z"
+  },
+  "meta": {
+    "request_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "correlation_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+    "as_of": "2026-07-28T01:05:00Z",
+    "generated_at": "2026-07-28T01:05:01Z",
+    "contract_version": "1.0"
+  }
+}

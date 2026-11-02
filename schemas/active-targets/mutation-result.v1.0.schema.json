@@ -1,0 +1,186 @@
+{
+  "$defs": {
+    "ActiveTargetState": {
+      "additionalProperties": false,
+      "description": "Point-in-time state returned by GET active-target.",
+      "properties": {
+        "active_target": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ActiveTargetView"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "found": {
+          "title": "Found",
+          "type": "boolean"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "found",
+        "as_of"
+      ],
+      "title": "ActiveTargetState",
+      "type": "object",
+      "x-runtime-invariants": [
+        "found is true if and only if active_target is present",
+        "active_target.activated_at is <= as_of when active_target is present"
+      ]
+    },
+    "ActiveTargetView": {
+      "additionalProperties": false,
+      "description": "Resolved active target without internal watchlist or repository details.",
+      "properties": {
+        "activated_at": {
+          "format": "date-time",
+          "title": "Activated At",
+          "type": "string"
+        },
+        "instrument": {
+          "$ref": "#/$defs/InstrumentRef"
+        },
+        "revision": {
+          "minimum": 1,
+          "title": "Revision",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "instrument",
+        "revision",
+        "activated_at"
+      ],
+      "title": "ActiveTargetView",
+      "type": "object"
+    },
+    "InstrumentRef": {
+      "additionalProperties": false,
+      "description": "Market-neutral security identity suitable for future exchanges.",
+      "properties": {
+        "asset_class": {
+          "default": "equity",
+          "pattern": "^[a-z][a-z0-9_]{1,31}$",
+          "title": "Asset Class",
+          "type": "string"
+        },
+        "currency": {
+          "default": "CNY",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "exchange": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Exchange",
+          "type": "string"
+        },
+        "instrument_id": {
+          "pattern": "^[A-Z0-9_]+:[A-Za-z0-9._-]+$",
+          "title": "Instrument Id",
+          "type": "string"
+        },
+        "market": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Market",
+          "type": "string"
+        },
+        "symbol": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Symbol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instrument_id",
+        "symbol",
+        "exchange",
+        "market"
+      ],
+      "title": "InstrumentRef",
+      "type": "object"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/active-targets/mutation-result.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Result of one idempotent active-target selection.",
+  "properties": {
+    "changed": {
+      "title": "Changed",
+      "type": "boolean"
+    },
+    "created": {
+      "title": "Created",
+      "type": "boolean"
+    },
+    "idempotent_replay": {
+      "default": false,
+      "title": "Idempotent Replay",
+      "type": "boolean"
+    },
+    "previous_revision": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Previous Revision"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "state": {
+      "$ref": "#/$defs/ActiveTargetState"
+    },
+    "stored_at": {
+      "format": "date-time",
+      "title": "Stored At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "state",
+    "created",
+    "changed",
+    "stored_at"
+  ],
+  "title": "ActiveTargetMutationResult",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.active_targets.ActiveTargetMutationResult",
+  "x-runtime-invariants": [
+    "state contains a found active target",
+    "stored_at is <= state.as_of",
+    "created=true requires previous_revision=null, target revision 1, and changed=true",
+    "created=false requires previous_revision",
+    "changed=true increments previous_revision exactly once",
+    "changed=false preserves previous_revision",
+    "idempotent_replay=true requires created=false and changed=false"
+  ],
+  "x-schema-version": "1.0"
+}

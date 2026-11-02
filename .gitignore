@@ -1,0 +1,64 @@
+# Secrets and local overrides
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.venv/
+dist/
+build/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+npm-debug.log*
+*.tsbuildinfo
+
+# Runtime data and models
+data/raw/**
+data/interim/**
+data/processed/**
+data/private/**
+artifacts/models/**
+artifacts/mlruns/**
+artifacts/checkpoints/**
+artifacts/reports/**
+!data/**/.gitkeep
+!artifacts/**/.gitkeep
+!data/README.md
+!artifacts/README.md
+
+# Local databases, logs and caches
+*.db
+*.sqlite*
+logs/
+.cache/
+.runtime/
+.celerybeat-schedule*
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Agent-local preferences (repository rules remain tracked)
+AGENTS.override.md
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Private third-party directory: generate locally only after rights review.
+resources/instruments/ashare-catalog.dev.v1.json.gz

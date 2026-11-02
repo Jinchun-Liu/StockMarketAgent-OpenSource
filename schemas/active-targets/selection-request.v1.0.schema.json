@@ -1,0 +1,77 @@
+{
+  "$id": "https://stock-market-agent.local/schemas/active-targets/selection-request.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Select one instrument by canonical id or by symbol and exchange.",
+  "properties": {
+    "exchange": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Exchange"
+    },
+    "expected_revision": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expected Revision"
+    },
+    "instrument_id": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Z0-9_]+:[A-Za-z0-9._-]+$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Instrument Id"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "symbol": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Symbol"
+    }
+  },
+  "required": [
+    "schema_version"
+  ],
+  "title": "ActiveTargetSelectionRequest",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.active_targets.ActiveTargetSelectionRequest",
+  "x-runtime-invariants": [
+    "provide exactly one selector: instrument_id or symbol + exchange"
+  ],
+  "x-schema-version": "1.0"
+}

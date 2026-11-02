@@ -1,0 +1,357 @@
+{
+  "$defs": {
+    "PublicSnapshotAsset": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "briefing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "path": {
+                "pattern": "/briefing\\.json$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "evidence_index"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "path": {
+                "pattern": "/evidence-index\\.json$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "evidence"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "path": {
+                "pattern": "/evidence/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\.json$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "run_status"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "path": {
+                "pattern": "/run-status\\.json$"
+              }
+            }
+          }
+        }
+      ],
+      "description": "One immutable JSON asset addressed from the site root without a leading slash.",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/PublicSnapshotAssetKind"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        },
+        "path": {
+          "maxLength": 1024,
+          "minLength": 1,
+          "not": {
+            "anyOf": [
+              {
+                "pattern": "^/"
+              },
+              {
+                "pattern": "//"
+              },
+              {
+                "pattern": "(^|/)\\.{1,2}(/|$)"
+              }
+            ]
+          },
+          "pattern": "^[a-zA-Z0-9._/-]+\\.json$",
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size_bytes": {
+          "maximum": 10485760,
+          "minimum": 0,
+          "title": "Size Bytes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "title": "PublicSnapshotAsset",
+      "type": "object"
+    },
+    "PublicSnapshotAssetKind": {
+      "description": "Bounded public asset roles understood by the snapshot consumer.",
+      "enum": [
+        "briefing",
+        "evidence_index",
+        "evidence",
+        "run_status"
+      ],
+      "title": "PublicSnapshotAssetKind",
+      "type": "string"
+    },
+    "PublicSnapshotCompleteness": {
+      "description": "Whether the snapshot contains all expected capability outputs.",
+      "enum": [
+        "complete",
+        "partial",
+        "unavailable"
+      ],
+      "title": "PublicSnapshotCompleteness",
+      "type": "string"
+    },
+    "PublicSnapshotOriginMode": {
+      "description": "Permitted origins for the development-only public preview.",
+      "enum": [
+        "dev_live",
+        "demo_replay"
+      ],
+      "title": "PublicSnapshotOriginMode",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/public-snapshots/manifest.v1.1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "origin_mode": {
+            "const": "dev_live"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "disclaimer_code": {
+            "const": "DEV_ONLY_UNVERIFIED_SOURCE"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "origin_mode": {
+            "const": "demo_replay"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "disclaimer_code": {
+            "const": "HISTORICAL_DEMO_REPLAY"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "assets": {
+          "contains": {
+            "properties": {
+              "kind": {
+                "const": "briefing"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "maxContains": 1,
+          "minContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "assets": {
+          "contains": {
+            "properties": {
+              "kind": {
+                "const": "run_status"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "maxContains": 1,
+          "minContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "assets": {
+          "contains": {
+            "properties": {
+              "kind": {
+                "const": "evidence_index"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "maxContains": 1,
+          "minContains": 1
+        }
+      }
+    }
+  ],
+  "description": "Immutable inventory and freshness boundary for one public preview snapshot.",
+  "properties": {
+    "assets": {
+      "items": {
+        "$ref": "#/$defs/PublicSnapshotAsset"
+      },
+      "maxItems": 1003,
+      "minItems": 3,
+      "title": "Assets",
+      "type": "array"
+    },
+    "completeness": {
+      "$ref": "#/$defs/PublicSnapshotCompleteness"
+    },
+    "data_as_of": {
+      "format": "date-time",
+      "title": "Data As Of",
+      "type": "string"
+    },
+    "delivery_mode": {
+      "const": "public_static",
+      "title": "Delivery Mode",
+      "type": "string"
+    },
+    "disclaimer_code": {
+      "enum": [
+        "DEV_ONLY_UNVERIFIED_SOURCE",
+        "HISTORICAL_DEMO_REPLAY"
+      ],
+      "title": "Disclaimer Code",
+      "type": "string"
+    },
+    "fresh_until": {
+      "format": "date-time",
+      "title": "Fresh Until",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "last_successful_run_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Successful Run At"
+    },
+    "origin_mode": {
+      "$ref": "#/$defs/PublicSnapshotOriginMode"
+    },
+    "product_commit": {
+      "pattern": "^[a-f0-9]{40}$",
+      "title": "Product Commit",
+      "type": "string"
+    },
+    "published_at": {
+      "format": "date-time",
+      "title": "Published At",
+      "type": "string"
+    },
+    "release_tier": {
+      "const": "dev_only",
+      "default": "dev_only",
+      "title": "Release Tier",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "format": "uuid",
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "snapshot_id",
+    "product_commit",
+    "delivery_mode",
+    "origin_mode",
+    "data_as_of",
+    "generated_at",
+    "published_at",
+    "fresh_until",
+    "completeness",
+    "disclaimer_code",
+    "assets"
+  ],
+  "title": "PublicSnapshotManifestV1_1",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.public_snapshots.PublicSnapshotManifestV1_1",
+  "x-runtime-invariants": [
+    "data_as_of <= generated_at <= published_at < fresh_until",
+    "last_successful_run_at is null or <= published_at",
+    "asset paths are unique and rooted at data/snapshots/{snapshot_id}/",
+    "asset sizes and SHA-256 digests match the exact published bytes",
+    "the evidence index exactly names every evidence asset event ID and path",
+    "completeness matches the validated PublicRunStatusV1 terminal state"
+  ],
+  "x-schema-version": "1.1"
+}

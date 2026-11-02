@@ -1,0 +1,596 @@
+version: "2026-08-31.3"
+default_http_policy:
+  max_concurrency_per_domain: 1
+  minimum_interval_seconds: 5
+  conditional_requests: true
+  retry_delays_seconds: [60, 300, 1800]
+  stop_status_codes: [403, 429]
+  user_agent: "StockMarketAgent/0.1 (personal-research; contact=repository-owner)"
+
+sources:
+  - id: sse_official_instrument_directory
+    name: 上海证券交易所 A 股证券目录
+    tier: regulator
+    authority: 0.95
+    enabled: true
+    capabilities: [instrument_directory]
+    dev_live:
+      capability: instrument.directory
+      provider: shanghai_stock_exchange
+      access_channel: official_public_web
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: official_noncommercial_website_terms
+      adapter_name: akshare_official_sse_directory
+      canonical_url: https://www.sse.com.cn/assortment/stock/list/share/
+      allowed_hosts: [www.sse.com.cn]
+    data_rights: &official_exchange_directory_rights
+      owner: 上海证券交易所
+      official_url: https://www.sse.com.cn/home/legal/
+      access_method: official_public_web_noncommercial_download
+      license_id: official-legal-statement-noncommercial-download-20260831
+      expiry: null
+      quota: conservative_one_explicit_refresh_per_day
+      cache_allowed: allowlisted_metadata_only
+      fulltext_allowed: false
+      embedding_allowed: false
+      training_allowed: false
+      redistribution_allowed: false
+      retention_days: 3650
+      permitted_operations: [fetch, retain]
+      permitted_uses: [noncommercial_private_research_preview]
+
+  - id: szse_official_instrument_directory
+    name: 深圳证券交易所 A 股证券目录
+    tier: regulator
+    authority: 0.95
+    enabled: true
+    capabilities: [instrument_directory]
+    dev_live:
+      capability: instrument.directory
+      provider: shenzhen_stock_exchange
+      access_channel: official_public_web
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: official_noncommercial_website_terms
+      adapter_name: akshare_official_szse_directory
+      canonical_url: https://www.szse.cn/market/product/stock/list/index.html
+      allowed_hosts: [www.szse.cn]
+    data_rights:
+      <<: *official_exchange_directory_rights
+      owner: 深圳证券交易所
+      official_url: https://www.szse.cn/application/laws/
+
+  - id: bse_official_instrument_directory
+    name: 北京证券交易所 A 股证券目录
+    tier: regulator
+    authority: 0.95
+    enabled: true
+    capabilities: [instrument_directory]
+    dev_live:
+      capability: instrument.directory
+      provider: beijing_stock_exchange
+      access_channel: official_public_web
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: official_noncommercial_website_terms
+      adapter_name: akshare_official_bse_directory
+      canonical_url: https://www.bse.cn/nq/listedcompany.html
+      allowed_hosts: [www.bse.cn]
+    data_rights:
+      <<: *official_exchange_directory_rights
+      owner: 北京证券交易所
+      official_url: https://www.bseinfo.net/about_neeq/legal_disclaimer.html
+
+  - id: szse_official_identity_change_disclosures
+    name: 深圳证券交易所证券代码变更公告
+    tier: statutory_disclosure
+    authority: 0.95
+    enabled: true
+    capabilities: [instrument_identity_alias]
+    dev_live:
+      capability: instrument.identity_alias
+      provider: shenzhen_stock_exchange
+      access_channel: official_public_web
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: official_noncommercial_website_terms
+      adapter_name: fixed_official_identity_change_disclosures
+      canonical_url: https://www.szse.cn/disclosure/notice/
+      allowed_hosts: [www.szse.cn, disc.static.szse.cn]
+    data_rights:
+      <<: *official_exchange_directory_rights
+      owner: 深圳证券交易所
+      official_url: https://www.szse.cn/application/laws/
+
+  - id: sse_official_identity_change_disclosures
+    name: 上海证券交易所证券代码变更公告
+    tier: statutory_disclosure
+    authority: 0.95
+    enabled: true
+    capabilities: [instrument_identity_alias]
+    dev_live:
+      capability: instrument.identity_alias
+      provider: shanghai_stock_exchange
+      access_channel: official_public_web
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: official_noncommercial_website_terms
+      adapter_name: fixed_official_identity_change_disclosures
+      canonical_url: https://www.sse.com.cn/disclosure/listedinfo/announcement/
+      allowed_hosts: [www.sse.com.cn, static.sse.com.cn]
+    data_rights:
+      <<: *official_exchange_directory_rights
+      owner: 上海证券交易所
+      official_url: https://www.sse.com.cn/home/legal/
+
+  - id: research_preview_announcements
+    name: 研究预览公告接口
+    tier: licensed_aggregator
+    authority: 0.45
+    enabled: true
+    capabilities: [announcements]
+    dev_live:
+      capability: statutory.announcements
+      provider: promax_tushare_compatible
+      access_channel: official_http
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: unverified
+      quality_tier: free_structured
+      evidence_role: structured_helper
+      content_tier: statutory_disclosure
+      fact_eligibility: company_fact
+      endpoint_name: anns_d
+      adapter_name: promax_tushare_research_http
+      canonical_url: https://www.yuque.com/tenglong-emkah/foo0eo/ztr29xs6iarfom71
+      allowed_hosts: [pcd.mobcvb.cn]
+    data_rights: &promax_preview_rights
+      owner: project-owner-research-account
+      official_url: https://www.yuque.com/tenglong-emkah/foo0eo/ztr29xs6iarfom71
+      access_method: owner_configured_r1_r6_research_api
+      license_id: r1-r6-development-preview-not-r7-approved
+      expiry: null
+      quota: project_cap_30_requests_per_minute
+      cache_allowed: allowlisted_structured_fields_only
+      fulltext_allowed: false
+      embedding_allowed: false
+      training_allowed: false
+      redistribution_allowed: false
+      retention_days: 30
+
+  - id: research_preview_financials
+    name: 研究预览利润表接口
+    tier: licensed_aggregator
+    authority: 0.45
+    enabled: true
+    capabilities: [financial_indicators]
+    dev_live:
+      capability: financial.changes
+      provider: promax_tushare_compatible
+      access_channel: official_http
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: unverified
+      quality_tier: free_structured
+      evidence_role: structured_helper
+      content_tier: statutory_disclosure
+      fact_eligibility: company_fact
+      endpoint_name: income
+      adapter_name: promax_tushare_research_http
+      canonical_url: https://www.yuque.com/tenglong-emkah/foo0eo/ztr29xs6iarfom71
+      allowed_hosts: [pcd.mobcvb.cn]
+    data_rights: *promax_preview_rights
+
+  - id: research_preview_market
+    name: 研究预览日行情接口
+    tier: licensed_aggregator
+    authority: 0.45
+    enabled: true
+    capabilities: [daily_quotes]
+    dev_live:
+      capability: market.snapshot
+      provider: quantdata888_tushare_compatible
+      access_channel: official_http
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: unverified
+      quality_tier: free_structured
+      evidence_role: structured_helper
+      content_tier: market_data
+      fact_eligibility: market_observation
+      endpoint_name: daily
+      adapter_name: quantdata888_tushare_research_http
+      canonical_url: https://quantdata888.duckdns.org
+      allowed_hosts: [quantdata888.duckdns.org]
+    data_rights: &quantdata_preview_rights
+      owner: project-owner-research-account
+      official_url: https://quantdata888.duckdns.org
+      access_method: owner_configured_r1_r6_research_api
+      license_id: r1-r6-development-preview-not-r7-approved
+      expiry: null
+      quota: project_cap_30_requests_per_minute
+      cache_allowed: allowlisted_structured_fields_only
+      fulltext_allowed: false
+      embedding_allowed: false
+      training_allowed: false
+      redistribution_allowed: false
+      retention_days: 30
+
+  - id: research_preview_company_news
+    name: 研究预览公司与行业资讯接口
+    tier: licensed_aggregator
+    authority: 0.25
+    enabled: true
+    capabilities: [company_industry_news]
+    dev_live:
+      capability: company_industry.news
+      provider: promax_tushare_compatible
+      access_channel: official_http
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: unverified
+      quality_tier: free_structured
+      evidence_role: discovery
+      content_tier: authoritative_financial_media
+      fact_eligibility: context_only
+      endpoint_name: news
+      adapter_name: promax_tushare_research_http
+      canonical_url: https://www.yuque.com/tenglong-emkah/foo0eo/ztr29xs6iarfom71
+      allowed_hosts: [pcd.mobcvb.cn]
+    data_rights: *promax_preview_rights
+
+  - id: research_preview_macro
+    name: 研究预览科技政策接口
+    tier: licensed_aggregator
+    authority: 0.25
+    enabled: true
+    capabilities: [national_policy]
+    dev_live:
+      capability: macro.flashes
+      provider: promax_tushare_compatible
+      access_channel: official_http
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: unverified
+      quality_tier: free_structured
+      evidence_role: discovery
+      content_tier: official_policy
+      fact_eligibility: context_only
+      endpoint_name: npr
+      adapter_name: promax_tushare_research_http
+      canonical_url: https://www.yuque.com/tenglong-emkah/foo0eo/ztr29xs6iarfom71
+      allowed_hosts: [pcd.mobcvb.cn]
+    data_rights: *promax_preview_rights
+
+  - id: qinghong_cninfo_flash
+    name: 晴红巨潮公告快讯
+    tier: licensed_aggregator
+    authority: 0.2
+    enabled: false
+    capabilities: [announcements]
+    dev_live:
+      capability: statutory.announcements
+      provider: qinghong_finance_flash
+      access_channel: official_http
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: unverified
+      quality_tier: free_structured
+      evidence_role: discovery
+      content_tier: statutory_disclosure
+      fact_eligibility: context_only
+      endpoint_name: cninfo-latest
+      adapter_name: qinghong_finance_flash_http
+      canonical_url: https://my.feishu.cn/wiki/T7XWwCxtIiOcLIkkXQbc5I1Tntc
+      allowed_hosts: [124.223.180.129]
+      activation_blocker: https_endpoint_required
+    data_rights: &qinghong_preview_rights
+      owner: project-owner-research-account
+      official_url: https://my.feishu.cn/wiki/T7XWwCxtIiOcLIkkXQbc5I1Tntc
+      access_method: owner_configured_r1_r6_research_api
+      license_id: qinghong-standard-r1-r6-development-preview
+      expiry: 2026-09-19
+      quota: conservative_30_requests_per_minute
+      cache_allowed: allowlisted_metadata_only
+      fulltext_allowed: false
+      embedding_allowed: false
+      training_allowed: false
+      redistribution_allowed: false
+      retention_days: 30
+
+  - id: qinghong_cls_flash
+    name: 晴红财联社公司快讯
+    tier: licensed_aggregator
+    authority: 0.2
+    enabled: false
+    capabilities: [company_industry_news]
+    dev_live:
+      capability: company_industry.news
+      provider: qinghong_finance_flash
+      access_channel: official_http
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: unverified
+      quality_tier: free_structured
+      evidence_role: discovery
+      content_tier: authoritative_financial_media
+      fact_eligibility: context_only
+      endpoint_name: cls-telegraph
+      adapter_name: qinghong_finance_flash_http
+      canonical_url: https://my.feishu.cn/wiki/T7XWwCxtIiOcLIkkXQbc5I1Tntc
+      allowed_hosts: [124.223.180.129]
+      activation_blocker: https_endpoint_required
+    data_rights: *qinghong_preview_rights
+
+  - id: qinghong_jin10_flash
+    name: 晴红金十宏观快讯
+    tier: licensed_aggregator
+    authority: 0.2
+    enabled: false
+    capabilities: [national_policy]
+    dev_live:
+      capability: macro.flashes
+      provider: qinghong_finance_flash
+      access_channel: official_http
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: unverified
+      quality_tier: free_structured
+      evidence_role: discovery
+      content_tier: authoritative_financial_media
+      fact_eligibility: context_only
+      endpoint_name: jin10
+      adapter_name: qinghong_finance_flash_http
+      canonical_url: https://my.feishu.cn/wiki/T7XWwCxtIiOcLIkkXQbc5I1Tntc
+      allowed_hosts: [124.223.180.129]
+      activation_blocker: https_endpoint_required
+    data_rights: *qinghong_preview_rights
+
+  - id: cninfo_data_service
+    name: 巨潮资讯数据服务平台
+    tier: statutory_disclosure
+    authority: 1.0
+    enabled: false
+    capabilities: [announcements, financial_statements, company_profile]
+    data_rights:
+      owner: 深圳证券信息有限公司
+      official_url: https://webapi.cninfo.com.cn/
+      access_method: licensed_api
+      license_id: pending-cninfo-account
+      expiry: null
+      quota: contract
+      cache_allowed: pending_contract
+      fulltext_allowed: pending_contract
+      embedding_allowed: pending_contract
+      training_allowed: false
+      redistribution_allowed: false
+      retention_days: 7
+
+  - id: sse_verification
+    name: 上海证券交易所公告核验
+    tier: statutory_disclosure
+    authority: 1.0
+    enabled: true
+    capabilities: [announcement_verification]
+    data_rights:
+      owner: 上海证券交易所
+      official_url: https://www.sse.com.cn/disclosure/listedinfo/announcement/
+      access_method: public_web_verification
+      license_id: sse-legal-statement
+      expiry: null
+      quota: conservative_http_policy
+      cache_allowed: metadata_only
+      fulltext_allowed: false
+      embedding_allowed: false
+      training_allowed: false
+      redistribution_allowed: false
+      retention_days: 7
+
+  - id: szse_verification
+    name: 深圳证券交易所公告核验
+    tier: statutory_disclosure
+    authority: 1.0
+    enabled: true
+    capabilities: [announcement_verification]
+    data_rights:
+      owner: 深圳证券交易所
+      official_url: https://www.szse.cn/disclosure/listed/notice/index.html
+      access_method: public_web_verification
+      license_id: szse-legal-statement
+      expiry: null
+      quota: conservative_http_policy
+      cache_allowed: metadata_only
+      fulltext_allowed: false
+      embedding_allowed: false
+      training_allowed: false
+      redistribution_allowed: false
+      retention_days: 7
+
+  - id: bse_verification
+    name: 北京证券交易所公告核验
+    tier: statutory_disclosure
+    authority: 1.0
+    enabled: true
+    capabilities: [announcement_verification]
+    data_rights:
+      owner: 北京证券交易所
+      official_url: https://www.bse.cn/disclosure/announcement.html
+      access_method: public_web_verification
+      license_id: bse-public-site-only
+      expiry: null
+      quota: conservative_http_policy
+      cache_allowed: metadata_only
+      fulltext_allowed: false
+      embedding_allowed: false
+      training_allowed: false
+      redistribution_allowed: false
+      retention_days: 7
+
+  - id: state_council_policy
+    name: 国务院政策文件库
+    tier: official_policy
+    authority: 0.95
+    # Enable only after the per-source legal review record is resolved.
+    enabled: false
+    capabilities: [national_policy]
+    data_rights:
+      owner: 国务院办公厅
+      official_url: https://sousuo.www.gov.cn/zcwjk/policyDocumentLibrary
+      access_method: public_official_documents
+      license_id: prc-copyright-law-article-5-review-required
+      expiry: null
+      quota: conservative_http_policy
+      cache_allowed: official_document_only
+      fulltext_allowed: official_document_only
+      embedding_allowed: official_document_only
+      training_allowed: legal_review_required
+      redistribution_allowed: source_link_required
+      retention_days: 3650
+
+  - id: gov_cn_public_macro
+    name: 国务院政策文件库开发期快讯发现
+    tier: official_policy
+    authority: 0.0
+    enabled: false
+    capabilities: [macro_flashes_discovery]
+    dev_live:
+      capability: macro.flashes
+      provider: gov_cn
+      access_channel: official_http
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: unverified
+      quality_tier: free_official
+      evidence_role: discovery
+      fact_eligibility: context_only
+      endpoint_name: official_gov_policy
+      adapter_name: official_http_gov_cn
+      canonical_url: https://sousuo.www.gov.cn/zcwjk/
+      publisher: 国务院办公厅
+      category: 政策文件
+      allowed_hosts: [sousuo.www.gov.cn, www.gov.cn]
+    data_rights:
+      owner: 国务院办公厅
+      official_url: https://sousuo.www.gov.cn/zcwjk/
+      access_method: dev_live_allowlisted_public_metadata
+      license_id: dev-only-unverified-official-metadata-discovery
+      expiry: null
+      quota: one-request-per-domain-per-5-seconds
+      cache_allowed: metadata_only
+      fulltext_allowed: false
+      embedding_allowed: false
+      training_allowed: false
+      redistribution_allowed: false
+      retention_days: 1
+
+  - id: miit_public_macro
+    name: 工信部政务公开开发期快讯发现
+    tier: official_policy
+    authority: 0.0
+    enabled: false
+    capabilities: [macro_flashes_discovery]
+    dev_live:
+      capability: macro.flashes
+      provider: miit
+      access_channel: official_http
+      runtime_mode: dev_live
+      release_tier: dev_only
+      rights_status: unverified
+      quality_tier: free_official
+      evidence_role: discovery
+      fact_eligibility: context_only
+      endpoint_name: official_miit_policy
+      adapter_name: official_http_miit
+      canonical_url: https://www.miit.gov.cn/zwgk/index.html
+      publisher: 工业和信息化部
+      category: 政务公开
+      allowed_hosts: [www.miit.gov.cn]
+    data_rights:
+      owner: 工业和信息化部
+      official_url: https://www.miit.gov.cn/zwgk/index.html
+      access_method: dev_live_allowlisted_public_metadata
+      license_id: dev-only-unverified-official-metadata-discovery
+      expiry: null
+      quota: one-request-per-domain-per-5-seconds
+      cache_allowed: metadata_only
+      fulltext_allowed: false
+      embedding_allowed: false
+      training_allowed: false
+      redistribution_allowed: false
+      retention_days: 1
+
+  - id: local_government_policy
+    name: 地方政府政策站点注册表
+    tier: official_policy
+    authority: 0.95
+    enabled: false
+    capabilities: [regional_policy]
+    data_rights:
+      owner: multiple-local-governments
+      official_url: configs/local-government-domains.yaml
+      access_method: allowlisted_public_official_documents
+      license_id: per-domain-review-required
+      expiry: null
+      quota: conservative_http_policy
+      cache_allowed: per-domain
+      fulltext_allowed: per-domain
+      embedding_allowed: per-domain
+      training_allowed: false
+      redistribution_allowed: source_link_required
+      retention_days: 3650
+
+  - id: choice_quant_api
+    name: 东方财富 Choice 量化接口
+    tier: licensed_aggregator
+    authority: 0.60
+    enabled: false
+    capabilities:
+      - quotes
+      - kline
+      - financial_indicators
+      - company_industry_news
+      - macro_flashes
+      - research_reports
+      - aggregated_sentiment
+    capability_tiers:
+      quotes: market_data
+      kline: market_data
+      financial_indicators: licensed_aggregator
+      company_industry_news: authoritative_financial_media
+      macro_flashes: authoritative_financial_media
+      research_reports: licensed_broker_research
+      aggregated_sentiment: social_aggregate
+    data_rights:
+      owner: 东方财富信息股份有限公司
+      official_url: https://quantapi.eastmoney.com/
+      access_method: licensed_api
+      license_id: pending-choice-contract
+      expiry: null
+      quota: contract
+      cache_allowed: pending_contract
+      fulltext_allowed: pending_contract
+      embedding_allowed: pending_contract
+      training_allowed: false
+      redistribution_allowed: false
+      retention_days: 7
+
+  - id: akshare_development_fallback
+    name: AKShare 开发期适配验证
+    tier: development_only
+    authority: 0.35
+    enabled: false
+    capabilities: [non_production_connector_smoke_test]
+    data_rights:
+      owner: upstream-websites
+      official_url: https://github.com/akfamily/akshare
+      access_method: unofficial_wrapper
+      license_id: code-license-does-not-license-data
+      expiry: null
+      quota: unknown
+      cache_allowed: false
+      fulltext_allowed: false
+      embedding_allowed: false
+      training_allowed: false
+      redistribution_allowed: false
+      retention_days: 0

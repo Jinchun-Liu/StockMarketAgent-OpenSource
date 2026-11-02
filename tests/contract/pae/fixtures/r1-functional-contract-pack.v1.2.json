@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.2",
+  "fixed_instrument_id": "XSHG:603986",
+  "preferred_http_media_types": [
+    "application/vnd.stockassistant.r1-source-provenance.v1.2+json",
+    "application/vnd.stockassistant.r1-source-provenance.v1+json",
+    "application/json"
+  ],
+  "modes": {
+    "authorized": {
+      "access_channels": ["authorized_api"],
+      "quality_tiers": ["authorized"],
+      "release_tier": "authorized",
+      "rights_status": "approved"
+    },
+    "demo_replay": {
+      "access_channels": ["demo_replay"],
+      "quality_tiers": ["demo_replay"],
+      "release_tier": "dev_only",
+      "rights_status": "not_applicable"
+    },
+    "dev_live": {
+      "access_channels": ["akshare", "official_http", "baostock_sdk"],
+      "quality_tiers": ["free_official", "free_structured", "dev_web"],
+      "release_tier": "dev_only",
+      "rights_status": "unverified"
+    },
+    "public_static": {
+      "access_channels": ["demo_replay"],
+      "quality_tiers": ["demo_replay"],
+      "release_tier": "dev_only",
+      "rights_status": "not_applicable"
+    }
+  },
+  "evidence_roles": [
+    "authoritative",
+    "structured_helper",
+    "discovery",
+    "cross_check"
+  ],
+  "no_fallback": [
+    "authorized_to_dev_live",
+    "dev_live_to_demo_replay",
+    "public_static_to_live"
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "data": {
+    "schema_version": "1.2",
+    "briefing_id": "20000000-0000-4000-8000-000000000001",
+    "as_of": "2026-07-31T00:55:00Z",
+    "generated_at": "2026-07-31T01:05:00Z",
+    "comparison_since": "2026-07-30T01:05:00Z",
+    "disclaimer": "合成演示只用于验证信息链路，不构成证券事实、投资建议、收益承诺或交易指令。",
+    "instrument": {
+      "instrument_id": "XSHG:603986",
+      "symbol": "603986.SH",
+      "exchange": "SSE",
+      "market": "CN_A",
+      "asset_class": "equity",
+      "currency": "CNY"
+    },
+    "omitted_duplicate_count": 3,
+    "ruleset_version": "r1-functional-replay-v1",
+    "runtime_mode": "public_static",
+    "release_tier": "dev_only",
+    "ingestion_progress": {
+      "source_id": "cninfo_public_replay",
+      "capability": "statutory_announcements",
+      "advance_state": "advanced",
+      "batch_audit_id": "30000000-0000-4000-8000-000000000001",
+      "business_watermark": "2026-07-31T00:50:00Z",
+      "data_mode": "synthetic_development_only",
+      "provenance": {
+        "schema_version": "1.2",
+        "provider": "fixture",
+        "access_channel": "demo_replay",
+        "adapter_name": "r1_public_replay",
+        "adapter_version": "1.0.0",
+        "endpoint_name": "day_5",
+        "source_identifier": "r1-public-replay-day-5",
+        "runtime_mode": "public_static",
+        "release_tier": "dev_only",
+        "rights_status": "not_applicable",
+        "quality_tier": "demo_replay",
+        "evidence_role": "authoritative"
+      }
+    },
+    "source_coverage": [
+      {
+        "source_id": "cninfo_public_replay",
+        "capability": "statutory_announcements",
+        "source_role": "statutory",
+        "status": "ok",
+        "license_id": "synthetic-public-demo",
+        "observed_at": "2026-07-31T00:55:00Z",
+        "last_success_at": "2026-07-31T00:50:00Z",
+        "gap_reason": null,
+        "progress": {"advance_state": "advanced", "batch_audit_id": "30000000-0000-4000-8000-000000000001", "business_watermark": "2026-07-31T00:50:00Z", "data_mode": "synthetic_development_only"},
+        "provenance": {"schema_version": "1.2", "provider": "fixture", "access_channel": "demo_replay", "adapter_name": "r1_public_replay", "adapter_version": "1.0.0", "endpoint_name": "statutory", "source_identifier": "replay-statutory", "runtime_mode": "public_static", "release_tier": "dev_only", "rights_status": "not_applicable", "quality_tier": "demo_replay", "evidence_role": "authoritative"}
+      },
+      {
+        "source_id": "financial_public_replay",
+        "capability": "financial_changes",
+        "source_role": "professional_information",
+        "status": "ok",
+        "license_id": "synthetic-public-demo",
+        "observed_at": "2026-07-31T00:55:00Z",
+        "last_success_at": "2026-07-31T00:48:00Z",
+        "gap_reason": null,
+        "progress": {"advance_state": "advanced", "batch_audit_id": "30000000-0000-4000-8000-000000000002", "business_watermark": "2026-07-31T00:48:00Z", "data_mode": "synthetic_development_only"},
+        "provenance": {"schema_version": "1.2", "provider": "fixture", "access_channel": "demo_replay", "adapter_name": "r1_public_replay", "adapter_version": "1.0.0", "endpoint_name": "financial", "source_identifier": "replay-financial", "runtime_mode": "public_static", "release_tier": "dev_only", "rights_status": "not_applicable", "quality_tier": "demo_replay", "evidence_role": "structured_helper"}
+      },
+      {
+        "source_id": "market_public_replay",
+        "capability": "market_snapshot",
+        "source_role": "professional_market",
+        "status": "ok",
+        "license_id": "synthetic-public-demo",
+        "observed_at": "2026-07-31T00:55:00Z",
+        "last_success_at": "2026-07-31T00:45:00Z",
+        "gap_reason": null,
+        "progress": {"advance_state": "advanced", "batch_audit_id": "30000000-0000-4000-8000-000000000003", "business_watermark": "2026-07-31T00:45:00Z", "data_mode": "synthetic_development_only"},
+        "provenance": {"schema_version": "1.2", "provider": "fixture", "access_channel": "demo_replay", "adapter_name": "r1_public_replay", "adapter_version": "1.0.0", "endpoint_name": "market", "source_identifier": "replay-market", "runtime_mode": "public_static", "release_tier": "dev_only", "rights_status": "not_applicable", "quality_tier": "demo_replay", "evidence_role": "structured_helper"}
+      },
+      {
+        "source_id": "news_public_replay",
+        "capability": "company_industry_news",
+        "source_role": "discovery",
+        "status": "delayed",
+        "license_id": "synthetic-public-demo",
+        "observed_at": "2026-07-31T00:55:00Z",
+        "last_success_at": "2026-07-30T00:45:00Z",
+        "gap_reason": "SYNTHETIC_SOURCE_DELAY",
+        "progress": {"advance_state": "not_advanced", "batch_audit_id": "30000000-0000-4000-8000-000000000004", "business_watermark": "2026-07-30T00:45:00Z", "data_mode": "synthetic_development_only"},
+        "provenance": {"schema_version": "1.2", "provider": "fixture", "access_channel": "demo_replay", "adapter_name": "r1_public_replay", "adapter_version": "1.0.0", "endpoint_name": "news", "source_identifier": "replay-news", "runtime_mode": "public_static", "release_tier": "dev_only", "rights_status": "not_applicable", "quality_tier": "demo_replay", "evidence_role": "discovery"}
+      },
+      {
+        "source_id": "macro_public_replay",
+        "capability": "macro_flashes",
+        "source_role": "discovery",
+        "status": "not_qualified",
+        "license_id": "synthetic-public-demo",
+        "observed_at": "2026-07-31T00:55:00Z",
+        "last_success_at": null,
+        "gap_reason": "CONTEXT_ASSOCIATION_INSUFFICIENT",
+        "progress": {"advance_state": "not_advanced", "batch_audit_id": "30000000-0000-4000-8000-000000000005", "business_watermark": null, "data_mode": "synthetic_development_only"},
+        "provenance": {"schema_version": "1.2", "provider": "fixture", "access_channel": "demo_replay", "adapter_name": "r1_public_replay", "adapter_version": "1.0.0", "endpoint_name": "macro", "source_identifier": "replay-macro", "runtime_mode": "public_static", "release_tier": "dev_only", "rights_status": "not_applicable", "quality_tier": "demo_replay", "evidence_role": "discovery"}
+      }
+    ],
+    "sections": {
+      "statutory_announcements": {"items": [{"change_type": "correction", "event_id": "10000000-0000-4000-8000-000000000001", "event_revision": 2, "evidence_ids": ["40000000-0000-4000-8000-000000000001", "40000000-0000-4000-8000-000000000002"], "fact_summary": "合成公告将计划金额从 1000 万元更正为 1200 万元。", "first_seen_at": "2026-07-31T00:40:00Z", "headline": "合成公告更正示例", "inference": null, "published_at": "2026-07-31T00:30:00Z", "source_roles": ["statutory"]}]},
+      "financial_changes": {"items": [{"change_type": "contradiction", "event_id": "10000000-0000-4000-8000-000000000002", "event_revision": 2, "evidence_ids": ["40000000-0000-4000-8000-000000000003", "40000000-0000-4000-8000-000000000004"], "fact_summary": "两个合成来源对同一财务字段给出不同值，系统保留双方证据。", "first_seen_at": "2026-07-31T00:42:00Z", "headline": "合成财务字段冲突示例", "inference": "系统未裁决冲突，请下钻核对证据。", "published_at": "2026-07-31T00:32:00Z", "source_roles": ["statutory", "professional_information"]}]},
+      "market_snapshot": {"items": []},
+      "company_industry_news": {"items": []},
+      "macro_flashes": {"items": []}
+    }
+  },
+  "meta": {
+    "as_of": "2026-07-31T00:55:00Z",
+    "correlation_id": "00000000-0000-4000-8000-000000000003",
+    "request_id": "00000000-0000-4000-8000-000000000004",
+    "generated_at": "2026-07-31T01:05:00Z",
+    "contract_version": "1.0"
+  }
+}

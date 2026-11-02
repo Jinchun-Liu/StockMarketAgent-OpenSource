@@ -1,0 +1,203 @@
+x-python-service: &python-service
+  build:
+    context: ..
+    dockerfile: deploy/docker/python.Dockerfile
+  environment:
+    APP_ENV: development
+    APP_NAME: StockMarketAgent
+    APP_VERSION: 0.1.0
+    LOG_LEVEL: INFO
+    TIMEZONE: Asia/Shanghai
+    STOCK_ASSISTANT_PROJECT_ROOT: /app
+    WEB_ORIGIN: http://127.0.0.1:3000
+    DATABASE_URL: postgresql+asyncpg://stock_assistant:synthetic-local-only@postgres:5432/stock_assistant
+    REDIS_URL: redis://valkey:6379/0
+    CELERY_BROKER_URL: redis://valkey:6379/1
+    CELERY_RESULT_BACKEND: redis://valkey:6379/2
+    MINIO_ENDPOINT: seaweedfs:8333
+    MINIO_ACCESS_KEY: synthetic-local-access
+    MINIO_SECRET_KEY: synthetic-local-secret
+    MINIO_SECURE: "false"
+    LOCAL_LLM_BASE_URL: http://host.docker.internal:8100/v1
+    LOCAL_LLM_API_KEY: local-only
+    LOCAL_LLM_MODEL: Qwen/Qwen3.5-9B
+    EXTERNAL_LLM_ENABLED: "false"
+    ENABLE_SOCIAL_SOURCE: "false"
+    ENABLE_DIRECTIONAL_FORECAST: "false"
+    ENABLE_R1_FIXTURE: "true"
+    R1_RUNTIME_MODE: demo_replay
+    ENABLE_R1_DEV_LIVE: "false"
+    ENABLE_R2_SYNTHETIC_RESEARCH: "true"
+  restart: unless-stopped
+  depends_on:
+    postgres:
+      condition: service_healthy
+    valkey:
+      condition: service_healthy
+    seaweedfs:
+      condition: service_healthy
+    seaweedfs-configure:
+      condition: service_completed_successfully
+  networks: [backend]
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16@sha256:1d533553fefe4f12e5d80c7b80622ba0c382abb5758856f52983d8789179f0fb
+    environment:
+      POSTGRES_DB: stock_assistant
+      POSTGRES_USER: stock_assistant
+      POSTGRES_PASSWORD: synthetic-local-only
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [backend]
+
+  valkey:
+    image: valkey/valkey:9.1.0-alpine@sha256:c9b77919daeba2c02ad954d0c844cc4e7142069d177b89c5fd771f405daf9e02
+    command: ["valkey-server", "--appendonly", "yes", "--save", "60", "1"]
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    networks: [backend]
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.40@sha256:52194fba4fecd0083c842158b3a902ba6e04a63619b2b0efcd08007bdb6a4602
+    command:
+      [
+        "server",
+        "-dir=/data",
+        "-master.volumeSizeLimitMB=256",
+        "-master.telemetry=false",
+        # SeaweedFS may reserve the legacy seven-volume growth batch before the
+        # startup configuration is applied. Keep that bounded batch plus four
+        # application collections, two isolation probes, and three spare slots;
+        # subsequent collections grow one volume at a time via fs.configure.
+        "-volume.max=16",
+        "-s3",
+        "-s3.port=8333",
+      ]
+    volumes:
+      - seaweedfs-data:/data
+    ports:
+      - name: object-console
+        target: 9333
+        published: "0"
+        host_ip: 127.0.0.1
+        protocol: tcp
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "nc -z 127.0.0.1 18888 && curl -fsS http://127.0.0.1:9333/cluster/status >/dev/null && curl -fsS http://127.0.0.1:8888/ >/dev/null && curl -fsS http://127.0.0.1:8333/ | grep -q '<ListAllMyBucketsResult'",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    networks: [backend]
+
+  seaweedfs-configure:
+    image: chrislusf/seaweedfs:4.40@sha256:52194fba4fecd0083c842158b3a902ba6e04a63619b2b0efcd08007bdb6a4602
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - >-
+        printf '%s\n'
+        'fs.configure -locationPrefix=/buckets/ -volumeGrowthCount=1 -apply'
+        | /usr/bin/weed shell -master=seaweedfs:9333 -filer=seaweedfs:8888
+    depends_on:
+      seaweedfs:
+        condition: service_healthy
+    restart: "no"
+    networks: [backend]
+
+  migrate:
+    <<: *python-service
+    restart: "no"
+    command: ["alembic", "upgrade", "head"]
+
+  api:
+    <<: *python-service
+    command: ["uvicorn", "apps.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - name: api
+        target: 8000
+        published: "0"
+        host_ip: 127.0.0.1
+        protocol: tcp
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/live', timeout=2)",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  worker:
+    <<: *python-service
+    command: ["celery", "-A", "apps.worker.celery_app:celery_app", "worker", "--loglevel=INFO"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  scheduler:
+    <<: *python-service
+    command: ["python", "-m", "apps.scheduler.main"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/docker/web.Dockerfile
+    environment:
+      API_INTERNAL_URL: http://api:8000
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - name: web
+        target: 3000
+        published: "0"
+        host_ip: 127.0.0.1
+        protocol: tcp
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    networks: [backend]
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  valkey-data:
+  seaweedfs-data:

@@ -1,0 +1,71 @@
+{
+  "$id": "https://stock-market-agent.local/schemas/public-snapshots/pointer.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Small mutable pointer switched only after an immutable snapshot is complete.",
+  "properties": {
+    "manifest_path": {
+      "maxLength": 1024,
+      "minLength": 1,
+      "not": {
+        "anyOf": [
+          {
+            "pattern": "^/"
+          },
+          {
+            "pattern": "//"
+          },
+          {
+            "pattern": "(^|/)\\.{1,2}(/|$)"
+          }
+        ]
+      },
+      "pattern": "^[a-zA-Z0-9._/-]+\\.json$",
+      "title": "Manifest Path",
+      "type": "string"
+    },
+    "manifest_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Manifest Sha256",
+      "type": "string"
+    },
+    "product_commit": {
+      "pattern": "^[a-f0-9]{40}$",
+      "title": "Product Commit",
+      "type": "string"
+    },
+    "published_at": {
+      "format": "date-time",
+      "title": "Published At",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "format": "uuid",
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "snapshot_id",
+    "manifest_path",
+    "manifest_sha256",
+    "product_commit",
+    "published_at"
+  ],
+  "title": "PublicSnapshotPointerV1",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.public_snapshots.PublicSnapshotPointerV1",
+  "x-runtime-invariants": [
+    "manifest_path equals data/snapshots/{snapshot_id}/manifest.json",
+    "manifest_sha256 equals the SHA-256 digest of the exact manifest bytes",
+    "snapshot_id, product_commit, and published_at match the manifest"
+  ],
+  "x-schema-version": "1.0"
+}

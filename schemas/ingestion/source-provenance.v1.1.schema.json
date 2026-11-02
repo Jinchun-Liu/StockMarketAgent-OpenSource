@@ -1,0 +1,184 @@
+{
+  "$defs": {
+    "SourceAccessChannel": {
+      "description": "Auditable access channel used to obtain one source record.",
+      "enum": [
+        "demo_replay",
+        "akshare",
+        "official_http",
+        "authorized_api"
+      ],
+      "title": "SourceAccessChannel",
+      "type": "string"
+    },
+    "SourceReleaseTier": {
+      "description": "Whether a source result may leave development-only surfaces.",
+      "enum": [
+        "dev_only",
+        "authorized"
+      ],
+      "title": "SourceReleaseTier",
+      "type": "string"
+    },
+    "SourceRightsStatus": {
+      "description": "Publicly safe rights state without exposing contract evidence.",
+      "enum": [
+        "unverified",
+        "approved",
+        "blocked"
+      ],
+      "title": "SourceRightsStatus",
+      "type": "string"
+    },
+    "SourceRuntimeMode": {
+      "description": "Mutually exclusive R1 source execution modes.",
+      "enum": [
+        "demo_replay",
+        "dev_live",
+        "authorized"
+      ],
+      "title": "SourceRuntimeMode",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/ingestion/source-provenance.v1.1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "runtime_mode": {
+            "const": "demo_replay"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "access_channel": {
+            "const": "demo_replay"
+          },
+          "release_tier": {
+            "const": "dev_only"
+          },
+          "rights_status": {
+            "not": {
+              "const": "approved"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "runtime_mode": {
+            "const": "dev_live"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "access_channel": {
+            "const": "akshare"
+          },
+          "release_tier": {
+            "const": "dev_only"
+          },
+          "rights_status": {
+            "const": "unverified"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "runtime_mode": {
+            "const": "authorized"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "access_channel": {
+            "const": "authorized_api"
+          },
+          "release_tier": {
+            "const": "authorized"
+          },
+          "rights_status": {
+            "const": "approved"
+          }
+        }
+      }
+    }
+  ],
+  "description": "Stable source lineage shared by ingestion, storage and public read models.",
+  "properties": {
+    "access_channel": {
+      "$ref": "#/$defs/SourceAccessChannel"
+    },
+    "adapter_name": {
+      "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+      "title": "Adapter Name",
+      "type": "string"
+    },
+    "adapter_version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Adapter Version",
+      "type": "string"
+    },
+    "endpoint_name": {
+      "pattern": "^[a-z][a-z0-9_.-]{1,199}$",
+      "title": "Endpoint Name",
+      "type": "string"
+    },
+    "provider": {
+      "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+      "title": "Provider",
+      "type": "string"
+    },
+    "release_tier": {
+      "$ref": "#/$defs/SourceReleaseTier"
+    },
+    "rights_status": {
+      "$ref": "#/$defs/SourceRightsStatus"
+    },
+    "runtime_mode": {
+      "$ref": "#/$defs/SourceRuntimeMode"
+    },
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_identifier": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Source Identifier",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "provider",
+    "access_channel",
+    "adapter_name",
+    "adapter_version",
+    "endpoint_name",
+    "source_identifier",
+    "runtime_mode",
+    "release_tier",
+    "rights_status"
+  ],
+  "title": "SourceProvenance",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.ingestion.SourceProvenance",
+  "x-runtime-invariants": [
+    "runtime_mode determines access_channel, release_tier, and rights_status"
+  ],
+  "x-schema-version": "1.1"
+}

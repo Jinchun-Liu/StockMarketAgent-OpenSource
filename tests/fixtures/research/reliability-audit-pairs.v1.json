@@ -1,0 +1,730 @@
+{
+  "version": "1.0",
+  "source_identity": "entirely synthetic fixed originals; no real company records",
+  "cutoff": "2026-09-14T00:00:00Z",
+  "groups": [
+    {
+      "id": "conditional_premise",
+      "facts": [
+        {
+          "key": "risk.resilience",
+          "statement": "测试甲公司2025年报披露：若客户延迟付款，可能使公司回款放缓；该风险是否发生尚不确定。",
+          "evidence_id": "921bffec-016d-56cc-bc2c-32bbe3de207a",
+          "value": null,
+          "unit": null,
+          "period": "2025年度",
+          "unit_verified": true,
+          "data_audit_status": "passed",
+          "source_location": "fixed original paragraph: risk.resilience"
+        },
+        {
+          "key": "financial.receivable",
+          "statement": "测试甲公司2025年末应收账款余额100万元，2024年末120万元；两期币种均为人民币。",
+          "evidence_id": "d7db044c-8143-5c43-82c9-122d0a2d1b99",
+          "value": null,
+          "unit": null,
+          "period": "2025年度",
+          "unit_verified": true,
+          "data_audit_status": "passed",
+          "source_location": "fixed original paragraph: financial.receivable"
+        }
+      ],
+      "items": [
+        {
+          "item_id": "hypothesis:0",
+          "hypothesis": {
+            "section": "bear_case",
+            "statement": "若客户延迟付款，公司回款可能放缓，形成现金回收方面的风险。",
+            "supporting_basis": [
+              {
+                "fact_key": "risk.resilience",
+                "evidence_id": "921bffec-016d-56cc-bc2c-32bbe3de207a",
+                "excerpt": "测试甲公司2025年报披露：若客户延迟付款，可能使公司回款放缓；该风险是否发生尚不确定。"
+              }
+            ],
+            "counter_basis": [],
+            "falsification_conditions": [
+              "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+            ],
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。"
+          },
+          "fields_to_check": {
+            "statement": "若客户延迟付款，公司回款可能放缓，形成现金回收方面的风险。",
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。",
+            "falsification_conditions[0]": "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "statement",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "uncertainty",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "falsification_conditions[0]",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "statement",
+              "criterion": "directional_mechanism"
+            }
+          ]
+        },
+        {
+          "item_id": "hypothesis:1",
+          "hypothesis": {
+            "section": "bear_case",
+            "statement": "如果客户付款延迟，现金回收速度可能下降；这一条件不能解释为风险已经发生。",
+            "supporting_basis": [
+              {
+                "fact_key": "risk.resilience",
+                "evidence_id": "921bffec-016d-56cc-bc2c-32bbe3de207a",
+                "excerpt": "测试甲公司2025年报披露：若客户延迟付款，可能使公司回款放缓；该风险是否发生尚不确定。"
+              }
+            ],
+            "counter_basis": [],
+            "falsification_conditions": [
+              "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+            ],
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。"
+          },
+          "fields_to_check": {
+            "statement": "如果客户付款延迟，现金回收速度可能下降；这一条件不能解释为风险已经发生。",
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。",
+            "falsification_conditions[0]": "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "statement",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "uncertainty",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "falsification_conditions[0]",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "statement",
+              "criterion": "directional_mechanism"
+            }
+          ]
+        },
+        {
+          "item_id": "hypothesis:2",
+          "hypothesis": {
+            "section": "bear_case",
+            "statement": "公司应收账款余额已经上升，如果客户再延迟付款，回款风险可能进一步增加。",
+            "supporting_basis": [
+              {
+                "fact_key": "risk.resilience",
+                "evidence_id": "921bffec-016d-56cc-bc2c-32bbe3de207a",
+                "excerpt": "测试甲公司2025年报披露：若客户延迟付款，可能使公司回款放缓；该风险是否发生尚不确定。"
+              },
+              {
+                "fact_key": "financial.receivable",
+                "evidence_id": "d7db044c-8143-5c43-82c9-122d0a2d1b99",
+                "excerpt": "测试甲公司2025年末应收账款余额100万元，2024年末120万元；两期币种均为人民币。"
+              }
+            ],
+            "counter_basis": [],
+            "falsification_conditions": [
+              "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+            ],
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。"
+          },
+          "fields_to_check": {
+            "statement": "公司应收账款余额已经上升，如果客户再延迟付款，回款风险可能进一步增加。",
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。",
+            "falsification_conditions[0]": "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "statement",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "uncertainty",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "falsification_conditions[0]",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "statement",
+              "criterion": "directional_mechanism"
+            }
+          ]
+        },
+        {
+          "item_id": "hypothesis:3",
+          "hypothesis": {
+            "section": "bear_case",
+            "statement": "公司回款风险已经发生并导致资金损失，若客户延迟付款，损失还会增加。",
+            "supporting_basis": [
+              {
+                "fact_key": "risk.resilience",
+                "evidence_id": "921bffec-016d-56cc-bc2c-32bbe3de207a",
+                "excerpt": "测试甲公司2025年报披露：若客户延迟付款，可能使公司回款放缓；该风险是否发生尚不确定。"
+              }
+            ],
+            "counter_basis": [],
+            "falsification_conditions": [
+              "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+            ],
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。"
+          },
+          "fields_to_check": {
+            "statement": "公司回款风险已经发生并导致资金损失，若客户延迟付款，损失还会增加。",
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。",
+            "falsification_conditions[0]": "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "statement",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "uncertainty",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "falsification_conditions[0]",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "statement",
+              "criterion": "directional_mechanism"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "hypothesis:0": true,
+        "hypothesis:1": true,
+        "hypothesis:2": false,
+        "hypothesis:3": false
+      }
+    },
+    {
+      "id": "historical_summary",
+      "facts": [
+        {
+          "key": "management.dividend_plan",
+          "statement": "测试甲公司2026年4月10日公告提出2025年度分红预案，拟每股派发人民币0.20元。",
+          "evidence_id": "474dbe9e-148f-50b5-a6ef-be8aae886ab5",
+          "value": null,
+          "unit": null,
+          "period": "2025年度",
+          "unit_verified": true,
+          "data_audit_status": "passed",
+          "source_location": "fixed original paragraph: management.dividend_plan"
+        },
+        {
+          "key": "management.dividend_execution",
+          "statement": "测试甲公司2026年6月20日公告确认该次2025年度分红已实施，现金红利发放日为2026年6月19日。研究截止日为2026年9月14日。",
+          "evidence_id": "0510348e-534e-542f-a863-1d38fc6b5a7d",
+          "value": null,
+          "unit": null,
+          "period": "2025年度",
+          "unit_verified": true,
+          "data_audit_status": "passed",
+          "source_location": "fixed original paragraph: management.dividend_execution"
+        },
+        {
+          "key": "risk.resilience",
+          "statement": "测试甲公司2025年报披露：若客户延迟付款，可能使公司回款放缓；该风险是否发生尚不确定。",
+          "evidence_id": "921bffec-016d-56cc-bc2c-32bbe3de207a",
+          "value": null,
+          "unit": null,
+          "period": "2025年度",
+          "unit_verified": true,
+          "data_audit_status": "passed",
+          "source_location": "fixed original paragraph: risk.resilience"
+        }
+      ],
+      "items": [
+        {
+          "item_id": "section:0",
+          "section": {
+            "kind": "major_events_and_macro",
+            "title": "固定审核样例",
+            "summary": "2026年4月10日披露的是分红预案；6月20日公告确认该次分红已实施。",
+            "claim_ids": []
+          },
+          "fields_to_check": {
+            "summary": "2026年4月10日披露的是分红预案；6月20日公告确认该次分红已实施。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "summary",
+              "criterion": "source_support"
+            }
+          ]
+        },
+        {
+          "item_id": "section:1",
+          "section": {
+            "kind": "major_events_and_macro",
+            "title": "固定审核样例",
+            "summary": "虽然曾披露分红预案，但截至2026年9月14日仍未实施。",
+            "claim_ids": []
+          },
+          "fields_to_check": {
+            "summary": "虽然曾披露分红预案，但截至2026年9月14日仍未实施。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "summary",
+              "criterion": "source_support"
+            }
+          ]
+        },
+        {
+          "item_id": "section:2",
+          "section": {
+            "kind": "bear_case",
+            "title": "固定审核样例",
+            "summary": "若客户延迟付款，回款可能放缓；这是条件风险，不能认定已经发生。",
+            "claim_ids": []
+          },
+          "fields_to_check": {
+            "summary": "若客户延迟付款，回款可能放缓；这是条件风险，不能认定已经发生。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "summary",
+              "criterion": "source_support"
+            }
+          ]
+        },
+        {
+          "item_id": "section:3",
+          "section": {
+            "kind": "bull_case",
+            "title": "固定审核样例",
+            "summary": "公司已经获得稳定增长的订单，这是当前看多判断的依据。",
+            "claim_ids": []
+          },
+          "fields_to_check": {
+            "summary": "公司已经获得稳定增长的订单，这是当前看多判断的依据。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "summary",
+              "criterion": "source_support"
+            }
+          ]
+        }
+      ],
+      "dependency_context": [
+        {
+          "item_id": "hypothesis:1",
+          "hypothesis": {
+            "section": "bear_case",
+            "statement": "若客户延迟付款，公司回款可能放缓，形成现金回收风险。",
+            "supporting_basis": [
+              {
+                "fact_key": "risk.resilience",
+                "evidence_id": "921bffec-016d-56cc-bc2c-32bbe3de207a",
+                "excerpt": "测试甲公司2025年报披露：若客户延迟付款，可能使公司回款放缓；该风险是否发生尚不确定。"
+              }
+            ],
+            "counter_basis": [],
+            "falsification_conditions": [
+              "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+            ],
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。"
+          },
+          "fields_to_check": {
+            "statement": "若客户延迟付款，公司回款可能放缓，形成现金回收风险。",
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。",
+            "falsification_conditions[0]": "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "statement",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "uncertainty",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "falsification_conditions[0]",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "statement",
+              "criterion": "directional_mechanism"
+            }
+          ]
+        }
+      ],
+      "withdrawn_item_ids": [
+        "hypothesis:0"
+      ],
+      "expected": {
+        "section:0": true,
+        "section:1": false,
+        "section:2": true,
+        "section:3": false
+      }
+    },
+    {
+      "id": "amount_scope_grade",
+      "facts": [
+        {
+          "key": "financial.quality",
+          "statement": "测试甲公司2025年度经营活动现金流量净额为人民币30万元，净利润为人民币20万元；均为公司合并报表口径，净利润未扣除非经常性损益。",
+          "evidence_id": "8c5625c6-ad87-5e28-aa14-be90ba0db84c",
+          "value": null,
+          "unit": null,
+          "period": "2025年度",
+          "unit_verified": true,
+          "data_audit_status": "passed",
+          "source_location": "fixed original paragraph: financial.quality"
+        },
+        {
+          "key": "financial.other_period",
+          "statement": "测试乙公司2024年度净利润为美元40万元。该数值为扣除非经常性损益后的口径。",
+          "evidence_id": "8d778461-0ccd-515d-9fac-b02e58c31e04",
+          "value": null,
+          "unit": null,
+          "period": "2025年度",
+          "unit_verified": true,
+          "data_audit_status": "passed",
+          "source_location": "fixed original paragraph: financial.other_period"
+        }
+      ],
+      "items": [
+        {
+          "item_id": "section:0",
+          "section": {
+            "kind": "financial_quality",
+            "title": "固定审核样例",
+            "summary": "测试甲公司2025年度经营现金流30万元，高于同期同币种同合并口径的净利润20万元。",
+            "claim_ids": []
+          },
+          "fields_to_check": {
+            "summary": "测试甲公司2025年度经营现金流30万元，高于同期同币种同合并口径的净利润20万元。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "summary",
+              "criterion": "source_support"
+            }
+          ],
+          "arithmetic_checks": [
+            {
+              "field_path": "summary",
+              "left_text": "经营现金流30万元",
+              "right_text": "净利润20万元",
+              "amount_order_after_unit_scaling": "greater",
+              "basis": "draft_numbers_only_comparability_not_established"
+            }
+          ]
+        },
+        {
+          "item_id": "section:1",
+          "section": {
+            "kind": "financial_quality",
+            "title": "固定审核样例",
+            "summary": "测试甲公司2025年度经营现金流30万元，低于同期同币种同合并口径的净利润20万元。",
+            "claim_ids": []
+          },
+          "fields_to_check": {
+            "summary": "测试甲公司2025年度经营现金流30万元，低于同期同币种同合并口径的净利润20万元。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "summary",
+              "criterion": "source_support"
+            }
+          ],
+          "arithmetic_checks": [
+            {
+              "field_path": "summary",
+              "left_text": "经营现金流30万元",
+              "right_text": "净利润20万元",
+              "amount_order_after_unit_scaling": "greater",
+              "basis": "draft_numbers_only_comparability_not_established"
+            }
+          ]
+        },
+        {
+          "item_id": "section:2",
+          "section": {
+            "kind": "financial_quality",
+            "title": "固定审核样例",
+            "summary": "测试甲公司经营现金流30万元低于测试乙公司净利润40万元，因此同主体、同期、同币种、同口径的现金流低于利润。",
+            "claim_ids": []
+          },
+          "fields_to_check": {
+            "summary": "测试甲公司经营现金流30万元低于测试乙公司净利润40万元，因此同主体、同期、同币种、同口径的现金流低于利润。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "summary",
+              "criterion": "source_support"
+            }
+          ],
+          "arithmetic_checks": [
+            {
+              "field_path": "summary",
+              "left_text": "经营现金流30万元",
+              "right_text": "净利润40万元",
+              "amount_order_after_unit_scaling": "less",
+              "basis": "draft_numbers_only_comparability_not_established"
+            }
+          ]
+        },
+        {
+          "item_id": "score:0",
+          "dimension": "business_quality",
+          "assessment": {
+            "grade": "abstain",
+            "reasons": [
+              "所给材料未提供可比基准，无法形成等级判断。"
+            ]
+          },
+          "supporting_basis": [
+            {
+              "fact_key": "financial.quality",
+              "evidence_id": "8c5625c6-ad87-5e28-aa14-be90ba0db84c",
+              "excerpt": "测试甲公司2025年度经营活动现金流量净额为人民币30万元，净利润为人民币20万元；均为公司合并报表口径，净利润未扣除非经常性损益。"
+            }
+          ],
+          "counter_basis": [],
+          "fields_to_check": {
+            "grade": "abstain",
+            "reasons[0]": "所给材料未提供可比基准，无法形成等级判断。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "grade",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "reasons[0]",
+              "criterion": "source_support"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "section:0": true,
+        "section:1": false,
+        "section:2": false,
+        "score:0": true
+      }
+    },
+    {
+      "id": "counter_and_gap",
+      "facts": [
+        {
+          "key": "risk.supply",
+          "statement": "测试甲公司2025年报披露：单一供应商供货中断可能使公司生产停滞；公司已建立备选供应商渠道，但未证明能覆盖全部需求。",
+          "evidence_id": "0b8dccc0-b80f-5b45-82ec-5b9428b0c9eb",
+          "value": null,
+          "unit": null,
+          "period": "2025年度",
+          "unit_verified": true,
+          "data_audit_status": "passed",
+          "source_location": "fixed original paragraph: risk.supply"
+        },
+        {
+          "key": "business.unknown",
+          "statement": "本次固定资料未提供测试甲公司的客户集中度和订单期限，不能据此确认其具体数值或趋势。",
+          "evidence_id": "d8a367c6-60ff-51bb-b8ce-f0607edbe7ed",
+          "value": null,
+          "unit": null,
+          "period": "2025年度",
+          "unit_verified": true,
+          "data_audit_status": "passed",
+          "source_location": "fixed original paragraph: business.unknown"
+        }
+      ],
+      "items": [
+        {
+          "item_id": "hypothesis:0",
+          "hypothesis": {
+            "section": "bear_case",
+            "statement": "若单一供应商供货中断，公司生产可能停滞；备选渠道可限制这一风险，但尚不能认定可覆盖全部需求。",
+            "supporting_basis": [
+              {
+                "fact_key": "risk.supply",
+                "evidence_id": "0b8dccc0-b80f-5b45-82ec-5b9428b0c9eb",
+                "excerpt": "测试甲公司2025年报披露：单一供应商供货中断可能使公司生产停滞；公司已建立备选供应商渠道，但未证明能覆盖全部需求。"
+              }
+            ],
+            "counter_basis": [
+              {
+                "fact_key": "risk.supply",
+                "evidence_id": "0b8dccc0-b80f-5b45-82ec-5b9428b0c9eb",
+                "excerpt": "测试甲公司2025年报披露：单一供应商供货中断可能使公司生产停滞；公司已建立备选供应商渠道，但未证明能覆盖全部需求。"
+              }
+            ],
+            "falsification_conditions": [
+              "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+            ],
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。"
+          },
+          "fields_to_check": {
+            "statement": "若单一供应商供货中断，公司生产可能停滞；备选渠道可限制这一风险，但尚不能认定可覆盖全部需求。",
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。",
+            "falsification_conditions[0]": "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "statement",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "uncertainty",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "falsification_conditions[0]",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "statement",
+              "criterion": "directional_mechanism"
+            }
+          ]
+        },
+        {
+          "item_id": "hypothesis:1",
+          "hypothesis": {
+            "section": "bear_case",
+            "statement": "若单一供应商供货中断，公司生产可能停滞；备选渠道已证明可覆盖全部需求，因此风险已经消除。",
+            "supporting_basis": [
+              {
+                "fact_key": "risk.supply",
+                "evidence_id": "0b8dccc0-b80f-5b45-82ec-5b9428b0c9eb",
+                "excerpt": "测试甲公司2025年报披露：单一供应商供货中断可能使公司生产停滞；公司已建立备选供应商渠道，但未证明能覆盖全部需求。"
+              }
+            ],
+            "counter_basis": [
+              {
+                "fact_key": "risk.supply",
+                "evidence_id": "0b8dccc0-b80f-5b45-82ec-5b9428b0c9eb",
+                "excerpt": "测试甲公司2025年报披露：单一供应商供货中断可能使公司生产停滞；公司已建立备选供应商渠道，但未证明能覆盖全部需求。"
+              }
+            ],
+            "falsification_conditions": [
+              "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+            ],
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。"
+          },
+          "fields_to_check": {
+            "statement": "若单一供应商供货中断，公司生产可能停滞；备选渠道已证明可覆盖全部需求，因此风险已经消除。",
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。",
+            "falsification_conditions[0]": "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "statement",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "uncertainty",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "falsification_conditions[0]",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "statement",
+              "criterion": "directional_mechanism"
+            }
+          ]
+        },
+        {
+          "item_id": "hypothesis:2",
+          "hypothesis": {
+            "section": "bull_case",
+            "statement": "本次资料没有客户集中度和订单期限，无法评价客户结构。",
+            "supporting_basis": [
+              {
+                "fact_key": "business.unknown",
+                "evidence_id": "d8a367c6-60ff-51bb-b8ce-f0607edbe7ed",
+                "excerpt": "本次固定资料未提供测试甲公司的客户集中度和订单期限，不能据此确认其具体数值或趋势。"
+              }
+            ],
+            "counter_basis": [],
+            "falsification_conditions": [
+              "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+            ],
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。"
+          },
+          "fields_to_check": {
+            "statement": "本次资料没有客户集中度和订单期限，无法评价客户结构。",
+            "uncertainty": "该判断为条件分析，不能据此认定条件已发生。",
+            "falsification_conditions[0]": "若后续资料否定上述条件或传导关系，应重新核对该判断。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "statement",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "uncertainty",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "falsification_conditions[0]",
+              "criterion": "source_support"
+            },
+            {
+              "field_path": "statement",
+              "criterion": "directional_mechanism"
+            }
+          ]
+        },
+        {
+          "item_id": "section:0",
+          "section": {
+            "kind": "business_model",
+            "title": "固定审核样例",
+            "summary": "本次资料没有客户集中度和订单期限，因此客户结构保持未知，不把资料缺口当作实质看多或看空论点。",
+            "claim_ids": []
+          },
+          "fields_to_check": {
+            "summary": "本次资料没有客户集中度和订单期限，因此客户结构保持未知，不把资料缺口当作实质看多或看空论点。"
+          },
+          "required_field_checks": [
+            {
+              "field_path": "summary",
+              "criterion": "source_support"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "hypothesis:0": true,
+        "hypothesis:1": false,
+        "hypothesis:2": false,
+        "section:0": true
+      }
+    }
+  ],
+  "conditions": {
+    "model": "deepseek-v4-pro",
+    "temperature": 0,
+    "thinking": false,
+    "timeout_seconds": 90,
+    "maximum_output_tokens": 8192,
+    "physical_request_limit": 8,
+    "paired_groups_maximum": 4,
+    "repetitions_per_variant": 1,
+    "stop": "Stop on an execution or parse failure, an unaccounted request, a false acceptance by the new structure, or budget exhaustion. Preserve old-structure content errors for paired comparison. No replenishment."
+  }
+}

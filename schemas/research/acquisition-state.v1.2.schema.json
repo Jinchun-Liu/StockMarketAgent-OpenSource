@@ -1,0 +1,1039 @@
+{
+  "$defs": {
+    "OperationContext": {
+      "additionalProperties": false,
+      "description": "Trace, identity and point-in-time context for one boundary operation.",
+      "properties": {
+        "actor_id": {
+          "default": "local-user",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "correlation_id": {
+          "format": "uuid",
+          "title": "Correlation Id",
+          "type": "string"
+        },
+        "deadline_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deadline At"
+        },
+        "idempotency_key": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "minLength": 16,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Idempotency Key"
+        },
+        "locale": {
+          "default": "zh-CN",
+          "pattern": "^[a-z]{2}(?:-[A-Z]{2})?$",
+          "title": "Locale",
+          "type": "string"
+        },
+        "request_id": {
+          "format": "uuid",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "requested_at": {
+          "format": "date-time",
+          "title": "Requested At",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "Asia/Shanghai",
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Timezone",
+          "type": "string"
+        },
+        "workspace_id": {
+          "default": "default",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Workspace Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "as_of"
+      ],
+      "title": "OperationContext",
+      "type": "object"
+    },
+    "ResearchAcquisitionCandidate": {
+      "additionalProperties": false,
+      "description": "Private, bounded source excerpts; never a published or eligible fact.",
+      "properties": {
+        "attempt_numbers": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Attempt Numbers",
+          "type": "object"
+        },
+        "candidate": {
+          "$ref": "#/$defs/SourceDiscoveryCandidate"
+        },
+        "content_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "context_spans": {
+          "items": {
+            "$ref": "#/$defs/ResearchSourceSpan"
+          },
+          "maxItems": 350,
+          "title": "Context Spans",
+          "type": "array"
+        },
+        "correction_keys": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Correction Keys",
+          "type": "array"
+        },
+        "discovery_request_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Discovery Request Sha256"
+        },
+        "document_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Document Id"
+        },
+        "extraction_complete": {
+          "default": true,
+          "title": "Extraction Complete",
+          "type": "boolean"
+        },
+        "fact_spans": {
+          "additionalProperties": {
+            "items": {
+              "$ref": "#/$defs/ResearchSourceSpan"
+            },
+            "type": "array"
+          },
+          "title": "Fact Spans",
+          "type": "object"
+        },
+        "facts": {
+          "items": {
+            "$ref": "#/$defs/ResearchWebNormalizedFactDraft"
+          },
+          "maxItems": 5,
+          "title": "Facts",
+          "type": "array"
+        },
+        "first_seen_at": {
+          "format": "date-time",
+          "title": "First Seen At",
+          "type": "string"
+        },
+        "publication_basis": {
+          "default": "",
+          "maxLength": 1000,
+          "title": "Publication Basis",
+          "type": "string"
+        },
+        "requested_fact_keys": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Requested Fact Keys",
+          "type": "array"
+        },
+        "revision_known_at": {
+          "format": "date-time",
+          "title": "Revision Known At",
+          "type": "string"
+        },
+        "source_context": {
+          "anyOf": [
+            {
+              "maxLength": 40000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Context"
+        },
+        "verdicts": {
+          "items": {
+            "$ref": "#/$defs/ResearchDataAuditVerdict"
+          },
+          "maxItems": 5,
+          "title": "Verdicts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "candidate",
+        "content_sha256",
+        "first_seen_at",
+        "revision_known_at",
+        "facts"
+      ],
+      "title": "ResearchAcquisitionCandidate",
+      "type": "object"
+    },
+    "ResearchAcquisitionDocument": {
+      "additionalProperties": false,
+      "description": "An original observation, never merged with another source or visible time.",
+      "properties": {
+        "body": {
+          "maxLength": 100000,
+          "minLength": 1,
+          "title": "Body",
+          "type": "string"
+        },
+        "candidate": {
+          "$ref": "#/$defs/SourceDiscoveryCandidate"
+        },
+        "content_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "discovery_request_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Discovery Request Sha256",
+          "type": "string"
+        },
+        "document_id": {
+          "format": "uuid",
+          "title": "Document Id",
+          "type": "string"
+        },
+        "extraction_scope": {
+          "default": "unknown",
+          "enum": [
+            "complete",
+            "prefix_truncated",
+            "selected_pages",
+            "unknown"
+          ],
+          "title": "Extraction Scope",
+          "type": "string"
+        },
+        "first_seen_at": {
+          "format": "date-time",
+          "title": "First Seen At",
+          "type": "string"
+        },
+        "hash_basis": {
+          "const": "normalized_original",
+          "default": "normalized_original",
+          "title": "Hash Basis",
+          "type": "string"
+        },
+        "pages": {
+          "items": {
+            "$ref": "#/$defs/ResearchSourcePage"
+          },
+          "maxItems": 350,
+          "title": "Pages",
+          "type": "array"
+        },
+        "publication_basis": {
+          "default": "",
+          "maxLength": 1000,
+          "title": "Publication Basis",
+          "type": "string"
+        },
+        "retrieval_receipt_id": {
+          "format": "uuid",
+          "title": "Retrieval Receipt Id",
+          "type": "string"
+        },
+        "revision_known_at": {
+          "format": "date-time",
+          "title": "Revision Known At",
+          "type": "string"
+        },
+        "rights_snapshot_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Rights Snapshot Sha256",
+          "type": "string"
+        },
+        "source_id": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidate",
+        "source_id",
+        "rights_snapshot_sha256",
+        "content_sha256",
+        "body",
+        "first_seen_at",
+        "revision_known_at",
+        "discovery_request_sha256",
+        "retrieval_receipt_id"
+      ],
+      "title": "ResearchAcquisitionDocument",
+      "type": "object"
+    },
+    "ResearchDataAuditVerdict": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_key": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Fact Key",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "passed",
+            "rejected",
+            "uncertain"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "reason": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "reason_code": {
+          "enum": [
+            "SUPPORTED",
+            "SUBJECT_MISMATCH",
+            "BUSINESS_MISMATCH",
+            "VALUE_MISMATCH",
+            "UNIT_MISMATCH",
+            "PERIOD_MISMATCH",
+            "EXCERPT_MISMATCH",
+            "SOURCE_CONFLICT",
+            "INSUFFICIENT_EVIDENCE"
+          ],
+          "title": "Reason Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_key",
+        "outcome",
+        "reason_code",
+        "reason"
+      ],
+      "title": "ResearchDataAuditVerdict",
+      "type": "object"
+    },
+    "ResearchSourcePage": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "exclusiveMinimum": 0,
+          "maximum": 100000,
+          "title": "End",
+          "type": "integer"
+        },
+        "page_number": {
+          "maximum": 350,
+          "minimum": 1,
+          "title": "Page Number",
+          "type": "integer"
+        },
+        "start": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "page_number"
+      ],
+      "title": "ResearchSourcePage",
+      "type": "object"
+    },
+    "ResearchSourceSpan": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "exclusiveMinimum": 0,
+          "maximum": 100000,
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "ResearchSourceSpan",
+      "type": "object"
+    },
+    "ResearchWebNormalizedFactDraft": {
+      "additionalProperties": false,
+      "properties": {
+        "missing_fact_key": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Missing Fact Key",
+          "type": "string"
+        },
+        "period": {
+          "default": "",
+          "maxLength": 100,
+          "title": "Period",
+          "type": "string"
+        },
+        "source_excerpt": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Source Excerpt",
+          "type": "string"
+        },
+        "source_location": {
+          "default": "",
+          "maxLength": 300,
+          "title": "Source Location",
+          "type": "string"
+        },
+        "unit": {
+          "default": "",
+          "maxLength": 50,
+          "title": "Unit",
+          "type": "string"
+        },
+        "value": {
+          "default": "",
+          "maxLength": 200,
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "missing_fact_key",
+        "source_excerpt"
+      ],
+      "title": "ResearchWebNormalizedFactDraft",
+      "type": "object"
+    },
+    "ResearchWindowCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "document_id": {
+          "format": "uuid",
+          "title": "Document Id",
+          "type": "string"
+        },
+        "fact_key": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Fact Key",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "not_located",
+            "window_unavailable_by_budget"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "spans": {
+          "items": {
+            "$ref": "#/$defs/ResearchSourceSpan"
+          },
+          "maxItems": 350,
+          "title": "Spans",
+          "type": "array"
+        }
+      },
+      "required": [
+        "document_id",
+        "fact_key",
+        "outcome"
+      ],
+      "title": "ResearchWindowCheck",
+      "type": "object"
+    },
+    "RobotsOriginStop": {
+      "additionalProperties": false,
+      "properties": {
+        "http_status": {
+          "enum": [
+            401,
+            403,
+            429
+          ],
+          "title": "Http Status",
+          "type": "integer"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "origin": {
+          "maxLength": 300,
+          "title": "Origin",
+          "type": "string"
+        }
+      },
+      "required": [
+        "origin",
+        "http_status",
+        "observed_at"
+      ],
+      "title": "RobotsOriginStop",
+      "type": "object"
+    },
+    "SourceDiscoveryCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "format": "uuid",
+          "title": "Candidate Id",
+          "type": "string"
+        },
+        "discovery_score": {
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$",
+          "title": "Discovery Score",
+          "type": "string"
+        },
+        "domain": {
+          "pattern": "^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$",
+          "title": "Domain",
+          "type": "string"
+        },
+        "published_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Published At"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "url",
+        "title",
+        "domain",
+        "discovery_score"
+      ],
+      "title": "SourceDiscoveryCandidate",
+      "type": "object"
+    },
+    "SourceDiscoveryDiagnostics": {
+      "additionalProperties": false,
+      "properties": {
+        "date_filtered": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Date Filtered",
+          "type": "integer"
+        },
+        "domain_filtered": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Domain Filtered",
+          "type": "integer"
+        },
+        "protocol_filtered": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Protocol Filtered",
+          "type": "integer"
+        },
+        "raw_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw Count"
+        },
+        "selected_count": {
+          "default": 0,
+          "maximum": 5,
+          "minimum": 0,
+          "title": "Selected Count",
+          "type": "integer"
+        }
+      },
+      "title": "SourceDiscoveryDiagnostics",
+      "type": "object"
+    },
+    "SourceDiscoveryQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "$ref": "#/$defs/OperationContext"
+        },
+        "end_date": {
+          "format": "date-time",
+          "title": "End Date",
+          "type": "string"
+        },
+        "include_domains": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "title": "Include Domains",
+          "type": "array"
+        },
+        "max_results": {
+          "default": 5,
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Max Results",
+          "type": "integer"
+        },
+        "missing_fact_keys": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "title": "Missing Fact Keys",
+          "type": "array"
+        },
+        "query": {
+          "maxLength": 300,
+          "minLength": 3,
+          "title": "Query",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "start_date": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Date"
+        }
+      },
+      "required": [
+        "schema_version",
+        "context",
+        "query",
+        "missing_fact_keys",
+        "include_domains",
+        "end_date"
+      ],
+      "title": "SourceDiscoveryQuery",
+      "type": "object"
+    },
+    "SourceDiscoveryResult": {
+      "additionalProperties": false,
+      "properties": {
+        "candidates": {
+          "items": {
+            "$ref": "#/$defs/SourceDiscoveryCandidate"
+          },
+          "maxItems": 5,
+          "title": "Candidates",
+          "type": "array"
+        },
+        "credits_used": {
+          "default": 0,
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Credits Used",
+          "type": "integer"
+        },
+        "diagnostics": {
+          "$ref": "#/$defs/SourceDiscoveryDiagnostics"
+        },
+        "provider": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Provider",
+          "type": "string"
+        },
+        "request_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Request Sha256",
+          "type": "string"
+        },
+        "retryable": {
+          "default": false,
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "robots_origin_stop": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RobotsOriginStop"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "schema_version": {
+          "default": "1.2",
+          "enum": [
+            "1.0",
+            "1.1",
+            "1.2"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "searched_at": {
+          "format": "date-time",
+          "title": "Searched At",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/SourceDiscoveryStatus"
+        }
+      },
+      "required": [
+        "schema_version",
+        "provider",
+        "status",
+        "request_sha256",
+        "searched_at"
+      ],
+      "title": "SourceDiscoveryResult",
+      "type": "object"
+    },
+    "SourceDiscoveryStatus": {
+      "enum": [
+        "succeeded",
+        "no_results",
+        "quota_exhausted",
+        "failed"
+      ],
+      "title": "SourceDiscoveryStatus",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/research/acquisition-state.v1.2.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "active_fact_keys": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 5,
+      "title": "Active Fact Keys",
+      "type": "array"
+    },
+    "active_gap": {
+      "anyOf": [
+        {
+          "maxLength": 100,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Active Gap"
+    },
+    "attempted_contents": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Attempted Contents",
+      "type": "object"
+    },
+    "attempted_queries": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Attempted Queries",
+      "type": "object"
+    },
+    "attempted_sources": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Attempted Sources",
+      "type": "object"
+    },
+    "attempts": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Attempts",
+      "type": "object"
+    },
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/ResearchAcquisitionCandidate"
+      },
+      "maxItems": 100,
+      "title": "Candidates",
+      "type": "array"
+    },
+    "complete": {
+      "default": false,
+      "title": "Complete",
+      "type": "boolean"
+    },
+    "deadline_at": {
+      "format": "date-time",
+      "title": "Deadline At",
+      "type": "string"
+    },
+    "deferred_fact_keys": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Deferred Fact Keys",
+      "type": "array"
+    },
+    "discovery_diagnostics": {
+      "additionalProperties": {
+        "items": {
+          "$ref": "#/$defs/SourceDiscoveryDiagnostics"
+        },
+        "type": "array"
+      },
+      "title": "Discovery Diagnostics",
+      "type": "object"
+    },
+    "discovery_exhausted": {
+      "default": false,
+      "title": "Discovery Exhausted",
+      "type": "boolean"
+    },
+    "documents": {
+      "items": {
+        "$ref": "#/$defs/ResearchAcquisitionDocument"
+      },
+      "maxItems": 100,
+      "title": "Documents",
+      "type": "array"
+    },
+    "input_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Input Sha256",
+      "type": "string"
+    },
+    "input_tokens": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Input Tokens",
+      "type": "integer"
+    },
+    "instrument_id": {
+      "title": "Instrument Id",
+      "type": "string"
+    },
+    "output_tokens": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Output Tokens",
+      "type": "integer"
+    },
+    "pending_discovery": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SourceDiscoveryResult"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "pending_query": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SourceDiscoveryQuery"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "provider_calls": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Provider Calls",
+      "type": "integer"
+    },
+    "requested_as_of": {
+      "format": "date-time",
+      "title": "Requested As Of",
+      "type": "string"
+    },
+    "robots_origin_stops": {
+      "items": {
+        "$ref": "#/$defs/RobotsOriginStop"
+      },
+      "maxItems": 15,
+      "title": "Robots Origin Stops",
+      "type": "array"
+    },
+    "round_sources": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Round Sources",
+      "type": "object"
+    },
+    "rule_version": {
+      "title": "Rule Version",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "1.2",
+      "enum": [
+        "1.0",
+        "1.1",
+        "1.2"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "window_checks": {
+      "items": {
+        "$ref": "#/$defs/ResearchWindowCheck"
+      },
+      "maxItems": 900,
+      "title": "Window Checks",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "rule_version",
+    "instrument_id",
+    "requested_as_of",
+    "deadline_at",
+    "input_sha256"
+  ],
+  "title": "ResearchAcquisitionState",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.discovery.ResearchAcquisitionState",
+  "x-schema-version": "1.2"
+}

@@ -1,0 +1,283 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "case_id": "valid_dev_live",
+      "pointer": {
+        "schema_version": "1.0",
+        "snapshot_id": "10000000-0000-4000-8000-000000000001",
+        "manifest_path": "data/snapshots/10000000-0000-4000-8000-000000000001/manifest.json",
+        "manifest_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "product_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "published_at": "2026-08-04T01:05:00Z"
+      },
+      "manifest": {
+        "schema_version": "1.1",
+        "snapshot_id": "10000000-0000-4000-8000-000000000001",
+        "product_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "delivery_mode": "public_static",
+        "origin_mode": "dev_live",
+        "release_tier": "dev_only",
+        "data_as_of": "2026-08-04T00:55:00Z",
+        "generated_at": "2026-08-04T01:04:00Z",
+        "published_at": "2026-08-04T01:05:00Z",
+        "fresh_until": "2026-08-05T01:35:00Z",
+        "last_successful_run_at": "2026-08-04T01:03:00Z",
+        "completeness": "complete",
+        "disclaimer_code": "DEV_ONLY_UNVERIFIED_SOURCE",
+        "assets": [
+          {
+            "kind": "briefing",
+            "path": "data/snapshots/10000000-0000-4000-8000-000000000001/briefing.json",
+            "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "media_type": "application/json",
+            "size_bytes": 2
+          },
+          {
+            "kind": "evidence_index",
+            "path": "data/snapshots/10000000-0000-4000-8000-000000000001/evidence-index.json",
+            "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "media_type": "application/json",
+            "size_bytes": 2
+          },
+          {
+            "kind": "evidence",
+            "path": "data/snapshots/10000000-0000-4000-8000-000000000001/evidence/00000000-0000-0000-0000-000000001001.json",
+            "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "media_type": "application/json",
+            "size_bytes": 2
+          },
+          {
+            "kind": "run_status",
+            "path": "data/snapshots/10000000-0000-4000-8000-000000000001/run-status.json",
+            "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "media_type": "application/json",
+            "size_bytes": 2
+          }
+        ]
+      },
+      "run_status": {
+        "schema_version": "1.1",
+        "run_id": "20000000-0000-4000-8000-000000000001",
+        "snapshot_id": "10000000-0000-4000-8000-000000000001",
+        "started_at": "2026-08-04T01:02:00Z",
+        "completed_at": "2026-08-04T01:03:00Z",
+        "status": "succeeded",
+        "capabilities": [
+          {
+            "source_id": "gov_cn",
+            "capability": "macro.flashes",
+            "source_grade": "free_official_unverified",
+            "state": "succeeded",
+            "safe_reason_code": null
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "historical_fallback",
+      "pointer": {
+        "schema_version": "1.0",
+        "snapshot_id": "10000000-0000-4000-8000-000000000002",
+        "manifest_path": "data/snapshots/10000000-0000-4000-8000-000000000002/manifest.json",
+        "manifest_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "product_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "published_at": "2026-07-31T01:05:00Z"
+      },
+      "manifest": {
+        "schema_version": "1.1",
+        "snapshot_id": "10000000-0000-4000-8000-000000000002",
+        "product_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "delivery_mode": "public_static",
+        "origin_mode": "demo_replay",
+        "release_tier": "dev_only",
+        "data_as_of": "2026-07-31T00:55:00Z",
+        "generated_at": "2026-07-31T01:04:00Z",
+        "published_at": "2026-07-31T01:05:00Z",
+        "fresh_until": "2026-08-01T01:35:00Z",
+        "last_successful_run_at": "2026-07-31T01:03:00Z",
+        "completeness": "complete",
+        "disclaimer_code": "HISTORICAL_DEMO_REPLAY",
+        "assets": [
+          {
+            "kind": "briefing",
+            "path": "data/snapshots/10000000-0000-4000-8000-000000000002/briefing.json",
+            "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "media_type": "application/json",
+            "size_bytes": 2
+          },
+          {
+            "kind": "evidence_index",
+            "path": "data/snapshots/10000000-0000-4000-8000-000000000002/evidence-index.json",
+            "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "media_type": "application/json",
+            "size_bytes": 2
+          },
+          {
+            "kind": "run_status",
+            "path": "data/snapshots/10000000-0000-4000-8000-000000000002/run-status.json",
+            "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "media_type": "application/json",
+            "size_bytes": 2
+          }
+        ]
+      },
+      "run_status": {
+        "schema_version": "1.1",
+        "run_id": "20000000-0000-4000-8000-000000000002",
+        "snapshot_id": "10000000-0000-4000-8000-000000000002",
+        "started_at": "2026-07-31T01:02:00Z",
+        "completed_at": "2026-07-31T01:03:00Z",
+        "status": "succeeded",
+        "capabilities": [
+          {
+            "source_id": "demo_replay_macro",
+            "capability": "macro.flashes",
+            "source_grade": "demo_replay",
+            "state": "succeeded",
+            "safe_reason_code": null
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "partial",
+      "pointer": {
+        "schema_version": "1.0",
+        "snapshot_id": "10000000-0000-4000-8000-000000000003",
+        "manifest_path": "data/snapshots/10000000-0000-4000-8000-000000000003/manifest.json",
+        "manifest_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "product_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "published_at": "2026-08-04T01:05:00Z"
+      },
+      "manifest": {
+        "schema_version": "1.1",
+        "snapshot_id": "10000000-0000-4000-8000-000000000003",
+        "product_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "delivery_mode": "public_static",
+        "origin_mode": "dev_live",
+        "release_tier": "dev_only",
+        "data_as_of": "2026-08-04T00:55:00Z",
+        "generated_at": "2026-08-04T01:04:00Z",
+        "published_at": "2026-08-04T01:05:00Z",
+        "fresh_until": "2026-08-05T01:35:00Z",
+        "last_successful_run_at": "2026-08-04T01:03:00Z",
+        "completeness": "partial",
+        "disclaimer_code": "DEV_ONLY_UNVERIFIED_SOURCE",
+        "assets": [
+          {
+            "kind": "briefing",
+            "path": "data/snapshots/10000000-0000-4000-8000-000000000003/briefing.json",
+            "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "media_type": "application/json",
+            "size_bytes": 2
+          },
+          {
+            "kind": "evidence_index",
+            "path": "data/snapshots/10000000-0000-4000-8000-000000000003/evidence-index.json",
+            "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "media_type": "application/json",
+            "size_bytes": 2
+          },
+          {
+            "kind": "run_status",
+            "path": "data/snapshots/10000000-0000-4000-8000-000000000003/run-status.json",
+            "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "media_type": "application/json",
+            "size_bytes": 2
+          }
+        ]
+      },
+      "run_status": {
+        "schema_version": "1.1",
+        "run_id": "20000000-0000-4000-8000-000000000003",
+        "snapshot_id": "10000000-0000-4000-8000-000000000003",
+        "started_at": "2026-08-04T01:02:00Z",
+        "completed_at": "2026-08-04T01:03:00Z",
+        "status": "degraded",
+        "capabilities": [
+          {
+            "source_id": "gov_cn",
+            "capability": "macro.flashes",
+            "source_grade": "free_official_unverified",
+            "state": "succeeded",
+            "safe_reason_code": null
+          },
+          {
+            "source_id": "miit_gov_cn",
+            "capability": "company_industry.news",
+            "source_grade": "free_official_unverified",
+            "state": "gap",
+            "safe_reason_code": "SOURCE_SCHEMA_DRIFT"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "unavailable",
+      "pointer": {
+        "schema_version": "1.0",
+        "snapshot_id": "10000000-0000-4000-8000-000000000004",
+        "manifest_path": "data/snapshots/10000000-0000-4000-8000-000000000004/manifest.json",
+        "manifest_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "product_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "published_at": "2026-08-04T01:05:00Z"
+      },
+      "manifest": {
+        "schema_version": "1.1",
+        "snapshot_id": "10000000-0000-4000-8000-000000000004",
+        "product_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "delivery_mode": "public_static",
+        "origin_mode": "dev_live",
+        "release_tier": "dev_only",
+        "data_as_of": "2026-08-04T00:55:00Z",
+        "generated_at": "2026-08-04T01:04:00Z",
+        "published_at": "2026-08-04T01:05:00Z",
+        "fresh_until": "2026-08-05T01:35:00Z",
+        "last_successful_run_at": null,
+        "completeness": "unavailable",
+        "disclaimer_code": "DEV_ONLY_UNVERIFIED_SOURCE",
+        "assets": [
+          {
+            "kind": "briefing",
+            "path": "data/snapshots/10000000-0000-4000-8000-000000000004/briefing.json",
+            "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "media_type": "application/json",
+            "size_bytes": 2
+          },
+          {
+            "kind": "evidence_index",
+            "path": "data/snapshots/10000000-0000-4000-8000-000000000004/evidence-index.json",
+            "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "media_type": "application/json",
+            "size_bytes": 2
+          },
+          {
+            "kind": "run_status",
+            "path": "data/snapshots/10000000-0000-4000-8000-000000000004/run-status.json",
+            "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "media_type": "application/json",
+            "size_bytes": 2
+          }
+        ]
+      },
+      "run_status": {
+        "schema_version": "1.1",
+        "run_id": "20000000-0000-4000-8000-000000000004",
+        "snapshot_id": "10000000-0000-4000-8000-000000000004",
+        "started_at": "2026-08-04T01:02:00Z",
+        "completed_at": "2026-08-04T01:03:00Z",
+        "status": "failed",
+        "capabilities": [
+          {
+            "source_id": "gov_cn",
+            "capability": "macro.flashes",
+            "source_grade": "free_official_unverified",
+            "state": "failed",
+            "safe_reason_code": "SOURCE_UNAVAILABLE"
+          }
+        ]
+      }
+    }
+  ]
+}

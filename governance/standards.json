@@ -1,0 +1,115 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "name": "StockMarketAgent",
+    "repository_url": "https://github.com/Jinchun-Liu/StockMarketAgent-OpenSource.git",
+    "python": "3.12",
+    "node": "22",
+    "purpose": "evidence-grounded research and paper validation",
+    "real_trading_enabled": false
+  },
+  "required_agent_documents": [
+    "AGENTS.md",
+    "docs/engineering/README.md",
+    "docs/engineering/agent-change-protocol.md",
+    "docs/engineering/parallel-development-protocol.md",
+    "docs/engineering/agent-invocation-protocol.md",
+    "docs/engineering/departments/README.md",
+    "docs/engineering/coding-standards.md",
+    "docs/engineering/reuse-first-policy.md",
+    "docs/architecture/interface-standards.md",
+    "docs/architecture/metric-standards.md"
+  ],
+  "required_governance_files": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "governance/architecture.json",
+    "governance/interfaces.json",
+    "governance/metrics.json",
+    "governance/reuse-decisions.json",
+    "governance/standards.json",
+    "scripts/agent_guard.py",
+    "scripts/check_architecture.py",
+    "scripts/check_contract_compatibility.py",
+    "scripts/check_delivery_registry.py",
+    "scripts/check_governance.py",
+    "scripts/check_interface_registry.py",
+    "scripts/check_metric_registry.py",
+    "scripts/check_repository_policy.py",
+    "scripts/integration_release.py",
+    "scripts/lightweight_agent.py",
+    "scripts/package_check.py",
+    "docs/public-source-distribution.md",
+    ".github/workflows/public-source.yml"
+  ],
+  "document_markers": {
+    "AGENTS.md": "<!-- governance-entry:v1 -->",
+    "docs/engineering/README.md": "<!-- governance-doc:engineering-index:v1 -->",
+    "docs/engineering/agent-change-protocol.md": "<!-- governance-doc:agent-change-protocol:v1 -->",
+    "docs/engineering/parallel-development-protocol.md": "<!-- governance-doc:parallel-development-protocol:v1 -->",
+    "docs/engineering/agent-invocation-protocol.md": "<!-- governance-doc:agent-invocation-protocol:v1 -->",
+    "docs/engineering/departments/README.md": "<!-- department-manual-index:v1.0 -->",
+    "docs/engineering/coding-standards.md": "<!-- governance-doc:coding-standards:v1 -->",
+    "docs/engineering/reuse-first-policy.md": "<!-- governance-doc:reuse-first-policy:v1 -->",
+    "docs/architecture/interface-standards.md": "<!-- governance-doc:interface-standards:v1 -->",
+    "docs/architecture/metric-standards.md": "<!-- governance-doc:metric-standards:v1 -->"
+  },
+  "protected_paths": {
+    "exceptions": [
+      ".env.example",
+      "data/raw/.gitkeep",
+      "data/private/.gitkeep",
+      "artifacts/models/.gitkeep",
+      "artifacts/checkpoints/.gitkeep"
+    ],
+    "exact": [
+      ".env"
+    ],
+    "prefixes": [
+      ".git/",
+      "data/raw/",
+      "data/private/",
+      "artifacts/models/",
+      "artifacts/checkpoints/",
+      "secrets/"
+    ],
+    "name_prefixes": [
+      ".env."
+    ],
+    "suffixes": [
+      ".pem",
+      ".key",
+      ".p12",
+      ".pfx",
+      ".safetensors",
+      ".gguf"
+    ]
+  },
+  "append_only_paths": [
+    "infra/migrations/versions/"
+  ],
+  "quality": {
+    "package_entrypoint": "make package-check BASE_REF=<base> WRITE_SCOPES=\"<paths>\" TESTS=\"<pytest targets>\"",
+    "review_entrypoint": "make agent-review BASE_REF=<base> TARGET_COMMIT=<head> PROMPT_FILE=<task-file> MODEL=<model>",
+    "integration_entrypoint": "make integration-merge SOURCE_BRANCH=<branch> REVIEWED_COMMIT=<head>",
+    "complete_entrypoint": "make verify",
+    "candidate_entrypoint": "make integration-check",
+    "delivery_registry_check": "python3 scripts/check_delivery_registry.py",
+    "interface_registry_check": "python3 scripts/check_interface_registry.py",
+    "metric_registry_check": "python3 scripts/check_metric_registry.py",
+    "source_distribution_entrypoint": "make public-check"
+  },
+  "safety_invariants": [
+    "no_real_trading",
+    "r1_r6_stage_source_policy_and_r7_rights_fail_closed",
+    "evidence_required_for_facts",
+    "point_in_time_only",
+    "idempotent_side_effects",
+    "stable_types_and_errors",
+    "independent_final_head_review",
+    "main_ff_only",
+    "revert_or_forward_fix_only",
+    "no_secrets_holdings_raw_data_or_model_weights_in_git"
+  ],
+  "distribution_context": "public_source; original private-context validators require separate owner context and confer no authorization"
+}

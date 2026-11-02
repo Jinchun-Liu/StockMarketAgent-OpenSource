@@ -1,0 +1,144 @@
+{
+  "$defs": {
+    "InstrumentSearchMatchType": {
+      "enum": [
+        "exact_instrument_id",
+        "exact_code",
+        "exact_short_name",
+        "exact_legal_name",
+        "partial_name"
+      ],
+      "title": "InstrumentSearchMatchType",
+      "type": "string"
+    },
+    "InstrumentSearchMatchV1_1": {
+      "additionalProperties": false,
+      "description": "Compatible search match with explicit legal-name verification semantics.",
+      "properties": {
+        "exchange": {
+          "enum": [
+            "XSHG",
+            "XSHE",
+            "XBSE"
+          ],
+          "title": "Exchange",
+          "type": "string"
+        },
+        "instrument_id": {
+          "pattern": "^(XSHG|XSHE|XBSE):[0-9]{6}$",
+          "title": "Instrument Id",
+          "type": "string"
+        },
+        "legal_name": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Legal Name",
+          "type": "string"
+        },
+        "legal_name_verified": {
+          "title": "Legal Name Verified",
+          "type": "boolean"
+        },
+        "listing_status": {
+          "$ref": "#/$defs/ListingStatus"
+        },
+        "match_type": {
+          "$ref": "#/$defs/InstrumentSearchMatchType"
+        },
+        "revision_known_at": {
+          "format": "date-time",
+          "title": "Revision Known At",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.1",
+          "default": "1.1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "short_name": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Short Name",
+          "type": "string"
+        },
+        "symbol": {
+          "pattern": "^[0-9]{6}$",
+          "title": "Symbol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "instrument_id",
+        "symbol",
+        "exchange",
+        "short_name",
+        "legal_name",
+        "legal_name_verified",
+        "listing_status",
+        "match_type",
+        "revision_known_at"
+      ],
+      "title": "InstrumentSearchMatchV1_1",
+      "type": "object"
+    },
+    "ListingStatus": {
+      "enum": [
+        "pre_listing",
+        "active",
+        "suspended",
+        "delisted",
+        "unknown"
+      ],
+      "title": "ListingStatus",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/instruments/search-result.v1.1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Search result 1.1; 1.0 remains immutable and readable.",
+  "properties": {
+    "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+    },
+    "matches": {
+      "items": {
+        "$ref": "#/$defs/InstrumentSearchMatchV1_1"
+      },
+      "maxItems": 50,
+      "title": "Matches",
+      "type": "array"
+    },
+    "query": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Query",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "searched_at": {
+      "format": "date-time",
+      "title": "Searched At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "query",
+    "as_of",
+    "searched_at"
+  ],
+  "title": "InstrumentSearchResultV1_1",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.instruments.InstrumentSearchResultV1_1",
+  "x-schema-version": "1.1"
+}

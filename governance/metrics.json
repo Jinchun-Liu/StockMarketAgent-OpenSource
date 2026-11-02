@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_version": "1.0",
+  "description": "Canonical registry for runtime, data, product and ML quality metrics that exist in this repository.",
+  "change_policy": {
+    "search_existing_before_change": true,
+    "reuse_semantic_equivalent": true,
+    "duplicate_semantics_forbidden": true,
+    "breaking_change_requires_new_major": true,
+    "synchronize_all_affected_standards": true
+  },
+  "status_definitions": {
+    "declared": "The stable definition is approved but no repository implementation claims to emit it yet.",
+    "implemented": "The metric is emitted from the registered source and covered by tests.",
+    "deprecated": "The metric remains during a documented compatibility window and names its replacement."
+  },
+  "metrics": [
+    {
+      "id": "metric:product.attention-risk-index:v1",
+      "name": "stock_assistant_attention_risk_index",
+      "semantic_key": "attention-risk.v1|score",
+      "category": "product_quality",
+      "type": "gauge",
+      "unit": "1",
+      "owner": "briefings",
+      "description": "Current zero-to-one-hundred information verification pressure for the fixed R1 instrument; absent values are not emitted as zero.",
+      "status": "declared",
+      "labels": [
+        "availability",
+        "band"
+      ]
+    },
+    {
+      "id": "metric:product.behavior-pressure-research:v1",
+      "name": "stock_assistant_behavior_pressure_research",
+      "semantic_key": "behavior-pressure-research.v1|score",
+      "category": "product_quality",
+      "type": "gauge",
+      "unit": "1",
+      "owner": "behavior",
+      "description": "Current zero-to-one-hundred research-only market-structure pressure score; it is not a probability or trading recommendation.",
+      "status": "declared",
+      "labels": [
+        "availability",
+        "band",
+        "mode"
+      ]
+    },
+    {
+      "id": "metric:product.company-quality-score:v3",
+      "name": "stock_assistant_product_company_quality_score_v3",
+      "semantic_key": "company-quality-score.v3|isolated-scoring-basis|current-report|0-100",
+      "category": "product_quality",
+      "type": "gauge",
+      "unit": "1",
+      "owner": "research",
+      "status": "implemented",
+      "source": "src/stock_assistant/modules/research/scoring.py",
+      "description": "Current report score, 0-100, not a probability or recommendation. Grade 0-4 times 25; weights business .20, financial .20, competitive .15, management .10, valuation .15, risk resilience .20. Real evidence uses existing reliability adjustment; synthetic_scenario uses coefficient 1 and evidence_confidence 0. Any missing dimension leaves overall absent, without neutral filler or weight redistribution. Real and synthetic populations must never be pooled; historical scores are not recomputed. Consumer: report/reader and private Web; no monitoring exporter or alert added.",
+      "labels": [
+        "dimension",
+        "scoring_basis",
+        "status"
+      ],
+      "label_values": {
+        "dimension": [
+          "overall",
+          "business_quality",
+          "financial_quality",
+          "competitive_durability",
+          "management_and_capital_allocation",
+          "valuation_context",
+          "risk_resilience"
+        ],
+        "scoring_basis": [
+          "real_evidence",
+          "synthetic_scenario"
+        ],
+        "status": [
+          "scored",
+          "not_scored"
+        ]
+      },
+      "maximum_label_combinations": 28
+    }
+  ]
+}

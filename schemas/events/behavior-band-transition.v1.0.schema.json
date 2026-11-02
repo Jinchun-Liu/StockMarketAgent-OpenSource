@@ -1,0 +1,180 @@
+{
+  "$defs": {
+    "BandTransitionDirection": {
+      "enum": [
+        "higher",
+        "lower"
+      ],
+      "title": "BandTransitionDirection",
+      "type": "string"
+    },
+    "BehaviorAssessmentLineageRef": {
+      "additionalProperties": false,
+      "description": "Immutable market-data manifest lineage for one side of a band transition.",
+      "properties": {
+        "assessment_id": {
+          "format": "uuid",
+          "title": "Assessment Id",
+          "type": "string"
+        },
+        "data_manifest_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Data Manifest Hash",
+          "type": "string"
+        },
+        "max_input_revision_known_at": {
+          "format": "date-time",
+          "title": "Max Input Revision Known At",
+          "type": "string"
+        },
+        "rights_snapshot_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Rights Snapshot Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "assessment_id",
+        "data_manifest_hash",
+        "rights_snapshot_hash",
+        "max_input_revision_known_at"
+      ],
+      "title": "BehaviorAssessmentLineageRef",
+      "type": "object"
+    },
+    "PressureBand": {
+      "enum": [
+        "stable",
+        "warming",
+        "attention",
+        "crowded",
+        "fragile"
+      ],
+      "title": "PressureBand",
+      "type": "string"
+    },
+    "PressureMode": {
+      "enum": [
+        "post_close",
+        "intraday_10m"
+      ],
+      "title": "PressureMode",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/events/behavior-band-transition.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "comparison_semantics_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Comparison Semantics Hash",
+      "type": "string"
+    },
+    "consecutive_complete_windows": {
+      "minimum": 1,
+      "title": "Consecutive Complete Windows",
+      "type": "integer"
+    },
+    "current_assessment_id": {
+      "format": "uuid",
+      "title": "Current Assessment Id",
+      "type": "string"
+    },
+    "current_band": {
+      "$ref": "#/$defs/PressureBand"
+    },
+    "direction": {
+      "$ref": "#/$defs/BandTransitionDirection"
+    },
+    "effective_at": {
+      "format": "date-time",
+      "title": "Effective At",
+      "type": "string"
+    },
+    "event_id": {
+      "format": "uuid",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "event_name": {
+      "const": "com.stockassistant.behavior.band_transition.v1",
+      "default": "com.stockassistant.behavior.band_transition.v1",
+      "title": "Event Name",
+      "type": "string"
+    },
+    "formula_version": {
+      "const": "behavior-pressure-research.v1",
+      "default": "behavior-pressure-research.v1",
+      "title": "Formula Version",
+      "type": "string"
+    },
+    "idempotency_key": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "inference_kind": {
+      "const": "system_inference",
+      "default": "system_inference",
+      "title": "Inference Kind",
+      "type": "string"
+    },
+    "instrument_id": {
+      "const": "XSHG:603986",
+      "default": "XSHG:603986",
+      "title": "Instrument Id",
+      "type": "string"
+    },
+    "market_data_lineage_refs": {
+      "items": {
+        "$ref": "#/$defs/BehaviorAssessmentLineageRef"
+      },
+      "maxItems": 2,
+      "minItems": 2,
+      "title": "Market Data Lineage Refs",
+      "type": "array"
+    },
+    "mode": {
+      "$ref": "#/$defs/PressureMode"
+    },
+    "previous_assessment_id": {
+      "format": "uuid",
+      "title": "Previous Assessment Id",
+      "type": "string"
+    },
+    "previous_band": {
+      "$ref": "#/$defs/PressureBand"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "trading_date": {
+      "format": "date",
+      "title": "Trading Date",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "mode",
+    "previous_band",
+    "current_band",
+    "previous_assessment_id",
+    "current_assessment_id",
+    "direction",
+    "comparison_semantics_hash",
+    "market_data_lineage_refs",
+    "effective_at",
+    "consecutive_complete_windows",
+    "trading_date",
+    "idempotency_key"
+  ],
+  "title": "BehaviorBandTransitionV1",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.behavior.BehaviorBandTransitionV1",
+  "x-schema-version": "1.0"
+}

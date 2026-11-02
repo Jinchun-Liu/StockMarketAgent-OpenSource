@@ -1,0 +1,49 @@
+{
+  "name": "stock-market-agent-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "prebuild": "npm run test:contracts",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "validators:generate": "node scripts/generate-public-v12-validators.mjs",
+    "validators:check": "node scripts/generate-public-v12-validators.mjs --check",
+    "api-types:generate": "NODE_OPTIONS=--require=../../scripts/deny_node_network.cjs openapi-typescript ../../schemas/http/openapi.v1.json --output lib/api/openapi.generated.ts --alphabetize",
+    "api-types:check": "NODE_OPTIONS=--require=../../scripts/deny_node_network.cjs openapi-typescript ../../schemas/http/openapi.v1.json --output lib/api/openapi.generated.ts --alphabetize --check",
+    "web-boundary:check": "node scripts/check-r2-web-boundary.mjs",
+    "test:contracts": "npm run validators:check && npm run api-types:check && npm run web-boundary:check && npm run typecheck && node --no-warnings --experimental-strip-types lib/api/contracts.smoke.ts",
+    "test:ui": "node --no-warnings --experimental-strip-types tests/research-presentation.smoke.ts",
+    "test": "npm run test:contracts && npm run test:ui",
+    "test:static-data": "node --no-warnings --experimental-strip-types tests/static-provider.smoke.ts",
+    "test:e2e:research": "playwright test --config=playwright.research.config.ts",
+    "build:public-static:test": "node tests/build-public-static.mjs",
+    "test:e2e:public-static": "npm run build:public-static:test && playwright test --config=playwright.config.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/ibm-plex-sans": "5.3.0",
+    "@fontsource-variable/noto-sans-sc": "5.3.0",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "next": "^16.0.0",
+    "oidc-client-ts": "3.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "eslint": "^9.22.0",
+    "eslint-config-next": "^16.0.0",
+    "openapi-typescript": "7.13.0",
+    "typescript": "^5.8.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
+  }
+}

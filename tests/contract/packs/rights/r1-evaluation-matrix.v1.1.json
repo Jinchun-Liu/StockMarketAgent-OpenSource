@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.1",
+  "synthetic": true,
+  "sources": [
+    "cninfo_data_service",
+    "choice_quant_api"
+  ],
+  "content_categories": [
+    "statutory_announcements",
+    "financial_changes",
+    "market_snapshot",
+    "company_industry_news",
+    "macro_flashes"
+  ],
+  "operations": [
+    "fetch",
+    "derive",
+    "cache_metadata",
+    "cache_fulltext",
+    "embed",
+    "train",
+    "export",
+    "redistribute",
+    "retain",
+    "delete"
+  ],
+  "permitted_uses": [
+    "display",
+    "summary",
+    "non_display",
+    "ai_use"
+  ],
+  "check_template": {
+    "schema_version": "1.1",
+    "context": {
+      "schema_version": "1.0",
+      "request_id": "00000000-0000-4000-8000-000000000011",
+      "correlation_id": "00000000-0000-4000-8000-000000000012",
+      "idempotency_key": "rights-contract-v1-1",
+      "actor_id": "contract-test",
+      "as_of": "2026-07-29T00:55:00Z",
+      "requested_at": "2026-07-29T00:55:00Z",
+      "deadline_at": null
+    },
+    "rights_snapshot_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+}

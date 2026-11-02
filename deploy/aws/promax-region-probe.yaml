@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Temporary unauthenticated ProMax reachability probe for StockMarketAgent R1.
+
+Resources:
+  ProbeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+
+  ProbeFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+        - arm64
+      Runtime: python3.13
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - ProbeRole
+          - Arn
+      Timeout: 20
+      MemorySize: 128
+      Code:
+        ZipFile: |
+          import ssl
+          import time
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+
+          BASE_URL = "https://pcd.mobcvb.cn/tushare/pro/"
+
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+
+
+          def handler(event, context):
+              params = {
+                  "ts_code": "603986.SH",
+                  "start_date": "20260801",
+                  "end_date": "20260825",
+              }
+              request = urllib.request.Request(
+                  BASE_URL + "daily?" + urllib.parse.urlencode(params),
+                  headers={
+                      "Accept": "application/json",
+                      "User-Agent": "StockMarketAgent-R1-RegionProbe/1",
+                  },
+                  method="GET",
+              )
+              opener = urllib.request.build_opener(
+                  NoRedirect(),
+                  urllib.request.HTTPSHandler(context=ssl.create_default_context()),
+              )
+              started = time.monotonic()
+              try:
+                  with opener.open(request, timeout=10) as response:
+                      response.read(1)
+                      return {
+                          "reachable": True,
+                          "status": response.status,
+                          "elapsed_ms": round((time.monotonic() - started) * 1000),
+                      }
+              except urllib.error.HTTPError as exc:
+                  return {
+                      "reachable": True,
+                      "status": exc.code,
+                      "elapsed_ms": round((time.monotonic() - started) * 1000),
+                  }
+              except Exception as exc:
+                  return {
+                      "reachable": False,
+                      "elapsed_ms": round((time.monotonic() - started) * 1000),
+                      "error_code": type(exc).__name__,
+                  }
+
+Outputs:
+  FunctionName:
+    Value:
+      Ref: ProbeFunction

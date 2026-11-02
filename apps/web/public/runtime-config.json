@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "issuer": "https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_LOCALPLACEHOLDER",
+  "authorization_endpoint": "https://stockmarketagent-local.auth.ap-northeast-1.amazoncognito.com/oauth2/authorize",
+  "token_endpoint": "https://stockmarketagent-local.auth.ap-northeast-1.amazoncognito.com/oauth2/token",
+  "end_session_endpoint": "https://stockmarketagent-local.auth.ap-northeast-1.amazoncognito.com/logout",
+  "client_id": "localplaceholder",
+  "scope": "openid",
+  "api_base_path": "/api/v2",
+  "product_sha": "0000000000000000000000000000000000000000",
+  "environment_label": "私有合成 R2 预览",
+  "synthetic_data": true
+}

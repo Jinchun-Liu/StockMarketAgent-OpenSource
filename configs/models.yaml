@@ -1,0 +1,48 @@
+version: "2026-08-07.1"
+
+generation:
+  primary_provider: deepseek
+  primary_model: deepseek-v4-flash
+  quality_model: deepseek-v4-pro
+  base_url: https://api.deepseek.com
+  serving: openai_compatible
+  response_format: json_object_with_local_schema_validation
+  temperature: 0.0
+  transport_retries: 1
+  flash_timeout_seconds: 30
+  flash_max_output_tokens: 800
+  pro_timeout_seconds: 90
+  pro_max_output_tokens: 1400
+  accepted_privacy_levels: [public, redacted_external]
+  require_evidence_ids: true
+  allow_unverified_facts: false
+  deterministic_fallback: required
+
+retrieval:
+  embedding_model: Qwen/Qwen3-Embedding-0.6B
+  embedding_dimensions: 1024
+  reranker_model: Qwen/Qwen3-Reranker-0.6B
+  hot_window_days: 7
+  vector_index_window_days: 90
+
+privacy:
+  external_provider_default: disabled_until_secret_injected_in_refresh_task
+  remove_before_external_call:
+    - account_identifier
+    - holding_quantity
+    - cost_basis
+    - personal_notes
+  external_features_allowed: [public_research_interpretation]
+  external_features_forbidden:
+    - historical_feature_generation
+    - automated_forecast
+    - account_or_holding_data
+    - api_service_runtime
+
+feature_gates:
+  directional_forecast:
+    default: false
+    requires: [walk_forward_pass, calibration_pass, paper_trading_60_days]
+  live_trading:
+    default: false
+    immutable: true

@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0",
+  "vectors": [
+    {
+      "case_id": "origin_disclaimer_mismatch",
+      "base_case": "valid_dev_live",
+      "document": "manifest",
+      "operation": "replace",
+      "path": "/disclaimer_code",
+      "value": "HISTORICAL_DEMO_REPLAY",
+      "validation_layer": "schema_and_runtime"
+    },
+    {
+      "case_id": "duplicate_briefing_kind",
+      "base_case": "valid_dev_live",
+      "document": "manifest",
+      "operation": "append_copy",
+      "path": "/assets",
+      "copy_index": 0,
+      "validation_layer": "schema_and_runtime"
+    },
+    {
+      "case_id": "duplicate_evidence_index_kind",
+      "base_case": "valid_dev_live",
+      "document": "manifest",
+      "operation": "append_copy",
+      "path": "/assets",
+      "copy_index": 1,
+      "validation_layer": "schema_and_runtime"
+    },
+    {
+      "case_id": "missing_evidence_index_kind",
+      "base_case": "valid_dev_live",
+      "document": "manifest",
+      "operation": "remove",
+      "path": "/assets/1",
+      "validation_layer": "schema_and_runtime"
+    },
+    {
+      "case_id": "unknown_asset_kind",
+      "base_case": "valid_dev_live",
+      "document": "manifest",
+      "operation": "replace",
+      "path": "/assets/0/kind",
+      "value": "unknown",
+      "validation_layer": "schema_and_runtime"
+    },
+    {
+      "case_id": "succeeded_run_with_gap",
+      "base_case": "valid_dev_live",
+      "document": "run_status",
+      "operation": "replace",
+      "path": "/capabilities/0/state",
+      "value": "gap",
+      "validation_layer": "schema_and_runtime"
+    },
+    {
+      "case_id": "asset_outside_snapshot",
+      "base_case": "valid_dev_live",
+      "document": "manifest",
+      "operation": "replace",
+      "path": "/assets/0/path",
+      "value": "data/snapshots/ffffffff-ffff-4fff-8fff-ffffffffffff/briefing.json",
+      "validation_layer": "runtime_invariant"
+    },
+    {
+      "case_id": "reversed_manifest_timeline",
+      "base_case": "valid_dev_live",
+      "document": "manifest",
+      "operation": "replace",
+      "path": "/fresh_until",
+      "value": "2026-08-04T01:05:00Z",
+      "validation_layer": "runtime_invariant"
+    },
+    {
+      "case_id": "provider_cursor_leak",
+      "base_case": "valid_dev_live",
+      "document": "run_status",
+      "operation": "add",
+      "path": "/provider_cursor",
+      "value": "cursor-sentinel-never-public",
+      "validation_layer": "schema_and_runtime"
+    }
+  ]
+}

@@ -1,0 +1,336 @@
+{
+  "$defs": {
+    "BriefingChangeType": {
+      "enum": [
+        "new",
+        "update",
+        "correction",
+        "contradiction"
+      ],
+      "title": "BriefingChangeType",
+      "type": "string"
+    },
+    "BriefingItem": {
+      "additionalProperties": false,
+      "properties": {
+        "change_type": {
+          "$ref": "#/$defs/BriefingChangeType"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "event_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Event Ids",
+          "type": "array"
+        },
+        "evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "fact_summary": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Fact Summary",
+          "type": "string"
+        },
+        "first_seen_at": {
+          "format": "date-time",
+          "title": "First Seen At",
+          "type": "string"
+        },
+        "forecast": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ForecastSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "headline": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Headline",
+          "type": "string"
+        },
+        "inference": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Inference"
+        },
+        "is_material_change": {
+          "title": "Is Material Change",
+          "type": "boolean"
+        },
+        "published_at": {
+          "format": "date-time",
+          "title": "Published At",
+          "type": "string"
+        },
+        "source_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "minItems": 1,
+          "title": "Source Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "headline",
+        "fact_summary",
+        "change_type",
+        "source_ids",
+        "published_at",
+        "first_seen_at",
+        "event_ids",
+        "evidence_ids",
+        "confidence",
+        "is_material_change"
+      ],
+      "title": "BriefingItem",
+      "type": "object"
+    },
+    "BriefingKind": {
+      "enum": [
+        "premarket",
+        "sector_rotation",
+        "policy",
+        "on_demand"
+      ],
+      "title": "BriefingKind",
+      "type": "string"
+    },
+    "ForecastSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "is_paper_only": {
+          "const": true,
+          "default": true,
+          "title": "Is Paper Only",
+          "type": "boolean"
+        },
+        "model_version": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Model Version",
+          "type": "string"
+        },
+        "prediction_id": {
+          "format": "uuid",
+          "title": "Prediction Id",
+          "type": "string"
+        },
+        "probability_up": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Probability Up",
+          "type": "number"
+        },
+        "return_q10": {
+          "title": "Return Q10",
+          "type": "number"
+        },
+        "return_q50": {
+          "title": "Return Q50",
+          "type": "number"
+        },
+        "return_q90": {
+          "title": "Return Q90",
+          "type": "number"
+        }
+      },
+      "required": [
+        "prediction_id",
+        "probability_up",
+        "return_q10",
+        "return_q50",
+        "return_q90",
+        "model_version",
+        "as_of"
+      ],
+      "title": "ForecastSummary",
+      "type": "object"
+    },
+    "SourceHealth": {
+      "additionalProperties": false,
+      "properties": {
+        "delay_seconds": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Delay Seconds",
+          "type": "integer"
+        },
+        "gap_reason": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gap Reason"
+        },
+        "last_success_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Success At"
+        },
+        "source_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/SourceHealthStatus"
+        }
+      },
+      "required": [
+        "source_id",
+        "status"
+      ],
+      "title": "SourceHealth",
+      "type": "object"
+    },
+    "SourceHealthStatus": {
+      "enum": [
+        "ok",
+        "delayed",
+        "unavailable",
+        "blocked_rights"
+      ],
+      "title": "SourceHealthStatus",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/briefings/briefing.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+    },
+    "briefing_id": {
+      "format": "uuid",
+      "title": "Briefing Id",
+      "type": "string"
+    },
+    "data_delay_seconds": {
+      "minimum": 0,
+      "title": "Data Delay Seconds",
+      "type": "integer"
+    },
+    "disclaimer": {
+      "default": "本系统仅供个人信息整理与研究，不构成证券投资建议、收益承诺或交易指令。",
+      "title": "Disclaimer",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "items": {
+      "items": {
+        "$ref": "#/$defs/BriefingItem"
+      },
+      "maxItems": 200,
+      "title": "Items",
+      "type": "array"
+    },
+    "kind": {
+      "$ref": "#/$defs/BriefingKind"
+    },
+    "model_version": {
+      "title": "Model Version",
+      "type": "string"
+    },
+    "omitted_duplicate_count": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Omitted Duplicate Count",
+      "type": "integer"
+    },
+    "prompt_hash": {
+      "title": "Prompt Hash",
+      "type": "string"
+    },
+    "rule_version": {
+      "title": "Rule Version",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_health": {
+      "items": {
+        "$ref": "#/$defs/SourceHealth"
+      },
+      "maxItems": 100,
+      "title": "Source Health",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "generated_at",
+    "as_of",
+    "data_delay_seconds",
+    "model_version",
+    "prompt_hash",
+    "rule_version"
+  ],
+  "title": "Briefing",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.briefings.Briefing",
+  "x-schema-version": "1.0"
+}

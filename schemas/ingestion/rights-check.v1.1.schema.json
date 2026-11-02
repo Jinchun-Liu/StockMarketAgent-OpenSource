@@ -1,0 +1,183 @@
+{
+  "$defs": {
+    "OperationContext": {
+      "additionalProperties": false,
+      "description": "Trace, identity and point-in-time context for one boundary operation.",
+      "properties": {
+        "actor_id": {
+          "default": "local-user",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "correlation_id": {
+          "format": "uuid",
+          "title": "Correlation Id",
+          "type": "string"
+        },
+        "deadline_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deadline At"
+        },
+        "idempotency_key": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "minLength": 16,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Idempotency Key"
+        },
+        "locale": {
+          "default": "zh-CN",
+          "pattern": "^[a-z]{2}(?:-[A-Z]{2})?$",
+          "title": "Locale",
+          "type": "string"
+        },
+        "request_id": {
+          "format": "uuid",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "requested_at": {
+          "format": "date-time",
+          "title": "Requested At",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "Asia/Shanghai",
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Timezone",
+          "type": "string"
+        },
+        "workspace_id": {
+          "default": "default",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Workspace Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "as_of"
+      ],
+      "title": "OperationContext",
+      "type": "object"
+    },
+    "RightsContentCategory": {
+      "description": "Stable R1 content categories evaluated independently by the rights policy.",
+      "enum": [
+        "statutory_announcements",
+        "financial_changes",
+        "market_snapshot",
+        "company_industry_news",
+        "macro_flashes"
+      ],
+      "title": "RightsContentCategory",
+      "type": "string"
+    },
+    "RightsOperation": {
+      "description": "Actions that must be independently authorized and fail closed.",
+      "enum": [
+        "fetch",
+        "derive",
+        "cache_metadata",
+        "cache_fulltext",
+        "embed",
+        "train",
+        "export",
+        "redistribute",
+        "retain",
+        "delete"
+      ],
+      "title": "RightsOperation",
+      "type": "string"
+    },
+    "RightsPermittedUse": {
+      "description": "Contract purposes kept separate from the operation performed on source data.",
+      "enum": [
+        "display",
+        "summary",
+        "non_display",
+        "ai_use"
+      ],
+      "title": "RightsPermittedUse",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/ingestion/rights-check.v1.1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Versioned 1.1 wire contract for one source-operation rights check.",
+  "properties": {
+    "content_category": {
+      "$ref": "#/$defs/RightsContentCategory"
+    },
+    "context": {
+      "$ref": "#/$defs/OperationContext"
+    },
+    "operation": {
+      "$ref": "#/$defs/RightsOperation"
+    },
+    "permitted_use": {
+      "$ref": "#/$defs/RightsPermittedUse"
+    },
+    "rights_snapshot_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Rights Snapshot Hash",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_id": {
+      "pattern": "^[a-z][a-z0-9_-]{2,99}$",
+      "title": "Source Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "context",
+    "source_id",
+    "operation",
+    "rights_snapshot_hash",
+    "content_category",
+    "permitted_use"
+  ],
+  "title": "RightsCheckV1_1",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.ingestion.RightsCheckV1_1",
+  "x-schema-version": "1.1"
+}

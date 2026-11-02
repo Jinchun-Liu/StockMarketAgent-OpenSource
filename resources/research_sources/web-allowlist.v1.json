@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0",
+  "rule_version": "research-web-allowlist.v2",
+  "sources": [
+    {
+      "source_id": "china_gov",
+      "domain": "www.gov.cn",
+      "source_level": "regulatory_official",
+      "source_group": "china_central_government",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "csrc",
+      "domain": "www.csrc.gov.cn",
+      "source_level": "regulatory_official",
+      "source_group": "china_securities_regulator",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "sse",
+      "domain": "www.sse.com.cn",
+      "source_level": "regulatory_official",
+      "source_group": "shanghai_stock_exchange",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "szse",
+      "domain": "www.szse.cn",
+      "source_level": "regulatory_official",
+      "source_group": "shenzhen_stock_exchange",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "bse",
+      "domain": "www.bse.cn",
+      "source_level": "regulatory_official",
+      "source_group": "beijing_stock_exchange",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "cninfo",
+      "domain": "www.cninfo.com.cn",
+      "source_level": "regulatory_official",
+      "source_group": "cninfo_disclosure",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "cninfo_static",
+      "domain": "static.cninfo.com.cn",
+      "source_level": "regulatory_official",
+      "source_group": "cninfo_disclosure",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "reuters",
+      "domain": "www.reuters.com",
+      "source_level": "trusted_media_data",
+      "source_group": "reuters",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "stcn",
+      "domain": "www.stcn.com",
+      "source_level": "trusted_media_data",
+      "source_group": "securities_times",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "cnstock",
+      "domain": "www.cnstock.com",
+      "source_level": "trusted_media_data",
+      "source_group": "shanghai_securities_news",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "zmax_official",
+      "domain": "www.zmax-opt.com",
+      "source_level": "company_official",
+      "source_group": "zmax_disclosure",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "changjiang_official",
+      "domain": "www.cjsc.com.cn",
+      "source_level": "company_official",
+      "source_group": "changjiang_disclosure",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "moutai_official",
+      "domain": "www.moutai.com.cn",
+      "source_level": "company_official",
+      "source_group": "moutai_disclosure",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "catl_official",
+      "domain": "www.catl.com",
+      "source_level": "company_official",
+      "source_group": "catl_disclosure",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    },
+    {
+      "source_id": "midea_official",
+      "domain": "www.midea.com.cn",
+      "source_level": "company_official",
+      "source_group": "midea_disclosure",
+      "enabled": true,
+      "release_tier": "dev_only",
+      "rights_status": "unverified",
+      "research_use": "excerpt_bound_fact"
+    }
+  ]
+}

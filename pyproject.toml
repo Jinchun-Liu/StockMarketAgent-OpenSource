@@ -1,0 +1,139 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stock-market-agent"
+version = "0.1.0"
+description = "Evidence-grounded A-share research assistant"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { file = "LICENSE" }
+authors = [{ name = "Jinchun Liu" }]
+dependencies = [
+  "alembic>=1.16,<2",
+  "asyncpg>=0.30,<1",
+  "boto3==1.43.51",
+  "celery[redis]>=5.5,<6",
+  "exchange-calendars==4.13.2",
+  "fastapi>=0.115,<1",
+  "httpx>=0.28,<1",
+  "langgraph>=1,<2",
+  "minio>=7.2,<8",
+  "openai>=1.70,<3",
+  "orjson>=3.10,<4",
+  "pgvector>=0.3,<1",
+  "prometheus-client>=0.21,<1",
+  "PyJWT[crypto]==2.13.0",
+  "pydantic>=2.12,<3",
+  "pydantic-settings>=2.8,<3",
+  "pypdf==6.18.0",
+  "python-json-logger>=3,<4",
+  "pyyaml>=6,<7",
+  "redis>=5.2,<7",
+  "sqlalchemy[asyncio]>=2.0,<3",
+  "tenacity>=9,<10",
+  "uvicorn[standard]>=0.34,<1",
+]
+
+[project.optional-dependencies]
+data = [
+  "akshare>=1.16,<2",
+  "baostock==0.9.3",
+  "beautifulsoup4>=4.13,<5",
+  "feedparser>=6,<7",
+  "polars>=1.26,<2",
+  "pyarrow>=19,<30",
+  "tushare>=1.4,<2",
+]
+ml = [
+  "accelerate>=1.5,<2",
+  "bitsandbytes>=0.45,<1; platform_system == 'Linux'",
+  "datasets>=3.4,<5",
+  "lightgbm>=4.6,<5",
+  "mlflow>=2.21,<4",
+  "peft>=0.15,<1",
+  "pyqlib>=0.9,<1",
+  "scikit-learn>=1.6,<2",
+  "transformers>=4.50,<6",
+  "trl>=0.15,<1",
+]
+dev = [
+  "httpx>=0.28,<1",
+  "jsonschema[format]>=4.23,<5",
+  "mypy>=1.15,<2",
+  "pre-commit>=4,<5",
+  "pytest>=8.3,<10",
+  "pytest-asyncio>=0.25,<2",
+  "pytest-cov>=6,<8",
+  "ruff>=0.11,<1",
+  "types-pyyaml>=6,<7",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-q --strict-markers"
+testpaths = ["tests"]
+pythonpath = [".", "src"]
+asyncio_mode = "auto"
+markers = [
+  "integration: requires local infrastructure",
+  "contract: validates stable schemas and interfaces",
+  "e2e: exercises multiple runtime processes",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["apps", "src", "tests", "ml"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "ASYNC", "S", "RUF"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]
+"infra/migrations/versions/*.py" = ["E501"]
+"src/stock_assistant/contracts/briefings.py" = ["RUF001"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["stock_assistant"]
+mypy_path = "src"
+
+# Celery currently publishes no py.typed metadata. Keep the exception narrow and
+# remove it when upstream ships typed decorators.
+[[tool.mypy.overrides]]
+module = ["celery", "celery.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["apps.worker.tasks"]
+disallow_untyped_decorators = false
+
+# AWS SDK and exchange_calendars do not publish a complete py.typed surface.
+# They remain isolated behind project-owned typed seams.
+[[tool.mypy.overrides]]
+module = [
+  "akshare",
+  "akshare.*",
+  "baostock",
+  "baostock.*",
+  "boto3",
+  "boto3.*",
+  "botocore",
+  "botocore.*",
+  "exchange_calendars",
+]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+branch = true
+source = ["src/stock_assistant"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true

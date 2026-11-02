@@ -1,0 +1,4 @@
+version: "2026-07-21.1"
+domains: []
+# R2 populates this allowlist only from companies currently held or watched.
+# Each entry must include region_id, official_domain, policy_index_url and rights_review_id.

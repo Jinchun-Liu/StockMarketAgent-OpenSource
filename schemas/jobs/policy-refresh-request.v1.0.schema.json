@@ -1,0 +1,136 @@
+{
+  "$defs": {
+    "MutationContext": {
+      "additionalProperties": false,
+      "description": "Operation context for a state change, requiring a stable idempotency key.",
+      "properties": {
+        "actor_id": {
+          "default": "local-user",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "correlation_id": {
+          "format": "uuid",
+          "title": "Correlation Id",
+          "type": "string"
+        },
+        "deadline_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deadline At"
+        },
+        "idempotency_key": {
+          "maxLength": 200,
+          "minLength": 16,
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "locale": {
+          "default": "zh-CN",
+          "pattern": "^[a-z]{2}(?:-[A-Z]{2})?$",
+          "title": "Locale",
+          "type": "string"
+        },
+        "request_id": {
+          "format": "uuid",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "requested_at": {
+          "format": "date-time",
+          "title": "Requested At",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "Asia/Shanghai",
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Timezone",
+          "type": "string"
+        },
+        "workspace_id": {
+          "default": "default",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Workspace Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "as_of",
+        "idempotency_key"
+      ],
+      "title": "MutationContext",
+      "type": "object"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/jobs/policy-refresh-request.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A stock-agnostic refresh request; instrument and watchlist fields do not exist.",
+  "properties": {
+    "context": {
+      "$ref": "#/$defs/MutationContext"
+    },
+    "fixture_manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Fixture Manifest Sha256",
+      "type": "string"
+    },
+    "fixture_manifest_version": {
+      "const": "r2-global-events.v1",
+      "default": "r2-global-events.v1",
+      "title": "Fixture Manifest Version",
+      "type": "string"
+    },
+    "scheduled_for": {
+      "format": "date-time",
+      "title": "Scheduled For",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_mode": {
+      "const": "synthetic_development_only",
+      "default": "synthetic_development_only",
+      "title": "Source Mode",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "context",
+    "scheduled_for",
+    "fixture_manifest_sha256"
+  ],
+  "title": "PolicyRefreshRequest",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.global_events.PolicyRefreshRequest",
+  "x-schema-version": "1.0"
+}

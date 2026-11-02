@@ -1,0 +1,12 @@
+{
+  "type": "about:blank",
+  "title": "Dependency Unavailable",
+  "status": 503,
+  "detail": "Active-target state is temporarily unavailable.",
+  "instance": "/api/v1/active-target",
+  "code": "DEPENDENCY_UNAVAILABLE",
+  "request_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "correlation_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+  "retryable": true,
+  "errors": []
+}

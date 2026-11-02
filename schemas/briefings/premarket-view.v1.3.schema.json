@@ -1,0 +1,1560 @@
+{
+  "$defs": {
+    "AttentionRiskBand": {
+      "enum": [
+        "calm",
+        "notice",
+        "warming",
+        "tense",
+        "high_alert"
+      ],
+      "title": "AttentionRiskBand",
+      "type": "string"
+    },
+    "AttentionRiskCategory": {
+      "additionalProperties": false,
+      "properties": {
+        "available": {
+          "title": "Available",
+          "type": "boolean"
+        },
+        "category": {
+          "$ref": "#/$defs/AttentionRiskCategoryName"
+        },
+        "contradiction_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Contradiction Count",
+          "type": "integer"
+        },
+        "correction_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Correction Count",
+          "type": "integer"
+        },
+        "new_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "New Count",
+          "type": "integer"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Score"
+        },
+        "update_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Update Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "category",
+        "score",
+        "available"
+      ],
+      "title": "AttentionRiskCategory",
+      "type": "object"
+    },
+    "AttentionRiskCategoryName": {
+      "enum": [
+        "announcements",
+        "financial",
+        "market",
+        "company_industry",
+        "macro"
+      ],
+      "title": "AttentionRiskCategoryName",
+      "type": "string"
+    },
+    "AttentionRiskIndex": {
+      "additionalProperties": false,
+      "properties": {
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "availability": {
+          "$ref": "#/$defs/IndexAvailability"
+        },
+        "available_category_count": {
+          "maximum": 5,
+          "minimum": 0,
+          "title": "Available Category Count",
+          "type": "integer"
+        },
+        "band": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AttentionRiskBand"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/AttentionRiskCategory"
+          },
+          "maxItems": 5,
+          "minItems": 5,
+          "title": "Categories",
+          "type": "array"
+        },
+        "completeness_percent": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Completeness Percent",
+          "type": "integer"
+        },
+        "disclaimer": {
+          "default": "越高代表越需要核实信息，不代表上涨或下跌。",
+          "title": "Disclaimer",
+          "type": "string"
+        },
+        "drivers": {
+          "items": {
+            "$ref": "#/$defs/IndexExplanation"
+          },
+          "maxItems": 3,
+          "title": "Drivers",
+          "type": "array"
+        },
+        "formula_version": {
+          "const": "attention-risk.v1",
+          "default": "attention-risk.v1",
+          "title": "Formula Version",
+          "type": "string"
+        },
+        "mitigators": {
+          "items": {
+            "$ref": "#/$defs/IndexExplanation"
+          },
+          "maxItems": 2,
+          "title": "Mitigators",
+          "type": "array"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Score"
+        }
+      },
+      "required": [
+        "score",
+        "band",
+        "availability",
+        "as_of",
+        "categories",
+        "available_category_count",
+        "completeness_percent"
+      ],
+      "title": "AttentionRiskIndex",
+      "type": "object"
+    },
+    "BehaviorPressureSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "availability": {
+          "$ref": "#/$defs/IndexAvailability"
+        },
+        "band": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PressureBand"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "completeness_percent": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Completeness Percent",
+          "type": "integer"
+        },
+        "disclaimer": {
+          "default": "研究指数，不是下跌概率、买卖建议或目标价。",
+          "title": "Disclaimer",
+          "type": "string"
+        },
+        "drivers": {
+          "items": {
+            "$ref": "#/$defs/IndexExplanation"
+          },
+          "maxItems": 3,
+          "title": "Drivers",
+          "type": "array"
+        },
+        "facets": {
+          "items": {
+            "$ref": "#/$defs/PressureFacet"
+          },
+          "maxItems": 5,
+          "minItems": 5,
+          "title": "Facets",
+          "type": "array"
+        },
+        "historical_analogs": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HistoricalAnalogSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "mitigators": {
+          "items": {
+            "$ref": "#/$defs/IndexExplanation"
+          },
+          "maxItems": 2,
+          "title": "Mitigators",
+          "type": "array"
+        },
+        "mode": {
+          "$ref": "#/$defs/PressureMode"
+        },
+        "research_index": {
+          "const": true,
+          "default": true,
+          "title": "Research Index",
+          "type": "boolean"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Score"
+        },
+        "score_mapping": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EmpiricalRankMapping"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "structure_dimensions": {
+          "items": {
+            "$ref": "#/$defs/MarketStructureDimension"
+          },
+          "maxItems": 6,
+          "minItems": 6,
+          "title": "Structure Dimensions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "mode",
+        "score",
+        "band",
+        "availability",
+        "as_of",
+        "facets",
+        "structure_dimensions",
+        "completeness_percent"
+      ],
+      "title": "BehaviorPressureSummary",
+      "type": "object"
+    },
+    "BriefingChangeType": {
+      "enum": [
+        "new",
+        "update",
+        "correction",
+        "contradiction"
+      ],
+      "title": "BriefingChangeType",
+      "type": "string"
+    },
+    "BriefingIngestionProgressV1_2": {
+      "additionalProperties": false,
+      "description": "Primary-source progress carrying complete R1 1.2 lineage.",
+      "properties": {
+        "advance_state": {
+          "$ref": "#/$defs/SourceAdvanceState"
+        },
+        "batch_audit_id": {
+          "format": "uuid",
+          "title": "Batch Audit Id",
+          "type": "string"
+        },
+        "business_watermark": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Business Watermark"
+        },
+        "capability": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Capability",
+          "type": "string"
+        },
+        "data_mode": {
+          "$ref": "#/$defs/SourceDataMode"
+        },
+        "provenance": {
+          "$ref": "#/$defs/SourceProvenanceV1_2"
+        },
+        "source_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "batch_audit_id",
+        "advance_state",
+        "data_mode",
+        "source_id",
+        "capability",
+        "provenance"
+      ],
+      "title": "BriefingIngestionProgressV1_2",
+      "type": "object",
+      "x-runtime-invariants": [
+        "advance_state=advanced requires business_watermark"
+      ]
+    },
+    "EmpiricalRankMapping": {
+      "additionalProperties": false,
+      "description": "Auditable raw-composite to empirical mid-rank mapping for the research score.",
+      "properties": {
+        "equal_count": {
+          "minimum": 1,
+          "title": "Equal Count",
+          "type": "integer"
+        },
+        "less_count": {
+          "minimum": 0,
+          "title": "Less Count",
+          "type": "integer"
+        },
+        "mapped_score": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Mapped Score",
+          "type": "integer"
+        },
+        "population_count": {
+          "maximum": 10000,
+          "minimum": 1000,
+          "title": "Population Count",
+          "type": "integer"
+        },
+        "raw_total": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Raw Total",
+          "type": "integer"
+        },
+        "reference_mapping_version": {
+          "pattern": "^[a-z][a-z0-9_.-]{2,99}$",
+          "title": "Reference Mapping Version",
+          "type": "string"
+        },
+        "reference_population_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Reference Population Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "raw_total",
+        "population_count",
+        "less_count",
+        "equal_count",
+        "mapped_score",
+        "reference_mapping_version",
+        "reference_population_hash"
+      ],
+      "title": "EmpiricalRankMapping",
+      "type": "object"
+    },
+    "HistoricalAnalogState": {
+      "enum": [
+        "pending",
+        "ready",
+        "insufficient",
+        "maturity_pending",
+        "incomparable",
+        "failed"
+      ],
+      "title": "HistoricalAnalogState",
+      "type": "string"
+    },
+    "HistoricalAnalogSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "feature_set_version": {
+          "const": "behavior-analog-14d.v1",
+          "default": "behavior-analog-14d.v1",
+          "title": "Feature Set Version",
+          "type": "string"
+        },
+        "ranges": {
+          "items": {
+            "$ref": "#/$defs/HistoricalOutcomeRange"
+          },
+          "maxItems": 5,
+          "title": "Ranges",
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "sample_count": {
+          "maximum": 200,
+          "minimum": 0,
+          "title": "Sample Count",
+          "type": "integer"
+        },
+        "selection_as_of": {
+          "format": "date-time",
+          "title": "Selection As Of",
+          "type": "string"
+        },
+        "selection_semantics_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Selection Semantics Hash",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/HistoricalAnalogState"
+        }
+      },
+      "required": [
+        "state",
+        "sample_count",
+        "selection_as_of",
+        "selection_semantics_hash"
+      ],
+      "title": "HistoricalAnalogSummary",
+      "type": "object"
+    },
+    "HistoricalOutcomeRange": {
+      "additionalProperties": false,
+      "properties": {
+        "median": {
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$",
+          "title": "Median",
+          "type": "string"
+        },
+        "metric": {
+          "enum": [
+            "return_1d",
+            "return_3d",
+            "industry_excess",
+            "mae",
+            "mfe"
+          ],
+          "title": "Metric",
+          "type": "string"
+        },
+        "q1": {
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$",
+          "title": "Q1",
+          "type": "string"
+        },
+        "q3": {
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$",
+          "title": "Q3",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "q1",
+        "median",
+        "q3"
+      ],
+      "title": "HistoricalOutcomeRange",
+      "type": "object"
+    },
+    "IndexAvailability": {
+      "enum": [
+        "ready",
+        "degraded",
+        "abstained"
+      ],
+      "title": "IndexAvailability",
+      "type": "string"
+    },
+    "IndexExplanation": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "text"
+      ],
+      "title": "IndexExplanation",
+      "type": "object"
+    },
+    "InstrumentRef": {
+      "additionalProperties": false,
+      "description": "Market-neutral security identity suitable for future exchanges.",
+      "properties": {
+        "asset_class": {
+          "default": "equity",
+          "pattern": "^[a-z][a-z0-9_]{1,31}$",
+          "title": "Asset Class",
+          "type": "string"
+        },
+        "currency": {
+          "default": "CNY",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "exchange": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Exchange",
+          "type": "string"
+        },
+        "instrument_id": {
+          "pattern": "^[A-Z0-9_]+:[A-Za-z0-9._-]+$",
+          "title": "Instrument Id",
+          "type": "string"
+        },
+        "market": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Market",
+          "type": "string"
+        },
+        "symbol": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Symbol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instrument_id",
+        "symbol",
+        "exchange",
+        "market"
+      ],
+      "title": "InstrumentRef",
+      "type": "object"
+    },
+    "InterpretationOrigin": {
+      "enum": [
+        "rules",
+        "deepseek_flash",
+        "deepseek_pro"
+      ],
+      "title": "InterpretationOrigin",
+      "type": "string"
+    },
+    "InterpretationStatus": {
+      "enum": [
+        "generated",
+        "fallback"
+      ],
+      "title": "InterpretationStatus",
+      "type": "string"
+    },
+    "MarketStructureDimension": {
+      "additionalProperties": false,
+      "properties": {
+        "availability": {
+          "$ref": "#/$defs/StructureAvailability"
+        },
+        "dimension": {
+          "$ref": "#/$defs/StructureDimensionName"
+        },
+        "explanation": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Explanation",
+          "type": "string"
+        },
+        "state": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "State"
+        }
+      },
+      "required": [
+        "dimension",
+        "availability",
+        "explanation"
+      ],
+      "title": "MarketStructureDimension",
+      "type": "object"
+    },
+    "ModelInterpretation": {
+      "additionalProperties": false,
+      "properties": {
+        "key_points": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Key Points",
+          "type": "array"
+        },
+        "label": {
+          "const": "智能解读",
+          "default": "智能解读",
+          "title": "Label",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/InterpretationOrigin"
+        },
+        "status": {
+          "$ref": "#/$defs/InterpretationStatus"
+        },
+        "summary": {
+          "maxLength": 800,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "summary",
+        "origin",
+        "status"
+      ],
+      "title": "ModelInterpretation",
+      "type": "object"
+    },
+    "PlainLanguageUpdate": {
+      "additionalProperties": false,
+      "properties": {
+        "checked_count": {
+          "minimum": 0,
+          "title": "Checked Count",
+          "type": "integer"
+        },
+        "last_success_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Success At"
+        },
+        "no_change_count": {
+          "minimum": 0,
+          "title": "No Change Count",
+          "type": "integer"
+        },
+        "reasons": {
+          "items": {
+            "$ref": "#/$defs/IndexExplanation"
+          },
+          "maxItems": 5,
+          "title": "Reasons",
+          "type": "array"
+        },
+        "succeeded_count": {
+          "minimum": 0,
+          "title": "Succeeded Count",
+          "type": "integer"
+        },
+        "summary": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        },
+        "unavailable_count": {
+          "minimum": 0,
+          "title": "Unavailable Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "checked_count",
+        "succeeded_count",
+        "no_change_count",
+        "unavailable_count",
+        "summary"
+      ],
+      "title": "PlainLanguageUpdate",
+      "type": "object"
+    },
+    "PremarketBriefingItem": {
+      "additionalProperties": false,
+      "description": "One evidence-linked public briefing item.",
+      "properties": {
+        "change_type": {
+          "$ref": "#/$defs/BriefingChangeType"
+        },
+        "event_id": {
+          "format": "uuid",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "event_revision": {
+          "minimum": 1,
+          "title": "Event Revision",
+          "type": "integer"
+        },
+        "evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "fact_summary": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Fact Summary",
+          "type": "string"
+        },
+        "first_seen_at": {
+          "format": "date-time",
+          "title": "First Seen At",
+          "type": "string"
+        },
+        "headline": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Headline",
+          "type": "string"
+        },
+        "inference": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Inference"
+        },
+        "published_at": {
+          "format": "date-time",
+          "title": "Published At",
+          "type": "string"
+        },
+        "source_roles": {
+          "items": {
+            "$ref": "#/$defs/SourceRole"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Source Roles",
+          "type": "array"
+        }
+      },
+      "required": [
+        "event_id",
+        "event_revision",
+        "headline",
+        "fact_summary",
+        "change_type",
+        "published_at",
+        "first_seen_at",
+        "source_roles",
+        "evidence_ids"
+      ],
+      "title": "PremarketBriefingItem",
+      "type": "object",
+      "x-runtime-invariants": [
+        "first_seen_at is >= published_at",
+        "source_roles entries are unique",
+        "evidence_ids entries are unique"
+      ]
+    },
+    "PremarketBriefingSection": {
+      "additionalProperties": false,
+      "description": "One fixed briefing coverage block.",
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/PremarketBriefingItem"
+          },
+          "maxItems": 100,
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "title": "PremarketBriefingSection",
+      "type": "object"
+    },
+    "PremarketBriefingSections": {
+      "additionalProperties": false,
+      "description": "Exactly the five R1 coverage blocks, each present once.",
+      "properties": {
+        "company_industry_news": {
+          "$ref": "#/$defs/PremarketBriefingSection"
+        },
+        "financial_changes": {
+          "$ref": "#/$defs/PremarketBriefingSection"
+        },
+        "macro_flashes": {
+          "$ref": "#/$defs/PremarketBriefingSection"
+        },
+        "market_snapshot": {
+          "$ref": "#/$defs/PremarketBriefingSection"
+        },
+        "statutory_announcements": {
+          "$ref": "#/$defs/PremarketBriefingSection"
+        }
+      },
+      "required": [
+        "statutory_announcements",
+        "financial_changes",
+        "market_snapshot",
+        "company_industry_news",
+        "macro_flashes"
+      ],
+      "title": "PremarketBriefingSections",
+      "type": "object"
+    },
+    "PressureBand": {
+      "enum": [
+        "stable",
+        "warming",
+        "attention",
+        "crowded",
+        "fragile"
+      ],
+      "title": "PressureBand",
+      "type": "string"
+    },
+    "PressureFacet": {
+      "additionalProperties": false,
+      "properties": {
+        "availability": {
+          "$ref": "#/$defs/IndexAvailability"
+        },
+        "facet": {
+          "$ref": "#/$defs/PressureFacetName"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Score"
+        }
+      },
+      "required": [
+        "score",
+        "availability",
+        "facet"
+      ],
+      "title": "PressureFacet",
+      "type": "object"
+    },
+    "PressureFacetName": {
+      "enum": [
+        "activity_divergence",
+        "extension_crowding",
+        "liquidity_fragility",
+        "volatility_tail",
+        "market_industry_divergence"
+      ],
+      "title": "PressureFacetName",
+      "type": "string"
+    },
+    "PressureMode": {
+      "enum": [
+        "post_close",
+        "intraday_10m"
+      ],
+      "title": "PressureMode",
+      "type": "string"
+    },
+    "SourceAccessChannelV1_2": {
+      "description": "R1 1.2 access channels used by replay, free and authorized adapters.",
+      "enum": [
+        "demo_replay",
+        "akshare",
+        "official_http",
+        "baostock_sdk",
+        "authorized_api"
+      ],
+      "title": "SourceAccessChannelV1_2",
+      "type": "string"
+    },
+    "SourceAdvanceState": {
+      "description": "Provider-neutral result of the most recent source batch.",
+      "enum": [
+        "advanced",
+        "not_advanced"
+      ],
+      "title": "SourceAdvanceState",
+      "type": "string"
+    },
+    "SourceCoverageStatus": {
+      "description": "Public source capability coverage states.",
+      "enum": [
+        "ok",
+        "delayed",
+        "unavailable",
+        "rights_blocked",
+        "not_qualified",
+        "timeliness_unverified"
+      ],
+      "title": "SourceCoverageStatus",
+      "type": "string"
+    },
+    "SourceCoverageV1_2": {
+      "additionalProperties": false,
+      "description": "Source capability coverage carrying complete R1 1.2 lineage.",
+      "properties": {
+        "capability": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Capability",
+          "type": "string"
+        },
+        "gap_reason": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gap Reason"
+        },
+        "last_success_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Success At"
+        },
+        "license_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "License Id",
+          "type": "string"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "progress": {
+          "$ref": "#/$defs/SourceIngestionProgress"
+        },
+        "provenance": {
+          "$ref": "#/$defs/SourceProvenanceV1_2"
+        },
+        "source_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_role": {
+          "$ref": "#/$defs/SourceRole"
+        },
+        "status": {
+          "$ref": "#/$defs/SourceCoverageStatus"
+        }
+      },
+      "required": [
+        "source_id",
+        "capability",
+        "source_role",
+        "status",
+        "observed_at",
+        "license_id",
+        "progress",
+        "provenance"
+      ],
+      "title": "SourceCoverageV1_2",
+      "type": "object",
+      "x-runtime-invariants": [
+        "last_success_at is <= observed_at when present",
+        "status=ok requires last_success_at",
+        "status other than ok requires gap_reason",
+        "progress.business_watermark is <= observed_at when present",
+        "progress.advance_state=advanced requires last_success_at"
+      ]
+    },
+    "SourceDataMode": {
+      "description": "Whether source evidence is real or restricted to development fixtures.",
+      "enum": [
+        "real",
+        "synthetic_development_only"
+      ],
+      "title": "SourceDataMode",
+      "type": "string"
+    },
+    "SourceEvidenceRole": {
+      "description": "How one source may support a fact without changing its source identity.",
+      "enum": [
+        "authoritative",
+        "structured_helper",
+        "discovery",
+        "cross_check"
+      ],
+      "title": "SourceEvidenceRole",
+      "type": "string"
+    },
+    "SourceIngestionProgress": {
+      "additionalProperties": false,
+      "description": "Public provider-neutral ingestion progress metadata.",
+      "properties": {
+        "advance_state": {
+          "$ref": "#/$defs/SourceAdvanceState"
+        },
+        "batch_audit_id": {
+          "format": "uuid",
+          "title": "Batch Audit Id",
+          "type": "string"
+        },
+        "business_watermark": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Business Watermark"
+        },
+        "data_mode": {
+          "$ref": "#/$defs/SourceDataMode"
+        }
+      },
+      "required": [
+        "batch_audit_id",
+        "advance_state",
+        "data_mode"
+      ],
+      "title": "SourceIngestionProgress",
+      "type": "object",
+      "x-runtime-invariants": [
+        "advance_state=advanced requires business_watermark"
+      ]
+    },
+    "SourceProvenanceV1_2": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "demo_replay"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "demo_replay"
+              },
+              "quality_tier": {
+                "const": "demo_replay"
+              },
+              "release_tier": {
+                "const": "dev_only"
+              },
+              "rights_status": {
+                "const": "not_applicable"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "public_static"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "demo_replay"
+              },
+              "quality_tier": {
+                "const": "demo_replay"
+              },
+              "release_tier": {
+                "const": "dev_only"
+              },
+              "rights_status": {
+                "const": "not_applicable"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "dev_live"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "enum": [
+                  "akshare",
+                  "official_http",
+                  "baostock_sdk"
+                ]
+              },
+              "quality_tier": {
+                "enum": [
+                  "free_official",
+                  "free_structured",
+                  "dev_web"
+                ]
+              },
+              "release_tier": {
+                "const": "dev_only"
+              },
+              "rights_status": {
+                "const": "unverified"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "authorized"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "authorized_api"
+              },
+              "quality_tier": {
+                "const": "authorized"
+              },
+              "release_tier": {
+                "const": "authorized"
+              },
+              "rights_status": {
+                "const": "approved"
+              }
+            }
+          }
+        }
+      ],
+      "description": "R1 1.2 lineage with explicit quality and evidence-role dimensions.",
+      "properties": {
+        "access_channel": {
+          "$ref": "#/$defs/SourceAccessChannelV1_2"
+        },
+        "adapter_name": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Adapter Name",
+          "type": "string"
+        },
+        "adapter_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Adapter Version",
+          "type": "string"
+        },
+        "endpoint_name": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,199}$",
+          "title": "Endpoint Name",
+          "type": "string"
+        },
+        "evidence_role": {
+          "$ref": "#/$defs/SourceEvidenceRole"
+        },
+        "provider": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Provider",
+          "type": "string"
+        },
+        "quality_tier": {
+          "$ref": "#/$defs/SourceQualityTier"
+        },
+        "release_tier": {
+          "$ref": "#/$defs/SourceReleaseTier"
+        },
+        "rights_status": {
+          "$ref": "#/$defs/SourceRightsStatusV1_2"
+        },
+        "runtime_mode": {
+          "$ref": "#/$defs/SourceRuntimeModeV1_2"
+        },
+        "schema_version": {
+          "const": "1.2",
+          "default": "1.2",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_identifier": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Source Identifier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "provider",
+        "access_channel",
+        "adapter_name",
+        "adapter_version",
+        "endpoint_name",
+        "source_identifier",
+        "runtime_mode",
+        "release_tier",
+        "rights_status",
+        "quality_tier",
+        "evidence_role"
+      ],
+      "title": "SourceProvenanceV1_2",
+      "type": "object",
+      "x-runtime-invariants": [
+        "runtime_mode constrains channel, release tier, rights status, and quality",
+        "quality_tier and evidence_role remain independent dimensions"
+      ]
+    },
+    "SourceQualityTier": {
+      "description": "Coarse quality origin kept separate from evidence authority and rights.",
+      "enum": [
+        "demo_replay",
+        "free_official",
+        "free_structured",
+        "dev_web",
+        "authorized"
+      ],
+      "title": "SourceQualityTier",
+      "type": "string"
+    },
+    "SourceReleaseTier": {
+      "description": "Whether a source result may leave development-only surfaces.",
+      "enum": [
+        "dev_only",
+        "authorized"
+      ],
+      "title": "SourceReleaseTier",
+      "type": "string"
+    },
+    "SourceRightsStatusV1_2": {
+      "description": "R1 1.2 public rights state, including data with no source-rights claim.",
+      "enum": [
+        "unverified",
+        "approved",
+        "blocked",
+        "not_applicable"
+      ],
+      "title": "SourceRightsStatusV1_2",
+      "type": "string"
+    },
+    "SourceRole": {
+      "description": "Permitted public source roles.",
+      "enum": [
+        "statutory",
+        "professional_market",
+        "professional_information",
+        "discovery"
+      ],
+      "title": "SourceRole",
+      "type": "string"
+    },
+    "SourceRuntimeModeV1_2": {
+      "description": "R1 1.2 execution modes, including the detached public snapshot.",
+      "enum": [
+        "demo_replay",
+        "dev_live",
+        "public_static",
+        "authorized"
+      ],
+      "title": "SourceRuntimeModeV1_2",
+      "type": "string"
+    },
+    "StructureAvailability": {
+      "enum": [
+        "ready",
+        "degraded",
+        "abstained",
+        "not_applicable"
+      ],
+      "title": "StructureAvailability",
+      "type": "string"
+    },
+    "StructureDimensionName": {
+      "enum": [
+        "trend_organization",
+        "position_recovery",
+        "trading_participation",
+        "volatility_environment",
+        "intraday_acceptance",
+        "relative_environment"
+      ],
+      "title": "StructureDimensionName",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/briefings/premarket-view.v1.3.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "R1 single-stock research view with two deterministic 0-100 indices.",
+  "properties": {
+    "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+    },
+    "attention_risk_index": {
+      "$ref": "#/$defs/AttentionRiskIndex"
+    },
+    "behavior_pressure_summary": {
+      "$ref": "#/$defs/BehaviorPressureSummary"
+    },
+    "briefing_id": {
+      "format": "uuid",
+      "title": "Briefing Id",
+      "type": "string"
+    },
+    "comparison_since": {
+      "format": "date-time",
+      "title": "Comparison Since",
+      "type": "string"
+    },
+    "disclaimer": {
+      "default": "本系统仅供个人信息整理与研究，不构成证券投资建议、收益承诺或交易指令。",
+      "title": "Disclaimer",
+      "type": "string"
+    },
+    "flash_interpretation": {
+      "$ref": "#/$defs/ModelInterpretation"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "ingestion_progress": {
+      "$ref": "#/$defs/BriefingIngestionProgressV1_2"
+    },
+    "instrument": {
+      "$ref": "#/$defs/InstrumentRef"
+    },
+    "omitted_duplicate_count": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Omitted Duplicate Count",
+      "type": "integer"
+    },
+    "plain_language_update": {
+      "$ref": "#/$defs/PlainLanguageUpdate"
+    },
+    "pro_interpretation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ModelInterpretation"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "release_tier": {
+      "$ref": "#/$defs/SourceReleaseTier"
+    },
+    "ruleset_version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Ruleset Version",
+      "type": "string"
+    },
+    "runtime_mode": {
+      "$ref": "#/$defs/SourceRuntimeModeV1_2"
+    },
+    "schema_version": {
+      "const": "1.3",
+      "default": "1.3",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sections": {
+      "$ref": "#/$defs/PremarketBriefingSections"
+    },
+    "source_coverage": {
+      "items": {
+        "$ref": "#/$defs/SourceCoverageV1_2"
+      },
+      "maxItems": 200,
+      "title": "Source Coverage",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "instrument",
+    "comparison_since",
+    "as_of",
+    "generated_at",
+    "sections",
+    "ingestion_progress",
+    "ruleset_version",
+    "runtime_mode",
+    "release_tier",
+    "attention_risk_index",
+    "behavior_pressure_summary",
+    "plain_language_update",
+    "flash_interpretation"
+  ],
+  "title": "PremarketBriefingViewV1_3",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.premarket_views.PremarketBriefingViewV1_3",
+  "x-runtime-invariants": [
+    "instrument is fixed to XSHG:603986",
+    "attention and behavior indices are deterministic inputs to model interpretation",
+    "pro_interpretation may be absent without degrading deterministic content"
+  ],
+  "x-schema-version": "1.3"
+}

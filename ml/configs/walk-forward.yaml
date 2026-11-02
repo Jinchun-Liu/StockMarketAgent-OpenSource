@@ -1,0 +1,23 @@
+version: "2026-07-21.1"
+target:
+  decision_time: "09:20"
+  assumed_entry_window: ["09:30", "09:35"]
+  exit_time: "15:00"
+  benchmark: point_in_time_sw_level_1_industry
+  subtract_costs: true
+split:
+  initial_train_years: 3
+  validation_months: 3
+  calibration_months: 3
+  test_months: 3
+  roll_months: 3
+  embargo_trading_days: 5
+  final_holdout_months: 6
+models:
+  price: lightgbm_binary_and_quantile
+  text: lightgbm_binary
+  fusion: l2_logistic_regression
+  calibration: sigmoid
+paper_trading:
+  minimum_trading_days: 60
+  reset_on_material_change: true

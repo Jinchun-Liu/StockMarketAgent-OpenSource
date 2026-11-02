@@ -1,0 +1,613 @@
+{
+  "$defs": {
+    "ActiveTargetRevisionRef": {
+      "additionalProperties": false,
+      "description": "Immutable reference captured by a job before it leaves the scheduler process.",
+      "properties": {
+        "activated_at": {
+          "format": "date-time",
+          "title": "Activated At",
+          "type": "string"
+        },
+        "instrument": {
+          "$ref": "#/$defs/InstrumentRef"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "watchlist_id": {
+          "format": "uuid",
+          "title": "Watchlist Id",
+          "type": "string"
+        },
+        "watchlist_revision": {
+          "minimum": 1,
+          "title": "Watchlist Revision",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "watchlist_id",
+        "watchlist_revision",
+        "instrument",
+        "activated_at"
+      ],
+      "title": "ActiveTargetRevisionRef",
+      "type": "object"
+    },
+    "InstrumentRef": {
+      "additionalProperties": false,
+      "description": "Market-neutral security identity suitable for future exchanges.",
+      "properties": {
+        "asset_class": {
+          "default": "equity",
+          "pattern": "^[a-z][a-z0-9_]{1,31}$",
+          "title": "Asset Class",
+          "type": "string"
+        },
+        "currency": {
+          "default": "CNY",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "exchange": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Exchange",
+          "type": "string"
+        },
+        "instrument_id": {
+          "pattern": "^[A-Z0-9_]+:[A-Za-z0-9._-]+$",
+          "title": "Instrument Id",
+          "type": "string"
+        },
+        "market": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Market",
+          "type": "string"
+        },
+        "symbol": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Symbol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instrument_id",
+        "symbol",
+        "exchange",
+        "market"
+      ],
+      "title": "InstrumentRef",
+      "type": "object"
+    },
+    "JobFailure": {
+      "additionalProperties": false,
+      "description": "Safe failure details; stack traces stay in observability storage.",
+      "properties": {
+        "failed_at": {
+          "format": "date-time",
+          "title": "Failed At",
+          "type": "string"
+        },
+        "reason_code": {
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+          "title": "Reason Code",
+          "type": "string"
+        },
+        "retryable": {
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "safe_message": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Safe Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason_code",
+        "safe_message",
+        "retryable",
+        "failed_at"
+      ],
+      "title": "JobFailure",
+      "type": "object"
+    },
+    "JobStatus": {
+      "enum": [
+        "queued",
+        "running",
+        "succeeded",
+        "degraded",
+        "skipped",
+        "failed",
+        "cancelled",
+        "expired"
+      ],
+      "title": "JobStatus",
+      "type": "string"
+    },
+    "PremarketIngestTaskResultV1_2": {
+      "additionalProperties": false,
+      "description": "R1 1.2 persisted summary with complete source provenance.",
+      "properties": {
+        "active_target": {
+          "$ref": "#/$defs/ActiveTargetRevisionRef"
+        },
+        "capability": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Capability",
+          "type": "string"
+        },
+        "data_manifest_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data Manifest Hash"
+        },
+        "event_revisions_stored": {
+          "minimum": 0,
+          "title": "Event Revisions Stored",
+          "type": "integer"
+        },
+        "evidence_stored": {
+          "minimum": 0,
+          "title": "Evidence Stored",
+          "type": "integer"
+        },
+        "idempotent_replay": {
+          "default": false,
+          "title": "Idempotent Replay",
+          "type": "boolean"
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Next Cursor"
+        },
+        "provenance": {
+          "$ref": "#/$defs/SourceProvenanceV1_2"
+        },
+        "reason_codes": {
+          "items": {
+            "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "records_fetched": {
+          "minimum": 0,
+          "title": "Records Fetched",
+          "type": "integer"
+        },
+        "replay_session_id": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Replay Session Id"
+        },
+        "runtime_mode": {
+          "$ref": "#/$defs/SourceRuntimeModeV1_2"
+        },
+        "schema_version": {
+          "const": "1.2",
+          "default": "1.2",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_id": {
+          "pattern": "^[a-z][a-z0-9_-]{2,99}$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_watermark": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Watermark"
+        },
+        "window_end": {
+          "format": "date-time",
+          "title": "Window End",
+          "type": "string"
+        },
+        "window_start": {
+          "format": "date-time",
+          "title": "Window Start",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "active_target",
+        "source_id",
+        "window_start",
+        "window_end",
+        "records_fetched",
+        "evidence_stored",
+        "event_revisions_stored",
+        "capability",
+        "runtime_mode",
+        "provenance"
+      ],
+      "title": "PremarketIngestTaskResultV1_2",
+      "type": "object"
+    },
+    "SourceAccessChannelV1_2": {
+      "description": "R1 1.2 access channels used by replay, free and authorized adapters.",
+      "enum": [
+        "demo_replay",
+        "akshare",
+        "official_http",
+        "baostock_sdk",
+        "authorized_api"
+      ],
+      "title": "SourceAccessChannelV1_2",
+      "type": "string"
+    },
+    "SourceEvidenceRole": {
+      "description": "How one source may support a fact without changing its source identity.",
+      "enum": [
+        "authoritative",
+        "structured_helper",
+        "discovery",
+        "cross_check"
+      ],
+      "title": "SourceEvidenceRole",
+      "type": "string"
+    },
+    "SourceProvenanceV1_2": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "demo_replay"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "demo_replay"
+              },
+              "quality_tier": {
+                "const": "demo_replay"
+              },
+              "release_tier": {
+                "const": "dev_only"
+              },
+              "rights_status": {
+                "const": "not_applicable"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "public_static"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "demo_replay"
+              },
+              "quality_tier": {
+                "const": "demo_replay"
+              },
+              "release_tier": {
+                "const": "dev_only"
+              },
+              "rights_status": {
+                "const": "not_applicable"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "dev_live"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "enum": [
+                  "akshare",
+                  "official_http",
+                  "baostock_sdk"
+                ]
+              },
+              "quality_tier": {
+                "enum": [
+                  "free_official",
+                  "free_structured",
+                  "dev_web"
+                ]
+              },
+              "release_tier": {
+                "const": "dev_only"
+              },
+              "rights_status": {
+                "const": "unverified"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "authorized"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "authorized_api"
+              },
+              "quality_tier": {
+                "const": "authorized"
+              },
+              "release_tier": {
+                "const": "authorized"
+              },
+              "rights_status": {
+                "const": "approved"
+              }
+            }
+          }
+        }
+      ],
+      "description": "R1 1.2 lineage with explicit quality and evidence-role dimensions.",
+      "properties": {
+        "access_channel": {
+          "$ref": "#/$defs/SourceAccessChannelV1_2"
+        },
+        "adapter_name": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Adapter Name",
+          "type": "string"
+        },
+        "adapter_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Adapter Version",
+          "type": "string"
+        },
+        "endpoint_name": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,199}$",
+          "title": "Endpoint Name",
+          "type": "string"
+        },
+        "evidence_role": {
+          "$ref": "#/$defs/SourceEvidenceRole"
+        },
+        "provider": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Provider",
+          "type": "string"
+        },
+        "quality_tier": {
+          "$ref": "#/$defs/SourceQualityTier"
+        },
+        "release_tier": {
+          "$ref": "#/$defs/SourceReleaseTier"
+        },
+        "rights_status": {
+          "$ref": "#/$defs/SourceRightsStatusV1_2"
+        },
+        "runtime_mode": {
+          "$ref": "#/$defs/SourceRuntimeModeV1_2"
+        },
+        "schema_version": {
+          "const": "1.2",
+          "default": "1.2",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_identifier": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Source Identifier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "provider",
+        "access_channel",
+        "adapter_name",
+        "adapter_version",
+        "endpoint_name",
+        "source_identifier",
+        "runtime_mode",
+        "release_tier",
+        "rights_status",
+        "quality_tier",
+        "evidence_role"
+      ],
+      "title": "SourceProvenanceV1_2",
+      "type": "object",
+      "x-runtime-invariants": [
+        "runtime_mode constrains channel, release tier, rights status, and quality",
+        "quality_tier and evidence_role remain independent dimensions"
+      ]
+    },
+    "SourceQualityTier": {
+      "description": "Coarse quality origin kept separate from evidence authority and rights.",
+      "enum": [
+        "demo_replay",
+        "free_official",
+        "free_structured",
+        "dev_web",
+        "authorized"
+      ],
+      "title": "SourceQualityTier",
+      "type": "string"
+    },
+    "SourceReleaseTier": {
+      "description": "Whether a source result may leave development-only surfaces.",
+      "enum": [
+        "dev_only",
+        "authorized"
+      ],
+      "title": "SourceReleaseTier",
+      "type": "string"
+    },
+    "SourceRightsStatusV1_2": {
+      "description": "R1 1.2 public rights state, including data with no source-rights claim.",
+      "enum": [
+        "unverified",
+        "approved",
+        "blocked",
+        "not_applicable"
+      ],
+      "title": "SourceRightsStatusV1_2",
+      "type": "string"
+    },
+    "SourceRuntimeModeV1_2": {
+      "description": "R1 1.2 execution modes, including the detached public snapshot.",
+      "enum": [
+        "demo_replay",
+        "dev_live",
+        "public_static",
+        "authorized"
+      ],
+      "title": "SourceRuntimeModeV1_2",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/jobs/premarket-ingest-result.v1.2.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Compatible 1.2 result for the unchanged R1 ingestion task name.",
+  "properties": {
+    "attempt": {
+      "minimum": 1,
+      "title": "Attempt",
+      "type": "integer"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Completed At"
+    },
+    "failure": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/JobFailure"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "job_id": {
+      "format": "uuid",
+      "title": "Job Id",
+      "type": "string"
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PremarketIngestTaskResultV1_2"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema_version": {
+      "const": "1.2",
+      "default": "1.2",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "started_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Started At"
+    },
+    "status": {
+      "$ref": "#/$defs/JobStatus"
+    }
+  },
+  "required": [
+    "schema_version",
+    "job_id",
+    "status",
+    "attempt"
+  ],
+  "title": "PremarketIngestJobResultV1_2",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.premarket_jobs.PremarketIngestJobResultV1_2",
+  "x-schema-version": "1.2"
+}

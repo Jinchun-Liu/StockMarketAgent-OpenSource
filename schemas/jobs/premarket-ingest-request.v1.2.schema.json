@@ -1,0 +1,360 @@
+{
+  "$defs": {
+    "ActiveTargetRevisionRef": {
+      "additionalProperties": false,
+      "description": "Immutable reference captured by a job before it leaves the scheduler process.",
+      "properties": {
+        "activated_at": {
+          "format": "date-time",
+          "title": "Activated At",
+          "type": "string"
+        },
+        "instrument": {
+          "$ref": "#/$defs/InstrumentRef"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "watchlist_id": {
+          "format": "uuid",
+          "title": "Watchlist Id",
+          "type": "string"
+        },
+        "watchlist_revision": {
+          "minimum": 1,
+          "title": "Watchlist Revision",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "watchlist_id",
+        "watchlist_revision",
+        "instrument",
+        "activated_at"
+      ],
+      "title": "ActiveTargetRevisionRef",
+      "type": "object"
+    },
+    "InstrumentRef": {
+      "additionalProperties": false,
+      "description": "Market-neutral security identity suitable for future exchanges.",
+      "properties": {
+        "asset_class": {
+          "default": "equity",
+          "pattern": "^[a-z][a-z0-9_]{1,31}$",
+          "title": "Asset Class",
+          "type": "string"
+        },
+        "currency": {
+          "default": "CNY",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "exchange": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Exchange",
+          "type": "string"
+        },
+        "instrument_id": {
+          "pattern": "^[A-Z0-9_]+:[A-Za-z0-9._-]+$",
+          "title": "Instrument Id",
+          "type": "string"
+        },
+        "market": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Market",
+          "type": "string"
+        },
+        "symbol": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Symbol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instrument_id",
+        "symbol",
+        "exchange",
+        "market"
+      ],
+      "title": "InstrumentRef",
+      "type": "object"
+    },
+    "MutationContext": {
+      "additionalProperties": false,
+      "description": "Operation context for a state change, requiring a stable idempotency key.",
+      "properties": {
+        "actor_id": {
+          "default": "local-user",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "correlation_id": {
+          "format": "uuid",
+          "title": "Correlation Id",
+          "type": "string"
+        },
+        "deadline_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deadline At"
+        },
+        "idempotency_key": {
+          "maxLength": 200,
+          "minLength": 16,
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "locale": {
+          "default": "zh-CN",
+          "pattern": "^[a-z]{2}(?:-[A-Z]{2})?$",
+          "title": "Locale",
+          "type": "string"
+        },
+        "request_id": {
+          "format": "uuid",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "requested_at": {
+          "format": "date-time",
+          "title": "Requested At",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "Asia/Shanghai",
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Timezone",
+          "type": "string"
+        },
+        "workspace_id": {
+          "default": "default",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Workspace Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "as_of",
+        "idempotency_key"
+      ],
+      "title": "MutationContext",
+      "type": "object"
+    },
+    "PremarketIngestJobPayloadV1_2": {
+      "additionalProperties": false,
+      "description": "R1 1.2 intent with isolated capability mode and optional replay session.",
+      "properties": {
+        "active_target": {
+          "$ref": "#/$defs/ActiveTargetRevisionRef"
+        },
+        "capability": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Capability",
+          "type": "string"
+        },
+        "max_records": {
+          "default": 100,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Records",
+          "type": "integer"
+        },
+        "replay_session_id": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Replay Session Id"
+        },
+        "rights_snapshot_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Rights Snapshot Hash",
+          "type": "string"
+        },
+        "ruleset_version": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Ruleset Version",
+          "type": "string"
+        },
+        "runtime_mode": {
+          "$ref": "#/$defs/SourceRuntimeModeV1_2"
+        },
+        "schema_version": {
+          "const": "1.2",
+          "default": "1.2",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_adapter_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Source Adapter Version",
+          "type": "string"
+        },
+        "source_id": {
+          "pattern": "^[a-z][a-z0-9_-]{2,99}$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "window_end": {
+          "format": "date-time",
+          "title": "Window End",
+          "type": "string"
+        },
+        "window_start": {
+          "format": "date-time",
+          "title": "Window Start",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "active_target",
+        "window_start",
+        "window_end",
+        "source_id",
+        "source_adapter_version",
+        "rights_snapshot_hash",
+        "ruleset_version",
+        "capability",
+        "runtime_mode"
+      ],
+      "title": "PremarketIngestJobPayloadV1_2",
+      "type": "object"
+    },
+    "SourceRuntimeModeV1_2": {
+      "description": "R1 1.2 execution modes, including the detached public snapshot.",
+      "enum": [
+        "demo_replay",
+        "dev_live",
+        "public_static",
+        "authorized"
+      ],
+      "title": "SourceRuntimeModeV1_2",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/jobs/premarket-ingest-request.v1.2.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Compatible 1.2 request for the unchanged R1 ingestion task name.",
+  "properties": {
+    "attempt": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Attempt",
+      "type": "integer"
+    },
+    "context": {
+      "$ref": "#/$defs/MutationContext"
+    },
+    "expires_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expires At"
+    },
+    "job_id": {
+      "format": "uuid",
+      "title": "Job Id",
+      "type": "string"
+    },
+    "job_name": {
+      "const": "stock_assistant.ingestion.premarket_ingest.v1",
+      "default": "stock_assistant.ingestion.premarket_ingest.v1",
+      "title": "Job Name",
+      "type": "string"
+    },
+    "max_attempts": {
+      "default": 3,
+      "maximum": 100,
+      "minimum": 1,
+      "title": "Max Attempts",
+      "type": "integer"
+    },
+    "payload": {
+      "$ref": "#/$defs/PremarketIngestJobPayloadV1_2"
+    },
+    "queued_at": {
+      "format": "date-time",
+      "title": "Queued At",
+      "type": "string"
+    },
+    "scheduled_for": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scheduled For"
+    },
+    "schema_version": {
+      "const": "1.2",
+      "default": "1.2",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "context",
+    "payload",
+    "queued_at"
+  ],
+  "title": "PremarketIngestJobRequestV1_2",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.premarket_jobs.PremarketIngestJobRequestV1_2",
+  "x-schema-version": "1.2"
+}

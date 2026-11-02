@@ -1,0 +1,172 @@
+[
+  {
+    "name": "missing-version",
+    "model": "ActiveTargetSelectionRequest",
+    "base_fixture": "valid/active-targets.v1.0.json",
+    "base_case": "selection-by-instrument-id",
+    "operation": "remove",
+    "path": "/schema_version"
+  },
+  {
+    "name": "unknown-version",
+    "model": "ActiveTargetSelectionRequest",
+    "base_fixture": "valid/active-targets.v1.0.json",
+    "base_case": "selection-by-instrument-id",
+    "operation": "replace",
+    "path": "/schema_version",
+    "value": "9.9"
+  },
+  {
+    "name": "extra-field",
+    "model": "ActiveTargetSelectionRequest",
+    "base_fixture": "valid/active-targets.v1.0.json",
+    "base_case": "selection-by-instrument-id",
+    "operation": "add",
+    "path": "/vendor_payload",
+    "value": "forbidden"
+  },
+  {
+    "name": "json-number-decimal",
+    "model": "EventEvidenceView",
+    "base_fixture": "valid/event-evidence-scenarios.v1.0.json",
+    "base_case": "financial-correction",
+    "operation": "replace",
+    "path": "/facts/0/value/value",
+    "value": 125000000.0
+  },
+  {
+    "name": "naive-datetime",
+    "model": "EventEvidenceView",
+    "base_fixture": "valid/event-evidence-scenarios.v1.0.json",
+    "base_case": "statutory-announcement-new",
+    "operation": "replace",
+    "path": "/evidence/0/fetched_at",
+    "value": "2026-07-25T00:06:00"
+  },
+  {
+    "name": "future-evidence",
+    "model": "EventEvidenceView",
+    "base_fixture": "valid/event-evidence-scenarios.v1.0.json",
+    "base_case": "statutory-announcement-new",
+    "operation": "replace",
+    "path": "/evidence/0/revision_known_at",
+    "value": "2026-07-25T01:00:01Z"
+  },
+  {
+    "name": "duplicate-source-capability",
+    "model": "PremarketBriefingView",
+    "base_fixture": "valid/premarket-briefing.v1.0.json",
+    "operation": "append-copy",
+    "path": "/source_coverage",
+    "from": "/source_coverage/0"
+  },
+  {
+    "name": "unknown-source-role",
+    "model": "PremarketBriefingView",
+    "base_fixture": "valid/premarket-briefing.v1.0.json",
+    "operation": "replace",
+    "path": "/source_coverage/0/source_role",
+    "value": "social"
+  },
+  {
+    "name": "ok-without-last-success",
+    "model": "PremarketBriefingView",
+    "base_fixture": "valid/premarket-briefing.v1.0.json",
+    "operation": "remove",
+    "path": "/source_coverage/0/last_success_at"
+  },
+  {
+    "name": "advanced-without-watermark",
+    "model": "PremarketBriefingView",
+    "base_fixture": "valid/premarket-briefing.v1.0.json",
+    "operation": "replace",
+    "path": "/source_coverage/0/progress/business_watermark",
+    "value": null
+  },
+  {
+    "name": "provider-cursor-forbidden",
+    "model": "PremarketBriefingView",
+    "base_fixture": "valid/premarket-briefing.v1.0.json",
+    "operation": "add",
+    "path": "/source_coverage/0/progress/provider_cursor",
+    "value": "provider-cursor-sentinel"
+  },
+  {
+    "name": "mixed-source-data-mode",
+    "model": "PremarketBriefingView",
+    "base_fixture": "valid/premarket-briefing.v1.0.json",
+    "operation": "replace",
+    "path": "/source_coverage/1/progress/data_mode",
+    "value": "real"
+  },
+  {
+    "name": "briefing-primary-batch-mismatch",
+    "model": "PremarketBriefingView",
+    "base_fixture": "valid/premarket-briefing.v1.0.json",
+    "operation": "replace",
+    "path": "/ingestion_progress/batch_audit_id",
+    "value": "00000000-0000-0000-0000-000000004999"
+  },
+  {
+    "name": "future-revision-timeline",
+    "model": "EventEvidenceView",
+    "base_fixture": "valid/event-evidence-scenarios.v1.0.json",
+    "base_case": "financial-correction",
+    "operation": "replace",
+    "path": "/revision_timeline/items/0/revision_known_at",
+    "value": "2026-07-25T01:00:01Z"
+  },
+  {
+    "name": "timeline-identity-mismatch",
+    "model": "EventEvidenceView",
+    "base_fixture": "valid/event-evidence-scenarios.v1.0.json",
+    "base_case": "financial-correction",
+    "operation": "replace",
+    "path": "/revision_timeline/items/0/extraction_version",
+    "value": "r1-extractor-v2"
+  },
+  {
+    "name": "first-page-missing-selected",
+    "model": "EventEvidenceView",
+    "base_fixture": "valid/event-evidence-scenarios.v1.0.json",
+    "base_case": "financial-correction",
+    "operation": "remove",
+    "path": "/revision_timeline/items/0"
+  },
+  {
+    "name": "unbounded-selector-timeline",
+    "model": "EventEvidenceRevisionSelector",
+    "base_fixture": "valid/evidence-selectors.v1.0.json",
+    "base_case": "current-evidence-revision-selector",
+    "operation": "replace",
+    "path": "/timeline_limit",
+    "value": 51
+  },
+  {
+    "name": "naive-selector-as-of",
+    "model": "EventEvidenceRevisionSelector",
+    "base_fixture": "valid/evidence-selectors.v1.0.json",
+    "base_case": "historical-evidence-revision-selector",
+    "operation": "replace",
+    "path": "/as_of",
+    "value": "2026-07-25T00:10:00"
+  },
+  {
+    "name": "correction-without-evidence",
+    "model": "EventEvidenceView",
+    "base_fixture": "valid/event-evidence-scenarios.v1.0.json",
+    "base_case": "financial-correction",
+    "operation": "replace",
+    "path": "/evidence",
+    "value": []
+  },
+  {
+    "name": "contradiction-without-evidence",
+    "model": "EventEvidenceView",
+    "base_fixture": "valid/event-evidence-scenarios.v1.0.json",
+    "base_case": "numeric-contradiction",
+    "operation": "replace",
+    "path": "/evidence",
+    "value": []
+  }
+]

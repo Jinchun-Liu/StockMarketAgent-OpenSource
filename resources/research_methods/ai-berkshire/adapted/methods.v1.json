@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "method_library_version": "ai-berkshire-fd83d06-stockassistant-1.0",
+  "runtime_notice": "Only these project-owned profiles may be sent to the configured model provider. Upstream texts are provenance-only.",
+  "global_instructions": [
+    "Assess a single A-share company for research and paper validation only.",
+    "Use only evidence identifiers present in the bounded point-in-time packet.",
+    "Separate facts, deterministic inferences, and model hypotheses.",
+    "State counter-evidence, unknowns, and falsification conditions.",
+    "Do not provide an investment action, future price, allocation instruction, or return promise.",
+    "Do not invoke an investor persona or authority endorsement.",
+    "Return only the requested strongly typed JSON object."
+  ],
+  "methods": [
+    {"id":"investment-research","display_name":"完整公司研究","purpose":"从业务、财务、竞争与风险建立完整证据链。","group":"core","core":true,"availability":"available","lenses":["business model","financial quality","competitive position","counter-evidence"]},
+    {"id":"investment-team","display_name":"多角度交叉检查","purpose":"用多个专业视角检查同一份证据是否得出一致结论。","group":"core","core":true,"availability":"available","lenses":["accounting","industry","governance","risk"]},
+    {"id":"financial-data","display_name":"财务数据体检","purpose":"检查收入、利润、现金流与资产负债质量。","group":"core","core":true,"availability":"available","lenses":["earnings quality","cash conversion","balance-sheet resilience"]},
+    {"id":"earnings-review","display_name":"业绩变化复盘","purpose":"解释最近报告期相对历史的关键变化及其证据。","group":"core","core":true,"availability":"available","lenses":["trend break","drivers","one-off items"]},
+    {"id":"earnings-team","display_name":"业绩多视角复核","purpose":"分别从业务、财务与风险角度复核业绩解释。","group":"core","core":true,"availability":"available","lenses":["operating drivers","accounting checks","downside evidence"]},
+    {"id":"management-deep-dive","display_name":"管理层与资本配置","purpose":"检查治理、承诺兑现和资金使用的一致性。","group":"core","core":true,"availability":"available","lenses":["governance","capital allocation","disclosure consistency"]},
+    {"id":"quality-screen","display_name":"公司质量筛查","purpose":"用统一标准识别业务和财务的主要长短板。","group":"core","core":true,"availability":"available","lenses":["durability","profit quality","balance-sheet quality"]},
+    {"id":"investment-checklist","display_name":"证据清单核验","purpose":"逐项查缺补漏，避免结论跳过关键事实。","group":"core","core":true,"availability":"available","lenses":["coverage","source quality","unknowns","falsifiability"]},
+    {"id":"dyp-ask","display_name":"经营纪律检查","purpose":"从长期经营纪律角度提出可验证问题，不模拟任何人物。","group":"core","core":true,"availability":"available","lenses":["operating discipline","capital discipline","plain-language questions"]},
+    {"id":"industry-research","display_name":"行业结构研究","purpose":"理解行业需求、供给、规则和周期位置。","group":"industry_and_events","core":false,"availability":"available","lenses":["market structure","cycle","regulation","substitution"]},
+    {"id":"industry-funnel","display_name":"行业同业比较","purpose":"在证据允许时把公司放入同业背景中比较，不形成公司排序。","group":"industry_and_events","core":false,"availability":"available","lenses":["peer context","relative operating traits"]},
+    {"id":"bottleneck-hunter","display_name":"瓶颈与依赖检查","purpose":"识别最多一跳且有证据支持的供应、技术或渠道依赖。","group":"industry_and_events","core":false,"availability":"available","lenses":["one-hop dependency","constraint","substitution evidence"]},
+    {"id":"era-alpha","display_name":"宏观环境映射","purpose":"把已证实的宏观与国际事件映射到公司的已披露暴露。","group":"industry_and_events","core":false,"availability":"available","lenses":["macro exposure","international event path","uncertainty"]},
+    {"id":"news-pulse","display_name":"重大事件脉络","purpose":"按时间梳理重大事件、修订和相互冲突的信息。","group":"industry_and_events","core":false,"availability":"available","lenses":["timeline","revision","conflict"]},
+    {"id":"deep-company-series","display_name":"深度公司讲解","purpose":"把复杂研究组织为普通读者能循序理解的章节。","group":"reader","core":false,"availability":"available","lenses":["plain explanation","progressive disclosure","glossary"]},
+    {"id":"investment-memo-craft","display_name":"通俗研究备忘录","purpose":"在不改变事实的前提下，把分析整理为普通人易读的研究备忘录。","group":"reader","core":false,"availability":"available","lenses":["short sentences","term explanation","reader structure","claim traceability"]},
+    {"id":"income-investment","display_name":"现金回报能力","purpose":"仅在证据充分时分析经营现金创造与历史分配稳定性。","group":"conditional","core":false,"availability":"available","lenses":["cash generation","distribution history","sustainability evidence"]},
+    {"id":"thesis-drift","display_name":"近期研究差异","purpose":"仅与七日保留期内同标的研究比较证据变化。","group":"conditional","core":false,"availability":"not_applicable","disabled_reason":"当前会话没有可比较的近期同标的报告。","lenses":["evidence change","assumption change"]},
+    {"id":"thesis-tracker","display_name":"证伪条件登记","purpose":"在当前报告内登记可核验的证伪条件，不创建持续跟踪。","group":"conditional","core":false,"availability":"available","lenses":["falsification conditions","open questions"]},
+    {"id":"portfolio-review","display_name":"组合研究","purpose":"组合层方法保留用于来源完整性说明。","group":"boundary_blocked","core":false,"availability":"boundary_blocked","disabled_reason":"不适用于当前 A 股单股研究。","lenses":[]},
+    {"id":"private-company-research","display_name":"非上市公司研究","purpose":"非上市公司方法保留用于来源完整性说明。","group":"boundary_blocked","core":false,"availability":"boundary_blocked","disabled_reason":"不适用于当前 A 股上市公司研究。","lenses":[]}
+  ],
+  "reader_overlay": {
+    "source": "upstream/investment-memo-craft/SKILL.md",
+    "runtime_name": "plain-reader-editor-1.0",
+    "instructions": [
+      "Explain how the company makes money before introducing specialist terms.",
+      "Show the score meaning, strongest evidence, largest risk, and unknowns near the top.",
+      "Expose a seven-step public method summary, never hidden reasoning or private prompts.",
+      "Keep every substantive conclusion connected to a published claim identifier."
+    ]
+  }
+}

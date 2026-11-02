@@ -1,0 +1,695 @@
+{
+  "$defs": {
+    "BriefingChangeType": {
+      "enum": [
+        "new",
+        "update",
+        "correction",
+        "contradiction"
+      ],
+      "title": "BriefingChangeType",
+      "type": "string"
+    },
+    "BriefingIngestionProgressV1_1": {
+      "additionalProperties": false,
+      "description": "Primary-source progress with explicit runtime provenance.",
+      "properties": {
+        "advance_state": {
+          "$ref": "#/$defs/SourceAdvanceState"
+        },
+        "batch_audit_id": {
+          "format": "uuid",
+          "title": "Batch Audit Id",
+          "type": "string"
+        },
+        "business_watermark": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Business Watermark"
+        },
+        "capability": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Capability",
+          "type": "string"
+        },
+        "data_mode": {
+          "$ref": "#/$defs/SourceDataMode"
+        },
+        "provenance": {
+          "$ref": "#/$defs/SourceProvenance"
+        },
+        "source_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "batch_audit_id",
+        "advance_state",
+        "data_mode",
+        "source_id",
+        "capability",
+        "provenance"
+      ],
+      "title": "BriefingIngestionProgressV1_1",
+      "type": "object",
+      "x-runtime-invariants": [
+        "advance_state=advanced requires business_watermark"
+      ]
+    },
+    "InstrumentRef": {
+      "additionalProperties": false,
+      "description": "Market-neutral security identity suitable for future exchanges.",
+      "properties": {
+        "asset_class": {
+          "default": "equity",
+          "pattern": "^[a-z][a-z0-9_]{1,31}$",
+          "title": "Asset Class",
+          "type": "string"
+        },
+        "currency": {
+          "default": "CNY",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "exchange": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Exchange",
+          "type": "string"
+        },
+        "instrument_id": {
+          "pattern": "^[A-Z0-9_]+:[A-Za-z0-9._-]+$",
+          "title": "Instrument Id",
+          "type": "string"
+        },
+        "market": {
+          "pattern": "^[A-Z0-9_]{2,32}$",
+          "title": "Market",
+          "type": "string"
+        },
+        "symbol": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Symbol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instrument_id",
+        "symbol",
+        "exchange",
+        "market"
+      ],
+      "title": "InstrumentRef",
+      "type": "object"
+    },
+    "PremarketBriefingItem": {
+      "additionalProperties": false,
+      "description": "One evidence-linked public briefing item.",
+      "properties": {
+        "change_type": {
+          "$ref": "#/$defs/BriefingChangeType"
+        },
+        "event_id": {
+          "format": "uuid",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "event_revision": {
+          "minimum": 1,
+          "title": "Event Revision",
+          "type": "integer"
+        },
+        "evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "fact_summary": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Fact Summary",
+          "type": "string"
+        },
+        "first_seen_at": {
+          "format": "date-time",
+          "title": "First Seen At",
+          "type": "string"
+        },
+        "headline": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Headline",
+          "type": "string"
+        },
+        "inference": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Inference"
+        },
+        "published_at": {
+          "format": "date-time",
+          "title": "Published At",
+          "type": "string"
+        },
+        "source_roles": {
+          "items": {
+            "$ref": "#/$defs/SourceRole"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Source Roles",
+          "type": "array"
+        }
+      },
+      "required": [
+        "event_id",
+        "event_revision",
+        "headline",
+        "fact_summary",
+        "change_type",
+        "published_at",
+        "first_seen_at",
+        "source_roles",
+        "evidence_ids"
+      ],
+      "title": "PremarketBriefingItem",
+      "type": "object",
+      "x-runtime-invariants": [
+        "first_seen_at is >= published_at",
+        "source_roles entries are unique",
+        "evidence_ids entries are unique"
+      ]
+    },
+    "PremarketBriefingSection": {
+      "additionalProperties": false,
+      "description": "One fixed briefing coverage block.",
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/PremarketBriefingItem"
+          },
+          "maxItems": 100,
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "title": "PremarketBriefingSection",
+      "type": "object"
+    },
+    "PremarketBriefingSections": {
+      "additionalProperties": false,
+      "description": "Exactly the five R1 coverage blocks, each present once.",
+      "properties": {
+        "company_industry_news": {
+          "$ref": "#/$defs/PremarketBriefingSection"
+        },
+        "financial_changes": {
+          "$ref": "#/$defs/PremarketBriefingSection"
+        },
+        "macro_flashes": {
+          "$ref": "#/$defs/PremarketBriefingSection"
+        },
+        "market_snapshot": {
+          "$ref": "#/$defs/PremarketBriefingSection"
+        },
+        "statutory_announcements": {
+          "$ref": "#/$defs/PremarketBriefingSection"
+        }
+      },
+      "required": [
+        "statutory_announcements",
+        "financial_changes",
+        "market_snapshot",
+        "company_industry_news",
+        "macro_flashes"
+      ],
+      "title": "PremarketBriefingSections",
+      "type": "object"
+    },
+    "SourceAccessChannel": {
+      "description": "Auditable access channel used to obtain one source record.",
+      "enum": [
+        "demo_replay",
+        "akshare",
+        "official_http",
+        "authorized_api"
+      ],
+      "title": "SourceAccessChannel",
+      "type": "string"
+    },
+    "SourceAdvanceState": {
+      "description": "Provider-neutral result of the most recent source batch.",
+      "enum": [
+        "advanced",
+        "not_advanced"
+      ],
+      "title": "SourceAdvanceState",
+      "type": "string"
+    },
+    "SourceCoverageStatus": {
+      "description": "Public source capability coverage states.",
+      "enum": [
+        "ok",
+        "delayed",
+        "unavailable",
+        "rights_blocked",
+        "not_qualified",
+        "timeliness_unverified"
+      ],
+      "title": "SourceCoverageStatus",
+      "type": "string"
+    },
+    "SourceCoverageV1_1": {
+      "additionalProperties": false,
+      "description": "Source capability coverage with explicit provider lineage.",
+      "properties": {
+        "capability": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Capability",
+          "type": "string"
+        },
+        "gap_reason": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gap Reason"
+        },
+        "last_success_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Success At"
+        },
+        "license_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "License Id",
+          "type": "string"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "progress": {
+          "$ref": "#/$defs/SourceIngestionProgress"
+        },
+        "provenance": {
+          "$ref": "#/$defs/SourceProvenance"
+        },
+        "source_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_role": {
+          "$ref": "#/$defs/SourceRole"
+        },
+        "status": {
+          "$ref": "#/$defs/SourceCoverageStatus"
+        }
+      },
+      "required": [
+        "source_id",
+        "capability",
+        "source_role",
+        "status",
+        "observed_at",
+        "license_id",
+        "progress",
+        "provenance"
+      ],
+      "title": "SourceCoverageV1_1",
+      "type": "object",
+      "x-runtime-invariants": [
+        "last_success_at is <= observed_at when present",
+        "status=ok requires last_success_at",
+        "status other than ok requires gap_reason",
+        "progress.business_watermark is <= observed_at when present",
+        "progress.advance_state=advanced requires last_success_at"
+      ]
+    },
+    "SourceDataMode": {
+      "description": "Whether source evidence is real or restricted to development fixtures.",
+      "enum": [
+        "real",
+        "synthetic_development_only"
+      ],
+      "title": "SourceDataMode",
+      "type": "string"
+    },
+    "SourceIngestionProgress": {
+      "additionalProperties": false,
+      "description": "Public provider-neutral ingestion progress metadata.",
+      "properties": {
+        "advance_state": {
+          "$ref": "#/$defs/SourceAdvanceState"
+        },
+        "batch_audit_id": {
+          "format": "uuid",
+          "title": "Batch Audit Id",
+          "type": "string"
+        },
+        "business_watermark": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Business Watermark"
+        },
+        "data_mode": {
+          "$ref": "#/$defs/SourceDataMode"
+        }
+      },
+      "required": [
+        "batch_audit_id",
+        "advance_state",
+        "data_mode"
+      ],
+      "title": "SourceIngestionProgress",
+      "type": "object",
+      "x-runtime-invariants": [
+        "advance_state=advanced requires business_watermark"
+      ]
+    },
+    "SourceProvenance": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "demo_replay"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "demo_replay"
+              },
+              "release_tier": {
+                "const": "dev_only"
+              },
+              "rights_status": {
+                "not": {
+                  "const": "approved"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "dev_live"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "akshare"
+              },
+              "release_tier": {
+                "const": "dev_only"
+              },
+              "rights_status": {
+                "const": "unverified"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "authorized"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "authorized_api"
+              },
+              "release_tier": {
+                "const": "authorized"
+              },
+              "rights_status": {
+                "const": "approved"
+              }
+            }
+          }
+        }
+      ],
+      "description": "Stable source lineage shared by ingestion, storage and public read models.",
+      "properties": {
+        "access_channel": {
+          "$ref": "#/$defs/SourceAccessChannel"
+        },
+        "adapter_name": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Adapter Name",
+          "type": "string"
+        },
+        "adapter_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Adapter Version",
+          "type": "string"
+        },
+        "endpoint_name": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,199}$",
+          "title": "Endpoint Name",
+          "type": "string"
+        },
+        "provider": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Provider",
+          "type": "string"
+        },
+        "release_tier": {
+          "$ref": "#/$defs/SourceReleaseTier"
+        },
+        "rights_status": {
+          "$ref": "#/$defs/SourceRightsStatus"
+        },
+        "runtime_mode": {
+          "$ref": "#/$defs/SourceRuntimeMode"
+        },
+        "schema_version": {
+          "const": "1.1",
+          "default": "1.1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_identifier": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Source Identifier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "provider",
+        "access_channel",
+        "adapter_name",
+        "adapter_version",
+        "endpoint_name",
+        "source_identifier",
+        "runtime_mode",
+        "release_tier",
+        "rights_status"
+      ],
+      "title": "SourceProvenance",
+      "type": "object",
+      "x-runtime-invariants": [
+        "runtime_mode determines access_channel, release_tier, and rights_status"
+      ]
+    },
+    "SourceReleaseTier": {
+      "description": "Whether a source result may leave development-only surfaces.",
+      "enum": [
+        "dev_only",
+        "authorized"
+      ],
+      "title": "SourceReleaseTier",
+      "type": "string"
+    },
+    "SourceRightsStatus": {
+      "description": "Publicly safe rights state without exposing contract evidence.",
+      "enum": [
+        "unverified",
+        "approved",
+        "blocked"
+      ],
+      "title": "SourceRightsStatus",
+      "type": "string"
+    },
+    "SourceRole": {
+      "description": "Permitted public source roles.",
+      "enum": [
+        "statutory",
+        "professional_market",
+        "professional_information",
+        "discovery"
+      ],
+      "title": "SourceRole",
+      "type": "string"
+    },
+    "SourceRuntimeMode": {
+      "description": "Mutually exclusive R1 source execution modes.",
+      "enum": [
+        "demo_replay",
+        "dev_live",
+        "authorized"
+      ],
+      "title": "SourceRuntimeMode",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/briefings/premarket-view.v1.1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "R1 1.1 read model that makes source mode and provenance explicit.",
+  "properties": {
+    "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+    },
+    "briefing_id": {
+      "format": "uuid",
+      "title": "Briefing Id",
+      "type": "string"
+    },
+    "comparison_since": {
+      "format": "date-time",
+      "title": "Comparison Since",
+      "type": "string"
+    },
+    "disclaimer": {
+      "default": "本系统仅供个人信息整理与研究，不构成证券投资建议、收益承诺或交易指令。",
+      "title": "Disclaimer",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "ingestion_progress": {
+      "$ref": "#/$defs/BriefingIngestionProgressV1_1"
+    },
+    "instrument": {
+      "$ref": "#/$defs/InstrumentRef"
+    },
+    "omitted_duplicate_count": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Omitted Duplicate Count",
+      "type": "integer"
+    },
+    "release_tier": {
+      "$ref": "#/$defs/SourceReleaseTier"
+    },
+    "ruleset_version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Ruleset Version",
+      "type": "string"
+    },
+    "runtime_mode": {
+      "$ref": "#/$defs/SourceRuntimeMode"
+    },
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sections": {
+      "$ref": "#/$defs/PremarketBriefingSections"
+    },
+    "source_coverage": {
+      "items": {
+        "$ref": "#/$defs/SourceCoverageV1_1"
+      },
+      "maxItems": 200,
+      "title": "Source Coverage",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "instrument",
+    "comparison_since",
+    "as_of",
+    "generated_at",
+    "sections",
+    "ingestion_progress",
+    "ruleset_version",
+    "runtime_mode",
+    "release_tier"
+  ],
+  "title": "PremarketBriefingViewV1_1",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.premarket_views.PremarketBriefingViewV1_1",
+  "x-runtime-invariants": [
+    "runtime_mode determines ingestion_progress.data_mode",
+    "all provenance runtime_mode values equal runtime_mode",
+    "all provenance release_tier values equal release_tier",
+    "source coverage data_mode matches runtime_mode"
+  ],
+  "x-schema-version": "1.1"
+}

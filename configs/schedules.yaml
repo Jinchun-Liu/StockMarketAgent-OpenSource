@@ -1,0 +1,118 @@
+version: "2026-08-07.1"
+timezone: Asia/Shanghai
+calendar: cn_exchange_official
+
+continuous_preview:
+  runtime_mode: dev_live
+  scheduler_timezone: Asia/Shanghai
+  enabled_by_default: false
+  flexible_time_window: false
+  operations:
+    ingest:
+      at: "08:55"
+      cron: "cron(55 8 ? * MON-FRI *)"
+    publish:
+      at: "09:05"
+      cron: "cron(5 9 ? * MON-FRI *)"
+    catch_up:
+      at: "09:20"
+      cron: "cron(20 9 ? * MON-FRI *)"
+    behavior_intraday:
+      at: "每个完整10分钟窗口"
+      cron: "cron(0/10 9-15 ? * MON-FRI *)"
+    behavior_post_close:
+      at: "15:10"
+      cron: "cron(10 15 ? * MON-FRI *)"
+
+market_sessions:
+  call_auction: ["09:15", "09:25"]
+  morning: ["09:30", "11:30"]
+  afternoon: ["13:00", "15:00"]
+
+jobs:
+  policy_refresh:
+    enabled: true
+    stage: R2
+    interval_seconds: 3600
+    idempotency_scope: source_time_bucket_and_manifest
+    instrument_parameter: false
+    watchlist_parameter: false
+    request_factory:
+      ready: true
+      mode: synthetic_development_only
+  premarket_ingest:
+    enabled: true
+    stage: R1
+    session: premarket
+    at: ["08:55"]
+    idempotency_scope: active_target_revision_and_complete_window
+    official_calendar_required: true
+    active_target_revision_required: true
+    complete_window_required: true
+    window:
+      timezone: Asia/Shanghai
+      start: previous_cn_trading_day_15:00
+      end: current_cn_trading_day_08:55
+    request_factory:
+      ready: true
+      mode: synthetic_development_only
+  premarket_brief:
+    enabled: true
+    stage: R1
+    session: premarket
+    at: ["09:05"]
+    idempotency_scope: active_target_revision_window_and_data_manifest
+    official_calendar_required: true
+    active_target_revision_required: true
+    complete_window_required: true
+    window:
+      timezone: Asia/Shanghai
+      start: previous_cn_trading_day_15:00
+      end: current_cn_trading_day_08:55
+    request_factory:
+      ready: true
+      mode: synthetic_development_only
+  behavior_intraday:
+    enabled: true
+    stage: R1
+    session: intraday
+    at: ["每个完整10分钟窗口"]
+    idempotency_scope: active_target_revision_complete_window_and_data_manifest
+    official_calendar_required: true
+    active_target_revision_required: true
+    complete_window_required: true
+    window:
+      timezone: Asia/Shanghai
+      start: current_complete_trading_window_minus_10_minutes
+      end: current_complete_trading_window
+    request_factory:
+      ready: true
+      mode: synthetic_development_only
+  behavior_post_close:
+    enabled: true
+    stage: R1
+    session: post_close
+    at: ["15:10"]
+    idempotency_scope: active_target_revision_complete_window_and_data_manifest
+    official_calendar_required: true
+    active_target_revision_required: true
+    complete_window_required: true
+    window:
+      timezone: Asia/Shanghai
+      start: current_cn_trading_day_14:50
+      end: current_cn_trading_day_15:00
+    request_factory:
+      ready: true
+      mode: synthetic_development_only
+  quote_snapshot:
+    enabled: false
+    stage: R4
+    reason: FEATURE_NOT_ENABLED_FOR_STAGE
+  sector_rotation:
+    enabled: false
+    stage: R4
+    reason: FEATURE_NOT_ENABLED_FOR_STAGE
+  postmarket_outcome:
+    enabled: false
+    stage: R6
+    reason: FEATURE_NOT_ENABLED_FOR_STAGE

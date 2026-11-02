@@ -1,0 +1,259 @@
+{
+  "$defs": {
+    "SourceAccessChannelV1_2": {
+      "description": "R1 1.2 access channels used by replay, free and authorized adapters.",
+      "enum": [
+        "demo_replay",
+        "akshare",
+        "official_http",
+        "baostock_sdk",
+        "authorized_api"
+      ],
+      "title": "SourceAccessChannelV1_2",
+      "type": "string"
+    },
+    "SourceEvidenceRole": {
+      "description": "How one source may support a fact without changing its source identity.",
+      "enum": [
+        "authoritative",
+        "structured_helper",
+        "discovery",
+        "cross_check"
+      ],
+      "title": "SourceEvidenceRole",
+      "type": "string"
+    },
+    "SourceQualityTier": {
+      "description": "Coarse quality origin kept separate from evidence authority and rights.",
+      "enum": [
+        "demo_replay",
+        "free_official",
+        "free_structured",
+        "dev_web",
+        "authorized"
+      ],
+      "title": "SourceQualityTier",
+      "type": "string"
+    },
+    "SourceReleaseTier": {
+      "description": "Whether a source result may leave development-only surfaces.",
+      "enum": [
+        "dev_only",
+        "authorized"
+      ],
+      "title": "SourceReleaseTier",
+      "type": "string"
+    },
+    "SourceRightsStatusV1_2": {
+      "description": "R1 1.2 public rights state, including data with no source-rights claim.",
+      "enum": [
+        "unverified",
+        "approved",
+        "blocked",
+        "not_applicable"
+      ],
+      "title": "SourceRightsStatusV1_2",
+      "type": "string"
+    },
+    "SourceRuntimeModeV1_2": {
+      "description": "R1 1.2 execution modes, including the detached public snapshot.",
+      "enum": [
+        "demo_replay",
+        "dev_live",
+        "public_static",
+        "authorized"
+      ],
+      "title": "SourceRuntimeModeV1_2",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/ingestion/source-provenance.v1.2.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "runtime_mode": {
+            "const": "demo_replay"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "access_channel": {
+            "const": "demo_replay"
+          },
+          "quality_tier": {
+            "const": "demo_replay"
+          },
+          "release_tier": {
+            "const": "dev_only"
+          },
+          "rights_status": {
+            "const": "not_applicable"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "runtime_mode": {
+            "const": "public_static"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "access_channel": {
+            "const": "demo_replay"
+          },
+          "quality_tier": {
+            "const": "demo_replay"
+          },
+          "release_tier": {
+            "const": "dev_only"
+          },
+          "rights_status": {
+            "const": "not_applicable"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "runtime_mode": {
+            "const": "dev_live"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "access_channel": {
+            "enum": [
+              "akshare",
+              "official_http",
+              "baostock_sdk"
+            ]
+          },
+          "quality_tier": {
+            "enum": [
+              "free_official",
+              "free_structured",
+              "dev_web"
+            ]
+          },
+          "release_tier": {
+            "const": "dev_only"
+          },
+          "rights_status": {
+            "const": "unverified"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "runtime_mode": {
+            "const": "authorized"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "access_channel": {
+            "const": "authorized_api"
+          },
+          "quality_tier": {
+            "const": "authorized"
+          },
+          "release_tier": {
+            "const": "authorized"
+          },
+          "rights_status": {
+            "const": "approved"
+          }
+        }
+      }
+    }
+  ],
+  "description": "R1 1.2 lineage with explicit quality and evidence-role dimensions.",
+  "properties": {
+    "access_channel": {
+      "$ref": "#/$defs/SourceAccessChannelV1_2"
+    },
+    "adapter_name": {
+      "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+      "title": "Adapter Name",
+      "type": "string"
+    },
+    "adapter_version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Adapter Version",
+      "type": "string"
+    },
+    "endpoint_name": {
+      "pattern": "^[a-z][a-z0-9_.-]{1,199}$",
+      "title": "Endpoint Name",
+      "type": "string"
+    },
+    "evidence_role": {
+      "$ref": "#/$defs/SourceEvidenceRole"
+    },
+    "provider": {
+      "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+      "title": "Provider",
+      "type": "string"
+    },
+    "quality_tier": {
+      "$ref": "#/$defs/SourceQualityTier"
+    },
+    "release_tier": {
+      "$ref": "#/$defs/SourceReleaseTier"
+    },
+    "rights_status": {
+      "$ref": "#/$defs/SourceRightsStatusV1_2"
+    },
+    "runtime_mode": {
+      "$ref": "#/$defs/SourceRuntimeModeV1_2"
+    },
+    "schema_version": {
+      "const": "1.2",
+      "default": "1.2",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_identifier": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Source Identifier",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "provider",
+    "access_channel",
+    "adapter_name",
+    "adapter_version",
+    "endpoint_name",
+    "source_identifier",
+    "runtime_mode",
+    "release_tier",
+    "rights_status",
+    "quality_tier",
+    "evidence_role"
+  ],
+  "title": "SourceProvenanceV1_2",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.ingestion.SourceProvenanceV1_2",
+  "x-runtime-invariants": [
+    "runtime_mode constrains channel, release tier, rights status, and quality",
+    "quality_tier and evidence_role remain independent dimensions"
+  ],
+  "x-schema-version": "1.2"
+}

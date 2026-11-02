@@ -1,0 +1,87 @@
+{
+  "$id": "https://stock-market-agent.local/schemas/security/runtime-web-config.v1.1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Non-secret real preview bootstrap; synthetic bootstrap 1.0 stays immutable.",
+  "properties": {
+    "api_base_path": {
+      "const": "/api/v2",
+      "default": "/api/v2",
+      "title": "Api Base Path",
+      "type": "string"
+    },
+    "authorization_endpoint": {
+      "format": "uri",
+      "minLength": 1,
+      "title": "Authorization Endpoint",
+      "type": "string"
+    },
+    "client_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Client Id",
+      "type": "string"
+    },
+    "end_session_endpoint": {
+      "format": "uri",
+      "minLength": 1,
+      "title": "End Session Endpoint",
+      "type": "string"
+    },
+    "environment_label": {
+      "const": "真实资料私人研究 · DEV_ONLY / UNVERIFIED",
+      "default": "真实资料私人研究 · DEV_ONLY / UNVERIFIED",
+      "title": "Environment Label",
+      "type": "string"
+    },
+    "issuer": {
+      "format": "uri",
+      "minLength": 1,
+      "title": "Issuer",
+      "type": "string"
+    },
+    "product_sha": {
+      "pattern": "^[a-f0-9]{40}$",
+      "title": "Product Sha",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scope": {
+      "maxLength": 256,
+      "pattern": "^openid(?: [a-zA-Z0-9:._/-]+)*$",
+      "title": "Scope",
+      "type": "string"
+    },
+    "synthetic_data": {
+      "const": false,
+      "default": false,
+      "title": "Synthetic Data",
+      "type": "boolean"
+    },
+    "token_endpoint": {
+      "format": "uri",
+      "minLength": 1,
+      "title": "Token Endpoint",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "issuer",
+    "authorization_endpoint",
+    "token_endpoint",
+    "end_session_endpoint",
+    "client_id",
+    "scope",
+    "product_sha"
+  ],
+  "title": "RuntimeRealWebConfig",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.security.RuntimeRealWebConfig",
+  "x-schema-version": "1.1"
+}

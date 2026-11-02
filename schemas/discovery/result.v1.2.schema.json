@@ -1,0 +1,229 @@
+{
+  "$defs": {
+    "RobotsOriginStop": {
+      "additionalProperties": false,
+      "properties": {
+        "http_status": {
+          "enum": [
+            401,
+            403,
+            429
+          ],
+          "title": "Http Status",
+          "type": "integer"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "origin": {
+          "maxLength": 300,
+          "title": "Origin",
+          "type": "string"
+        }
+      },
+      "required": [
+        "origin",
+        "http_status",
+        "observed_at"
+      ],
+      "title": "RobotsOriginStop",
+      "type": "object"
+    },
+    "SourceDiscoveryCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "format": "uuid",
+          "title": "Candidate Id",
+          "type": "string"
+        },
+        "discovery_score": {
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$",
+          "title": "Discovery Score",
+          "type": "string"
+        },
+        "domain": {
+          "pattern": "^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$",
+          "title": "Domain",
+          "type": "string"
+        },
+        "published_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Published At"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "url",
+        "title",
+        "domain",
+        "discovery_score"
+      ],
+      "title": "SourceDiscoveryCandidate",
+      "type": "object"
+    },
+    "SourceDiscoveryDiagnostics": {
+      "additionalProperties": false,
+      "properties": {
+        "date_filtered": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Date Filtered",
+          "type": "integer"
+        },
+        "domain_filtered": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Domain Filtered",
+          "type": "integer"
+        },
+        "protocol_filtered": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Protocol Filtered",
+          "type": "integer"
+        },
+        "raw_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw Count"
+        },
+        "selected_count": {
+          "default": 0,
+          "maximum": 5,
+          "minimum": 0,
+          "title": "Selected Count",
+          "type": "integer"
+        }
+      },
+      "title": "SourceDiscoveryDiagnostics",
+      "type": "object"
+    },
+    "SourceDiscoveryStatus": {
+      "enum": [
+        "succeeded",
+        "no_results",
+        "quota_exhausted",
+        "failed"
+      ],
+      "title": "SourceDiscoveryStatus",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/discovery/result.v1.2.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/SourceDiscoveryCandidate"
+      },
+      "maxItems": 5,
+      "title": "Candidates",
+      "type": "array"
+    },
+    "credits_used": {
+      "default": 0,
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Credits Used",
+      "type": "integer"
+    },
+    "diagnostics": {
+      "$ref": "#/$defs/SourceDiscoveryDiagnostics"
+    },
+    "provider": {
+      "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+      "title": "Provider",
+      "type": "string"
+    },
+    "request_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Request Sha256",
+      "type": "string"
+    },
+    "retryable": {
+      "default": false,
+      "title": "Retryable",
+      "type": "boolean"
+    },
+    "robots_origin_stop": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RobotsOriginStop"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema_version": {
+      "default": "1.2",
+      "enum": [
+        "1.0",
+        "1.1",
+        "1.2"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "searched_at": {
+      "format": "date-time",
+      "title": "Searched At",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/SourceDiscoveryStatus"
+    }
+  },
+  "required": [
+    "schema_version",
+    "provider",
+    "status",
+    "request_sha256",
+    "searched_at"
+  ],
+  "title": "SourceDiscoveryResult",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.discovery.SourceDiscoveryResult",
+  "x-schema-version": "1.2"
+}

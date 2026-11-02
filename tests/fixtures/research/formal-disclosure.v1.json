@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "baseline_product": "2bec403ec05e6ee355230b052fafbe24ebb360ea",
+  "frozen_at": "2026-09-20T00:00:00Z",
+  "as_of": "2026-09-19T00:00:00Z",
+  "instrument_id": "XSHG:688307",
+  "instrument_name": "中润光学",
+  "source_domain": "www.zmax-opt.com",
+  "parent_url": "https://www.zmax-opt.com/investors/reports.html",
+  "attachment_url": "https://www.zmax-opt.com/files/annual.pdf",
+  "parent_html": "<html><body><h1>投资者资料</h1><a href='/files/annual.pdf'>年度报告</a><p>本页仅提供正式文件下载入口，无发布日期，不作为事实依据。</p></body></html>",
+  "formal_text": "[PDF page 1]\n中润光学股份有限公司\n证券代码：688307\n2025 年年度报告\n发布日期：2026年04月20日\n一、公司基本情况\n公司全称中润光学股份有限公司，证券简称中润光学，在上海证券交易所上市。\n二、主要业务\n报告期内公司主营光学镜头的研发、生产和销售。\n[PDF page 2]\n三、合并财务报表\n单位：人民币元\n项目 2025年度 2024年度\n营业收入 1000000.00 900000.00\n净利润 100000.00 90000.00\n经营活动现金流量净额 120000.00 110000.00\n",
+  "gold": {
+    "parent_eligible": false,
+    "attachment_discovered": true,
+    "formal_eligible": true,
+    "published_at": "2026-04-20T15:59:59.999999Z",
+    "identity": "中润光学股份有限公司",
+    "business": "主营光学镜头的研发、生产和销售",
+    "revenue": "1000000.00",
+    "currency": "CNY",
+    "period": "2025年度",
+    "net_cashflow_exceeds_profit": true,
+    "new_correct_facts_minimum": 1,
+    "negative_false_accepts": 0
+  },
+  "negative_mutations": [
+    "ordinary_news_with_meta_date",
+    "missing_date_with_search_hint",
+    "conflicting_authoritative_dates",
+    "signature_date_only",
+    "future_publication",
+    "wrong_issuer",
+    "wrong_security_code",
+    "missing_financial_unit",
+    "missing_financial_period",
+    "missing_financial_header",
+    "unrelated_parent_identity",
+    "rights_denied",
+    "robots_origin_stopped"
+  ],
+  "material_scope": "synthetic_offline_only_real_source_benefit_UNKNOWN"
+}

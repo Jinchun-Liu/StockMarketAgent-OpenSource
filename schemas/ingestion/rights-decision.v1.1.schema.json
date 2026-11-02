@@ -1,0 +1,57 @@
+{
+  "$id": "https://stock-market-agent.local/schemas/ingestion/rights-decision.v1.1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Versioned 1.1 wire contract for a fail-closed rights decision.",
+  "properties": {
+    "allowed": {
+      "title": "Allowed",
+      "type": "boolean"
+    },
+    "decided_at": {
+      "format": "date-time",
+      "title": "Decided At",
+      "type": "string"
+    },
+    "reason_code": {
+      "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+      "title": "Reason Code",
+      "type": "string"
+    },
+    "retention_until": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Retention Until"
+    },
+    "rights_snapshot_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Rights Snapshot Hash",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "allowed",
+    "reason_code",
+    "decided_at",
+    "rights_snapshot_hash"
+  ],
+  "title": "RightsDecisionV1_1",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.ingestion.RightsDecisionV1_1",
+  "x-schema-version": "1.1"
+}

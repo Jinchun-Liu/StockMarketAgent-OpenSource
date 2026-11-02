@@ -1,0 +1,656 @@
+{
+  "$defs": {
+    "ClaimType": {
+      "enum": [
+        "fact",
+        "system_inference",
+        "model_hypothesis"
+      ],
+      "title": "ClaimType",
+      "type": "string"
+    },
+    "CoverageGap": {
+      "additionalProperties": false,
+      "properties": {
+        "actual_end": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual End"
+        },
+        "actual_start": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Start"
+        },
+        "area": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Area",
+          "type": "string"
+        },
+        "detail": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Detail",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "reason_code": {
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+          "title": "Reason Code",
+          "type": "string"
+        },
+        "requested_start": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Start"
+        }
+      },
+      "required": [
+        "area",
+        "reason_code",
+        "detail"
+      ],
+      "title": "CoverageGap",
+      "type": "object"
+    },
+    "ResearchAnalysisConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "comparison_quarters": {
+          "const": 20,
+          "default": 20,
+          "title": "Comparison Quarters",
+          "type": "integer"
+        },
+        "primary_years": {
+          "const": 5,
+          "default": 5,
+          "title": "Primary Years",
+          "type": "integer"
+        },
+        "report_retention_days": {
+          "const": 7,
+          "default": 7,
+          "title": "Report Retention Days",
+          "type": "integer"
+        },
+        "scan_listing_history": {
+          "const": true,
+          "default": true,
+          "title": "Scan Listing History",
+          "type": "boolean"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "stalled_after_minutes": {
+          "const": 30,
+          "default": 30,
+          "title": "Stalled After Minutes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version"
+      ],
+      "title": "ResearchAnalysisConfig",
+      "type": "object"
+    },
+    "ResearchCalculation": {
+      "additionalProperties": false,
+      "properties": {
+        "cutoff": {
+          "format": "date-time",
+          "title": "Cutoff",
+          "type": "string"
+        },
+        "formula": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Formula",
+          "type": "string"
+        },
+        "inputs": {
+          "items": {
+            "$ref": "#/$defs/ResearchCalculationInput"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Inputs",
+          "type": "array"
+        },
+        "rule_version": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Rule Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "formula",
+        "rule_version",
+        "inputs",
+        "cutoff"
+      ],
+      "title": "ResearchCalculation",
+      "type": "object"
+    },
+    "ResearchCalculationInput": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "name": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$",
+              "type": "string"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "name",
+        "value",
+        "evidence_ids"
+      ],
+      "title": "ResearchCalculationInput",
+      "type": "object"
+    },
+    "ResearchClaim": {
+      "additionalProperties": false,
+      "properties": {
+        "calculation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResearchCalculation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "claim_id": {
+          "format": "uuid",
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "claim_type": {
+          "$ref": "#/$defs/ClaimType"
+        },
+        "counter_evidence": {
+          "items": {
+            "$ref": "#/$defs/ResearchEvidenceCitation"
+          },
+          "maxItems": 100,
+          "title": "Counter Evidence",
+          "type": "array"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/ResearchEvidenceCitation"
+          },
+          "maxItems": 100,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "falsification_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Falsification Conditions",
+          "type": "array"
+        },
+        "publication_eligible": {
+          "title": "Publication Eligible",
+          "type": "boolean"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "section": {
+          "$ref": "#/$defs/ResearchSectionKind"
+        },
+        "statement": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        },
+        "uncertainty": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Uncertainty"
+        }
+      },
+      "required": [
+        "schema_version",
+        "claim_type",
+        "section",
+        "statement",
+        "publication_eligible"
+      ],
+      "title": "ResearchClaim",
+      "type": "object"
+    },
+    "ResearchEvidenceCitation": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "format": "uuid",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "first_seen_at": {
+          "format": "date-time",
+          "title": "First Seen At",
+          "type": "string"
+        },
+        "independent_source_group": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Independent Source Group",
+          "type": "string"
+        },
+        "locator": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Locator",
+          "type": "string"
+        },
+        "published_at": {
+          "format": "date-time",
+          "title": "Published At",
+          "type": "string"
+        },
+        "revision_known_at": {
+          "format": "date-time",
+          "title": "Revision Known At",
+          "type": "string"
+        },
+        "source_label": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Source Label",
+          "type": "string"
+        },
+        "source_provider_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Source Provider Id",
+          "type": "string"
+        },
+        "source_role": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Source Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "source_provider_id",
+        "independent_source_group",
+        "source_role",
+        "source_label",
+        "published_at",
+        "first_seen_at",
+        "revision_known_at",
+        "locator"
+      ],
+      "title": "ResearchEvidenceCitation",
+      "type": "object"
+    },
+    "ResearchReportSection": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 500,
+          "title": "Claim Ids",
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/ResearchSectionKind"
+        },
+        "summary": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "title",
+        "summary"
+      ],
+      "title": "ResearchReportSection",
+      "type": "object"
+    },
+    "ResearchSectionKind": {
+      "enum": [
+        "target_and_coverage",
+        "business_model",
+        "financial_quality",
+        "valuation_context",
+        "major_events_and_macro",
+        "bull_case",
+        "bear_case",
+        "conflicts_and_unknowns",
+        "falsification_and_follow_up",
+        "evidence_and_versions"
+      ],
+      "title": "ResearchSectionKind",
+      "type": "string"
+    },
+    "ResearchSourceMode": {
+      "enum": [
+        "synthetic_development_only",
+        "production_authorized"
+      ],
+      "title": "ResearchSourceMode",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/research/report.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "analysis_config": {
+      "$ref": "#/$defs/ResearchAnalysisConfig"
+    },
+    "artifact_content_length": {
+      "anyOf": [
+        {
+          "maximum": 10485760,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Artifact Content Length"
+    },
+    "artifact_content_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Artifact Content Sha256"
+    },
+    "artifact_object_key": {
+      "anyOf": [
+        {
+          "maxLength": 1024,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Artifact Object Key"
+    },
+    "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+    },
+    "claims": {
+      "items": {
+        "$ref": "#/$defs/ResearchClaim"
+      },
+      "maxItems": 2000,
+      "title": "Claims",
+      "type": "array"
+    },
+    "coverage_end": {
+      "format": "date-time",
+      "title": "Coverage End",
+      "type": "string"
+    },
+    "coverage_gaps": {
+      "items": {
+        "$ref": "#/$defs/CoverageGap"
+      },
+      "maxItems": 100,
+      "title": "Coverage Gaps",
+      "type": "array"
+    },
+    "coverage_start": {
+      "format": "date-time",
+      "title": "Coverage Start",
+      "type": "string"
+    },
+    "data_manifest_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Data Manifest Sha256",
+      "type": "string"
+    },
+    "expires_at": {
+      "format": "date-time",
+      "title": "Expires At",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "generator_version": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Generator Version",
+      "type": "string"
+    },
+    "instrument_id": {
+      "pattern": "^(XSHG|XSHE|XBSE):[0-9]{6}$",
+      "title": "Instrument Id",
+      "type": "string"
+    },
+    "instrument_name": {
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Instrument Name",
+      "type": "string"
+    },
+    "model_name": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Model Name",
+      "type": "string"
+    },
+    "model_provider": {
+      "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+      "title": "Model Provider",
+      "type": "string"
+    },
+    "model_version": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Model Version",
+      "type": "string"
+    },
+    "non_production_notice": {
+      "default": "合成测试数据; 仅供研究与产品链路验证, 不构成投资建议。",
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Non Production Notice",
+      "type": "string"
+    },
+    "paper_only": {
+      "const": true,
+      "default": true,
+      "title": "Paper Only",
+      "type": "boolean"
+    },
+    "report_id": {
+      "format": "uuid",
+      "title": "Report Id",
+      "type": "string"
+    },
+    "rule_version": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Rule Version",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sections": {
+      "items": {
+        "$ref": "#/$defs/ResearchReportSection"
+      },
+      "maxItems": 10,
+      "minItems": 10,
+      "title": "Sections",
+      "type": "array"
+    },
+    "session_id": {
+      "format": "uuid",
+      "title": "Session Id",
+      "type": "string"
+    },
+    "source_mode": {
+      "$ref": "#/$defs/ResearchSourceMode"
+    },
+    "validator_version": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Validator Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "session_id",
+    "instrument_id",
+    "instrument_name",
+    "as_of",
+    "analysis_config",
+    "source_mode",
+    "coverage_start",
+    "coverage_end",
+    "sections",
+    "model_provider",
+    "model_name",
+    "model_version",
+    "generator_version",
+    "validator_version",
+    "rule_version",
+    "data_manifest_sha256",
+    "generated_at",
+    "expires_at"
+  ],
+  "title": "ResearchReport",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.research.ResearchReport",
+  "x-runtime-invariants": [
+    "each of the ten report sections appears exactly once",
+    "every claim is referenced by exactly one matching section",
+    "fact claims have readable evidence and no calculation",
+    "system inference calculation evidence resolves to readable claim evidence",
+    "model hypotheses have support, counter-evidence and falsification conditions",
+    "unattributed narrative cannot introduce numeric claims",
+    "published narrative forbids trading advice, target prices and return promises",
+    "all cited revisions are visible at or before as_of"
+  ],
+  "x-schema-version": "1.0"
+}

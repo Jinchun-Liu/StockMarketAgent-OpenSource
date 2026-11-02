@@ -1,0 +1,24 @@
+[
+  {
+    "name": "current-evidence-revision-selector",
+    "model": "EventEvidenceRevisionSelector",
+    "payload": {
+      "schema_version": "1.0",
+      "as_of": "2026-07-25T01:00:00Z",
+      "revision": 2,
+      "timeline_before_revision": null,
+      "timeline_limit": 20
+    }
+  },
+  {
+    "name": "historical-evidence-revision-selector",
+    "model": "EventEvidenceRevisionSelector",
+    "payload": {
+      "schema_version": "1.0",
+      "as_of": "2026-07-25T00:10:00Z",
+      "revision": 1,
+      "timeline_before_revision": 2,
+      "timeline_limit": 1
+    }
+  }
+]

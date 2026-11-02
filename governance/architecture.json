@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_version": "1.0",
+  "scan_roots": [
+    "src",
+    "apps",
+    "ml",
+    "infra",
+    "scripts",
+    "tests"
+  ],
+  "exclude_directory_names": [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "__pycache__",
+    "node_modules"
+  ],
+  "internal_import_prefixes": [
+    "stock_assistant",
+    "apps",
+    "ml",
+    "infra",
+    "scripts",
+    "tests"
+  ],
+  "bounded_contexts": {
+    "path_prefix": "src/stock_assistant/modules/",
+    "import_prefix": "stock_assistant.modules",
+    "forbid_cross_context_imports": true
+  },
+  "layers": [
+    {
+      "name": "contracts",
+      "path_prefixes": ["src/stock_assistant/contracts/"],
+      "allowed_internal_imports": ["stock_assistant.contracts"]
+    },
+    {
+      "name": "ports",
+      "path_prefixes": ["src/stock_assistant/ports/"],
+      "allowed_internal_imports": [
+        "stock_assistant.common",
+        "stock_assistant.contracts",
+        "stock_assistant.ports"
+      ]
+    },
+    {
+      "name": "common",
+      "path_prefixes": ["src/stock_assistant/common/"],
+      "allowed_internal_imports": ["stock_assistant.common"]
+    },
+    {
+      "name": "config",
+      "path_prefixes": ["src/stock_assistant/config/"],
+      "allowed_internal_imports": [
+        "stock_assistant.common",
+        "stock_assistant.config",
+        "stock_assistant.contracts"
+      ]
+    },
+    {
+      "name": "modules",
+      "path_prefixes": ["src/stock_assistant/modules/"],
+      "allowed_internal_imports": [
+        "stock_assistant.common",
+        "stock_assistant.contracts",
+        "stock_assistant.modules",
+        "stock_assistant.ports"
+      ]
+    },
+    {
+      "name": "platform",
+      "path_prefixes": ["src/stock_assistant/platform/"],
+      "allowed_internal_imports": [
+        "stock_assistant.common",
+        "stock_assistant.config",
+        "stock_assistant.contracts",
+        "stock_assistant.modules",
+        "stock_assistant.platform",
+        "stock_assistant.ports"
+      ]
+    },
+    {
+      "name": "package-root",
+      "path_prefixes": ["src/stock_assistant/__init__.py"],
+      "allowed_internal_imports": [
+        "stock_assistant.common",
+        "stock_assistant.config",
+        "stock_assistant.contracts",
+        "stock_assistant.modules",
+        "stock_assistant.platform",
+        "stock_assistant.ports"
+      ]
+    },
+    {
+      "name": "apps",
+      "path_prefixes": ["apps/"],
+      "allowed_internal_imports": ["apps", "stock_assistant"]
+    },
+    {
+      "name": "ml",
+      "path_prefixes": ["ml/"],
+      "allowed_internal_imports": [
+        "ml",
+        "stock_assistant.common",
+        "stock_assistant.contracts",
+        "stock_assistant.ports"
+      ]
+    },
+    {
+      "name": "infra",
+      "path_prefixes": ["infra/"],
+      "allowed_internal_imports": ["infra", "stock_assistant.config"]
+    },
+    {
+      "name": "scripts",
+      "path_prefixes": ["scripts/"],
+      "allowed_internal_imports": [
+        "apps",
+        "infra",
+        "ml",
+        "scripts",
+        "stock_assistant"
+      ]
+    },
+    {
+      "name": "tests",
+      "path_prefixes": ["tests/"],
+      "allowed_internal_imports": [
+        "apps",
+        "infra",
+        "ml",
+        "scripts",
+        "stock_assistant",
+        "tests"
+      ]
+    }
+  ],
+  "fail_on_unclassified_python": true
+}

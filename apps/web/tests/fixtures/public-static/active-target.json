@@ -1,0 +1,26 @@
+{
+  "data": {
+    "schema_version": "1.0",
+    "found": true,
+    "as_of": "2026-07-31T00:55:00Z",
+    "active_target": {
+      "revision": 1,
+      "activated_at": "2026-07-27T00:00:00Z",
+      "instrument": {
+        "instrument_id": "XSHG:603986",
+        "symbol": "603986.SH",
+        "exchange": "SSE",
+        "market": "CN_A",
+        "asset_class": "equity",
+        "currency": "CNY"
+      }
+    }
+  },
+  "meta": {
+    "as_of": "2026-07-31T00:55:00Z",
+    "correlation_id": "00000000-0000-4000-8000-000000000001",
+    "request_id": "00000000-0000-4000-8000-000000000002",
+    "generated_at": "2026-07-31T01:05:00Z",
+    "contract_version": "1.0"
+  }
+}

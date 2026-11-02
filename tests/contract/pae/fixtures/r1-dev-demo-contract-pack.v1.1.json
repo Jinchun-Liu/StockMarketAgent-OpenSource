@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.1",
+  "fixed_instrument_id": "XSHG:603986",
+  "modes": {
+    "authorized": {
+      "access_channel": "authorized_api",
+      "release_tier": "authorized",
+      "rights_status": "approved"
+    },
+    "demo_replay": {
+      "access_channel": "demo_replay",
+      "release_tier": "dev_only",
+      "rights_status": "unverified"
+    },
+    "dev_live": {
+      "access_channel": "akshare",
+      "release_tier": "dev_only",
+      "rights_status": "unverified"
+    }
+  },
+  "data_mode_mapping": {
+    "authorized": "real",
+    "demo_replay": "synthetic_development_only",
+    "dev_live": "real"
+  },
+  "no_fallback": [
+    "authorized_to_dev_live",
+    "dev_live_to_demo_replay"
+  ]
+}

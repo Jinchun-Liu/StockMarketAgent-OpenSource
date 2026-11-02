@@ -1,0 +1,140 @@
+{
+  "$defs": {
+    "MutationContext": {
+      "additionalProperties": false,
+      "description": "Operation context for a state change, requiring a stable idempotency key.",
+      "properties": {
+        "actor_id": {
+          "default": "local-user",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "correlation_id": {
+          "format": "uuid",
+          "title": "Correlation Id",
+          "type": "string"
+        },
+        "deadline_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deadline At"
+        },
+        "idempotency_key": {
+          "maxLength": 200,
+          "minLength": 16,
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "locale": {
+          "default": "zh-CN",
+          "pattern": "^[a-z]{2}(?:-[A-Z]{2})?$",
+          "title": "Locale",
+          "type": "string"
+        },
+        "request_id": {
+          "format": "uuid",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "requested_at": {
+          "format": "date-time",
+          "title": "Requested At",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "Asia/Shanghai",
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Timezone",
+          "type": "string"
+        },
+        "workspace_id": {
+          "default": "default",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Workspace Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "as_of",
+        "idempotency_key"
+      ],
+      "title": "MutationContext",
+      "type": "object"
+    },
+    "ResearchCutoffMode": {
+      "description": "Internal execution semantics; never exposed as a public report mode.",
+      "enum": [
+        "current_run",
+        "historical_replay"
+      ],
+      "title": "ResearchCutoffMode",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/jobs/research-generate-request.v1.1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "context": {
+      "$ref": "#/$defs/MutationContext"
+    },
+    "cutoff_mode": {
+      "$ref": "#/$defs/ResearchCutoffMode"
+    },
+    "job_id": {
+      "format": "uuid",
+      "title": "Job Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "session_id": {
+      "format": "uuid",
+      "title": "Session Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "context",
+    "session_id",
+    "job_id",
+    "cutoff_mode"
+  ],
+  "title": "ResearchGenerateRequestV1_1",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.research.ResearchGenerateRequestV1_1",
+  "x-runtime-invariants": [
+    "context.deadline_at is required and must be an absolute timezone-aware timestamp",
+    "schema version 1.0 is interpreted as historical_replay and remains separately published"
+  ],
+  "x-schema-version": "1.1"
+}

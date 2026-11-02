@@ -1,0 +1,36 @@
+version: "2026-07-21.1"
+effective_from: "2026-07-21T00:00:00+08:00"
+change_reason: initial verified source hierarchy
+
+tiers:
+  statutory_disclosure:
+    weight: 1.00
+    fact_eligible: true
+    requires_corroboration: false
+  official_policy:
+    weight: 0.95
+    fact_eligible: true
+    requires_corroboration: false
+  licensed_broker_research:
+    weight: 0.75
+    fact_eligible: false
+    requires_corroboration: true
+  authoritative_financial_media:
+    weight: 0.60
+    fact_eligible: false
+    requires_corroboration: true
+  licensed_aggregator:
+    weight: 0.60
+    fact_eligible: false
+    requires_corroboration: true
+    requires_capability_tier: true
+  market_data:
+    weight: 1.00
+    fact_eligible: true
+    event_notification_allowed: false
+  social_aggregate:
+    weight: 0.15
+    fact_eligible: false
+    requires_corroboration: true
+    may_override_official_source: false
+    may_trigger_material_alert_alone: false

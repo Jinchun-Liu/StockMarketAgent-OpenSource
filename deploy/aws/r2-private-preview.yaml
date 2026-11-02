@@ -1,0 +1,1457 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Private synthetic R2 runtime in ap-northeast-1. The stack is independent from
+  the frozen R1 scheduler and exposes its ALB only to the AWS-managed CloudFront
+  origin-facing prefix list. Runtime services are activated only after a separate
+  migration task succeeds.
+
+Parameters:
+  ProductSha:
+    Type: String
+    AllowedPattern: "^[0-9a-f]{40}$"
+  ImageDigest:
+    Type: String
+    Default: ""
+    AllowedPattern: "^$|^sha256:[0-9a-f]{64}$"
+  RuntimeDesiredCount:
+    Type: Number
+    Default: 0
+    AllowedValues: [0, 1]
+  PublicBaseUrl:
+    Type: String
+    AllowedPattern: "^https://[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?/?$"
+  CognitoDomainPrefix:
+    Type: String
+    AllowedPattern: "^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$"
+  CloudFrontOriginFacingPrefixListId:
+    Type: String
+    AllowedPattern: "^pl-[0-9a-f]{8,17}$"
+  S3ManagedPrefixListId:
+    Type: String
+    AllowedPattern: "^pl-[0-9a-f]{8,17}$"
+  DatabaseName:
+    Type: String
+    Default: stock_assistant
+    AllowedPattern: "^[a-z][a-z0-9_]{2,62}$"
+  MasterUsername:
+    Type: String
+    Default: stock_admin
+    AllowedPattern: "^[a-z][a-z0-9_]{2,62}$"
+  DeepSeekApiSecretArn:
+    Type: String
+    Default: ""
+    AllowedPattern: "^$|^arn:aws:secretsmanager:ap-northeast-1:[0-9]{12}:secret:[A-Za-z0-9/_+=.@-]+$"
+  TavilyApiSecretArn:
+    Type: String
+    Default: ""
+    AllowedPattern: "^$|^arn:aws:secretsmanager:ap-northeast-1:[0-9]{12}:secret:[A-Za-z0-9/_+=.@-]+$"
+
+Rules:
+  RuntimeActivationRequiresImage:
+    Assertions:
+      - Assert:
+          Fn::Or:
+            - Fn::Equals: [{Ref: RuntimeDesiredCount}, "0"]
+            - Fn::Not:
+                - Fn::Equals: [{Ref: ImageDigest}, ""]
+        AssertDescription: RuntimeDesiredCount can become one only with an immutable image digest.
+      - Assert:
+          Fn::Or:
+            - Fn::Equals: [{Ref: ImageDigest}, ""]
+            - Fn::And:
+                - Fn::Not:
+                    - Fn::Equals: [{Ref: DeepSeekApiSecretArn}, ""]
+                - Fn::Not:
+                    - Fn::Equals: [{Ref: TavilyApiSecretArn}, ""]
+        AssertDescription: An image-bound runtime requires separate DeepSeek and Tavily secrets.
+
+Conditions:
+  HasImageDigest:
+    Fn::Not:
+      - Fn::Equals: [{Ref: ImageDigest}, ""]
+
+Resources:
+  RuntimeRepository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      RepositoryName: stockmarketagent-r2-preview
+      EncryptionConfiguration:
+        EncryptionType: AES256
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      ImageTagMutability: IMMUTABLE
+      LifecyclePolicy:
+        LifecyclePolicyText: >-
+          {"rules":[{"rulePriority":1,"description":"retain latest 20 images",
+          "selection":{"tagStatus":"any","countType":"imageCountMoreThan","countNumber":20},
+          "action":{"type":"expire"}}]}
+
+  CloudFrontOriginVerifySecret:
+    Type: AWS::SecretsManager::Secret
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: Project-specific CloudFront to ALB origin verification value
+      GenerateSecretString:
+        SecretStringTemplate: '{"purpose":"cloudfront-origin-verification"}'
+        GenerateStringKey: header_value
+        PasswordLength: 64
+        ExcludePunctuation: true
+      Tags:
+        - Key: Project
+          Value: stockmarketagent-r2-preview
+        - Key: ProductSha
+          Value: {Ref: ProductSha}
+
+  ResearchArtifactBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-private-research-artifacts
+            Prefix: releases/
+            Status: Enabled
+            ExpirationInDays: 7
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 7
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Project
+          Value: stockmarketagent-r2-preview
+        - Key: ProductSha
+          Value: {Ref: ProductSha}
+
+  ResearchArtifactBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: {Ref: ResearchArtifactBucket}
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: s3:*
+            Resource:
+              - Fn::GetAtt: [ResearchArtifactBucket, Arn]
+              - Fn::Sub: "${ResearchArtifactBucket.Arn}/*"
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+
+  PreviewVpc:
+    Type: AWS::EC2::VPC
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      CidrBlock: 10.82.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: {Fn::Sub: "${AWS::StackName}-vpc"}
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: {Ref: InternetGateway}
+      VpcId: {Ref: PreviewVpc}
+
+  PublicSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: {Fn::Select: [0, {Fn::GetAZs: ""}]}
+      CidrBlock: 10.82.0.0/24
+      MapPublicIpOnLaunch: false
+      VpcId: {Ref: PreviewVpc}
+  PublicSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: {Fn::Select: [1, {Fn::GetAZs: ""}]}
+      CidrBlock: 10.82.1.0/24
+      MapPublicIpOnLaunch: false
+      VpcId: {Ref: PreviewVpc}
+  PrivateDataSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: {Fn::Select: [0, {Fn::GetAZs: ""}]}
+      CidrBlock: 10.82.10.0/24
+      MapPublicIpOnLaunch: false
+      VpcId: {Ref: PreviewVpc}
+  PrivateDataSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: {Fn::Select: [1, {Fn::GetAZs: ""}]}
+      CidrBlock: 10.82.11.0/24
+      MapPublicIpOnLaunch: false
+      VpcId: {Ref: PreviewVpc}
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: {Ref: PreviewVpc}
+  PublicDefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: {Ref: InternetGateway}
+      RouteTableId: {Ref: PublicRouteTable}
+  PublicSubnetARouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: {Ref: PublicRouteTable}
+      SubnetId: {Ref: PublicSubnetA}
+  PublicSubnetBRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: {Ref: PublicRouteTable}
+      SubnetId: {Ref: PublicSubnetB}
+
+  TaskSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      GroupDescription: R2 tasks accept only ALB traffic and use bounded egress
+      SecurityGroupEgress: []
+      VpcId: {Ref: PreviewVpc}
+  ApiTaskSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: R2 API accepts ALB traffic and uses bounded auth egress
+      SecurityGroupEgress: []
+      VpcId: {Ref: PreviewVpc}
+  WorkerTaskSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: R2 worker uses only database queue DNS and explicit egress proxy
+      SecurityGroupEgress: []
+      VpcId: {Ref: PreviewVpc}
+  SchedulerTaskSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: R2 scheduler uses only database queue and DNS
+      SecurityGroupEgress: []
+      VpcId: {Ref: PreviewVpc}
+  EgressProxySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Explicit CONNECT allowlist proxy for R2 worker
+      SecurityGroupEgress: []
+      VpcId: {Ref: PreviewVpc}
+  RuntimeEndpointSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Private AWS runtime endpoints from explicit R2 task groups
+      SecurityGroupEgress: []
+      VpcId: {Ref: PreviewVpc}
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: CloudFront origin-facing ingress only
+      SecurityGroupEgress: []
+      VpcId: {Ref: PreviewVpc}
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: PostgreSQL from R2 tasks only
+      SecurityGroupEgress: []
+      VpcId: {Ref: PreviewVpc}
+  ValkeySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: TLS Valkey from R2 tasks only
+      SecurityGroupEgress: []
+      VpcId: {Ref: PreviewVpc}
+
+  S3GatewayEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      RouteTableIds: [{Ref: PublicRouteTable}]
+      ServiceName: {Fn::Sub: "com.amazonaws.${AWS::Region}.s3"}
+      VpcEndpointType: Gateway
+      VpcId: {Ref: PreviewVpc}
+  EcrApiEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SecurityGroupIds: [{Fn::GetAtt: [RuntimeEndpointSecurityGroup, GroupId]}]
+      ServiceName: {Fn::Sub: "com.amazonaws.${AWS::Region}.ecr.api"}
+      SubnetIds: [{Ref: PublicSubnetA}, {Ref: PublicSubnetB}]
+      VpcEndpointType: Interface
+      VpcId: {Ref: PreviewVpc}
+  EcrDockerEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SecurityGroupIds: [{Fn::GetAtt: [RuntimeEndpointSecurityGroup, GroupId]}]
+      ServiceName: {Fn::Sub: "com.amazonaws.${AWS::Region}.ecr.dkr"}
+      SubnetIds: [{Ref: PublicSubnetA}, {Ref: PublicSubnetB}]
+      VpcEndpointType: Interface
+      VpcId: {Ref: PreviewVpc}
+  LogsEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SecurityGroupIds: [{Fn::GetAtt: [RuntimeEndpointSecurityGroup, GroupId]}]
+      ServiceName: {Fn::Sub: "com.amazonaws.${AWS::Region}.logs"}
+      SubnetIds: [{Ref: PublicSubnetA}, {Ref: PublicSubnetB}]
+      VpcEndpointType: Interface
+      VpcId: {Ref: PreviewVpc}
+  SecretsManagerEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SecurityGroupIds: [{Fn::GetAtt: [RuntimeEndpointSecurityGroup, GroupId]}]
+      ServiceName: {Fn::Sub: "com.amazonaws.${AWS::Region}.secretsmanager"}
+      SubnetIds: [{Ref: PublicSubnetA}, {Ref: PublicSubnetB}]
+      VpcEndpointType: Interface
+      VpcId: {Ref: PreviewVpc}
+
+  LoadBalancerIngressFromCloudFront:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: AWS-managed CloudFront origin-facing prefix list only
+      GroupId: {Fn::GetAtt: [LoadBalancerSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      SourcePrefixListId: {Ref: CloudFrontOriginFacingPrefixListId}
+  LoadBalancerEgressToApi:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [LoadBalancerSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 8000
+      ToPort: 8000
+      DestinationSecurityGroupId: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+  ApiIngressFromLoadBalancer:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 8000
+      ToPort: 8000
+      SourceSecurityGroupId: {Fn::GetAtt: [LoadBalancerSecurityGroup, GroupId]}
+  ApiEgressToProxy:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 3128
+      ToPort: 3128
+      DestinationSecurityGroupId: {Fn::GetAtt: [EgressProxySecurityGroup, GroupId]}
+  EgressProxyHttpsEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [EgressProxySecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: 0.0.0.0/0
+  WorkerEgressToProxy:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [WorkerTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 3128
+      ToPort: 3128
+      DestinationSecurityGroupId: {Fn::GetAtt: [EgressProxySecurityGroup, GroupId]}
+  EgressProxyIngressFromApi:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: {Fn::GetAtt: [EgressProxySecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 3128
+      ToPort: 3128
+      SourceSecurityGroupId: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+  EgressProxyIngressFromWorker:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: {Fn::GetAtt: [EgressProxySecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 3128
+      ToPort: 3128
+      SourceSecurityGroupId: {Fn::GetAtt: [WorkerTaskSecurityGroup, GroupId]}
+  ApiEgressToRuntimeEndpoints:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      DestinationSecurityGroupId: {Fn::GetAtt: [RuntimeEndpointSecurityGroup, GroupId]}
+  WorkerEgressToRuntimeEndpoints:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [WorkerTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      DestinationSecurityGroupId: {Fn::GetAtt: [RuntimeEndpointSecurityGroup, GroupId]}
+  SchedulerEgressToRuntimeEndpoints:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [SchedulerTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      DestinationSecurityGroupId: {Fn::GetAtt: [RuntimeEndpointSecurityGroup, GroupId]}
+  WorkerEgressToS3Endpoint:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [WorkerTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      DestinationPrefixListId: {Ref: S3ManagedPrefixListId}
+  SchedulerEgressToS3Endpoint:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [SchedulerTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      DestinationPrefixListId: {Ref: S3ManagedPrefixListId}
+  ApiEgressToS3Endpoint:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      DestinationPrefixListId: {Ref: S3ManagedPrefixListId}
+  RuntimeEndpointIngressFromApi:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: {Fn::GetAtt: [RuntimeEndpointSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+  RuntimeEndpointIngressFromWorker:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: {Fn::GetAtt: [RuntimeEndpointSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: {Fn::GetAtt: [WorkerTaskSecurityGroup, GroupId]}
+  RuntimeEndpointIngressFromScheduler:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: {Fn::GetAtt: [RuntimeEndpointSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: {Fn::GetAtt: [SchedulerTaskSecurityGroup, GroupId]}
+  RuntimeEndpointIngressFromProxy:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: {Fn::GetAtt: [RuntimeEndpointSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: {Fn::GetAtt: [EgressProxySecurityGroup, GroupId]}
+  ApiDnsUdpEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: 10.82.0.0/16
+  ApiDnsTcpEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: 10.82.0.0/16
+  WorkerDnsUdpEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [WorkerTaskSecurityGroup, GroupId]}
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: 10.82.0.0/16
+  WorkerDnsTcpEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [WorkerTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: 10.82.0.0/16
+  SchedulerDnsUdpEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [SchedulerTaskSecurityGroup, GroupId]}
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: 10.82.0.0/16
+  SchedulerDnsTcpEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [SchedulerTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: 10.82.0.0/16
+  EgressProxyDnsUdpEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [EgressProxySecurityGroup, GroupId]}
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: 10.82.0.0/16
+  EgressProxyDnsTcpEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [EgressProxySecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: 10.82.0.0/16
+  ApiDatabaseEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      DestinationSecurityGroupId: {Fn::GetAtt: [DatabaseSecurityGroup, GroupId]}
+  WorkerDatabaseEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [WorkerTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      DestinationSecurityGroupId: {Fn::GetAtt: [DatabaseSecurityGroup, GroupId]}
+  SchedulerDatabaseEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [SchedulerTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      DestinationSecurityGroupId: {Fn::GetAtt: [DatabaseSecurityGroup, GroupId]}
+  DatabaseIngressFromApi:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: {Fn::GetAtt: [DatabaseSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      SourceSecurityGroupId: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+  DatabaseIngressFromWorker:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: {Fn::GetAtt: [DatabaseSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      SourceSecurityGroupId: {Fn::GetAtt: [WorkerTaskSecurityGroup, GroupId]}
+  DatabaseIngressFromScheduler:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: {Fn::GetAtt: [DatabaseSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      SourceSecurityGroupId: {Fn::GetAtt: [SchedulerTaskSecurityGroup, GroupId]}
+  ApiValkeyEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 6379
+      ToPort: 6379
+      DestinationSecurityGroupId: {Fn::GetAtt: [ValkeySecurityGroup, GroupId]}
+  WorkerValkeyEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [WorkerTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 6379
+      ToPort: 6379
+      DestinationSecurityGroupId: {Fn::GetAtt: [ValkeySecurityGroup, GroupId]}
+  SchedulerValkeyEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: {Fn::GetAtt: [SchedulerTaskSecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 6379
+      ToPort: 6379
+      DestinationSecurityGroupId: {Fn::GetAtt: [ValkeySecurityGroup, GroupId]}
+  ValkeyIngressFromApi:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: {Fn::GetAtt: [ValkeySecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 6379
+      ToPort: 6379
+      SourceSecurityGroupId: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+  ValkeyIngressFromWorker:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: {Fn::GetAtt: [ValkeySecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 6379
+      ToPort: 6379
+      SourceSecurityGroupId: {Fn::GetAtt: [WorkerTaskSecurityGroup, GroupId]}
+  ValkeyIngressFromScheduler:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: {Fn::GetAtt: [ValkeySecurityGroup, GroupId]}
+      IpProtocol: tcp
+      FromPort: 6379
+      ToPort: 6379
+      SourceSecurityGroupId: {Fn::GetAtt: [SchedulerTaskSecurityGroup, GroupId]}
+
+  DatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Private R2 data subnets
+      SubnetIds: [{Ref: PrivateDataSubnetA}, {Ref: PrivateDataSubnetB}]
+  DatabaseParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Description: Force TLS for the private R2 database
+      Family: postgres16
+      Parameters:
+        rds.force_ssl: "1"
+  ResearchDatabase:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Snapshot
+    Properties:
+      AllocatedStorage: 20
+      AutoMinorVersionUpgrade: true
+      BackupRetentionPeriod: 7
+      CopyTagsToSnapshot: true
+      DBInstanceClass: db.t4g.micro
+      DBName: {Ref: DatabaseName}
+      DBParameterGroupName: {Ref: DatabaseParameterGroup}
+      DBSubnetGroupName: {Ref: DatabaseSubnetGroup}
+      DeletionProtection: true
+      Engine: postgres
+      EngineVersion: "16.15"
+      MasterUsername: {Ref: MasterUsername}
+      ManageMasterUserPassword: true
+      MultiAZ: false
+      PubliclyAccessible: false
+      StorageEncrypted: true
+      StorageType: gp3
+      VPCSecurityGroups: [{Fn::GetAtt: [DatabaseSecurityGroup, GroupId]}]
+
+  ValkeySubnetGroup:
+    Type: AWS::ElastiCache::SubnetGroup
+    Properties:
+      Description: Private R2 Valkey subnets
+      SubnetIds: [{Ref: PrivateDataSubnetA}, {Ref: PrivateDataSubnetB}]
+  ValkeyAuthSecret:
+    Type: AWS::SecretsManager::Secret
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: Generated TLS Valkey auth token for the private R2 preview
+      GenerateSecretString:
+        SecretStringTemplate: "{}"
+        GenerateStringKey: auth_token
+        PasswordLength: 48
+        ExcludeCharacters: '"@/\\'
+  ResearchValkey:
+    Type: AWS::ElastiCache::ReplicationGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AtRestEncryptionEnabled: true
+      AuthToken:
+        Fn::Sub: "{{resolve:secretsmanager:${ValkeyAuthSecret}:SecretString:auth_token}}"
+      AutomaticFailoverEnabled: false
+      CacheNodeType: cache.t4g.micro
+      CacheSubnetGroupName: {Ref: ValkeySubnetGroup}
+      Engine: valkey
+      EngineVersion: "8.2"
+      MultiAZEnabled: false
+      NumCacheClusters: 1
+      Port: 6379
+      ReplicationGroupDescription: Private synthetic R2 queue and result backend
+      SecurityGroupIds: [{Fn::GetAtt: [ValkeySecurityGroup, GroupId]}]
+      SnapshotRetentionLimit: 7
+      TransitEncryptionEnabled: true
+      TransitEncryptionMode: required
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      MfaConfiguration: "OFF"
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 14
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+          TemporaryPasswordValidityDays: 1
+      Schema:
+        - Name: preferred_username
+          AttributeDataType: String
+          Mutable: true
+          Required: false
+      UserPoolName: {Fn::Sub: "${AWS::StackName}-owners"}
+      UserPoolTags:
+        Project: stockmarketagent-r2-preview
+        ProductSha: {Ref: ProductSha}
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      AccessTokenValidity: 24
+      AllowedOAuthFlows: [code]
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthScopes: [openid]
+      CallbackURLs:
+        - Fn::Sub: "${PublicBaseUrl}auth/callback/"
+      ExplicitAuthFlows:
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_SRP_AUTH
+      GenerateSecret: false
+      IdTokenValidity: 24
+      LogoutURLs: [{Ref: PublicBaseUrl}]
+      PreventUserExistenceErrors: ENABLED
+      RefreshTokenValidity: 1
+      SupportedIdentityProviders: [COGNITO]
+      TokenValidityUnits:
+        AccessToken: hours
+        IdToken: hours
+        RefreshToken: days
+      UserPoolId: {Ref: UserPool}
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: {Ref: CognitoDomainPrefix}
+      UserPoolId: {Ref: UserPool}
+
+  RuntimeCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: stockmarketagent-r2-preview
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: {Fn::Sub: "/stockmarketagent/${AWS::StackName}/api"}
+      RetentionInDays: 30
+  WorkerLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: {Fn::Sub: "/stockmarketagent/${AWS::StackName}/worker"}
+      RetentionInDays: 30
+  SchedulerLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: {Fn::Sub: "/stockmarketagent/${AWS::StackName}/scheduler"}
+      RetentionInDays: 30
+  EgressProxyLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: {Fn::Sub: "/stockmarketagent/${AWS::StackName}/egress-proxy"}
+      RetentionInDays: 30
+
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Condition: HasImageDigest
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: {Service: ecs-tasks.amazonaws.com}
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: pull-image-write-logs-read-runtime-secrets
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: ecr:GetAuthorizationToken
+                Resource: "*"
+              - Effect: Allow
+                Action: [ecr:BatchCheckLayerAvailability, ecr:BatchGetImage, ecr:GetDownloadUrlForLayer]
+                Resource: {Fn::GetAtt: [RuntimeRepository, Arn]}
+              - Effect: Allow
+                Action: [logs:CreateLogStream, logs:PutLogEvents]
+                Resource:
+                  - {Fn::Sub: "${ApiLogGroup.Arn}:*"}
+                  - {Fn::Sub: "${WorkerLogGroup.Arn}:*"}
+                  - {Fn::Sub: "${SchedulerLogGroup.Arn}:*"}
+                  - {Fn::Sub: "${EgressProxyLogGroup.Arn}:*"}
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource:
+                  - {Fn::GetAtt: [ResearchDatabase, MasterUserSecret.SecretArn]}
+                  - {Ref: ValkeyAuthSecret}
+
+  WorkerExecutionRole:
+    Type: AWS::IAM::Role
+    Condition: HasImageDigest
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: {Service: ecs-tasks.amazonaws.com}
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: pull-image-write-worker-logs-read-worker-secrets
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: ecr:GetAuthorizationToken
+                Resource: "*"
+              - Effect: Allow
+                Action: [ecr:BatchCheckLayerAvailability, ecr:BatchGetImage, ecr:GetDownloadUrlForLayer]
+                Resource: {Fn::GetAtt: [RuntimeRepository, Arn]}
+              - Effect: Allow
+                Action: [logs:CreateLogStream, logs:PutLogEvents]
+                Resource: {Fn::Sub: "${WorkerLogGroup.Arn}:*"}
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource:
+                  - {Fn::GetAtt: [ResearchDatabase, MasterUserSecret.SecretArn]}
+                  - {Ref: ValkeyAuthSecret}
+                  - {Ref: DeepSeekApiSecretArn}
+                  - {Ref: TavilyApiSecretArn}
+  RuntimeTaskRole:
+    Type: AWS::IAM::Role
+    Condition: HasImageDigest
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: {Service: ecs-tasks.amazonaws.com}
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: release-scoped-research-artifacts
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: s3:PutObject
+                Resource:
+                  Fn::Sub: "${ResearchArtifactBucket.Arn}/releases/${ProductSha}/research/*"
+              - Effect: Allow
+                Action: [s3:GetObject, s3:GetObjectVersion, s3:DeleteObjectVersion]
+                Resource:
+                  Fn::Sub: "${ResearchArtifactBucket.Arn}/releases/*/research/*"
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource: {Fn::GetAtt: [ResearchArtifactBucket, Arn]}
+                Condition:
+                  StringLike:
+                    s3:prefix: {Fn::Sub: "releases/${ProductSha}/research/*"}
+
+  MigrationTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Condition: HasImageDigest
+    Properties:
+      Cpu: "512"
+      ExecutionRoleArn: {Fn::GetAtt: [ExecutionRole, Arn]}
+      Family: {Fn::Sub: "${AWS::StackName}-migration"}
+      Memory: "1024"
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      RuntimePlatform: {CpuArchitecture: ARM64, OperatingSystemFamily: LINUX}
+      TaskRoleArn: {Fn::GetAtt: [RuntimeTaskRole, Arn]}
+      ContainerDefinitions:
+        - Name: migration
+          Command: [alembic, upgrade, head]
+          Essential: true
+          Image: {Fn::Sub: "${RuntimeRepository.RepositoryUri}@${ImageDigest}"}
+          LinuxParameters:
+            Capabilities: {Drop: [ALL]}
+            InitProcessEnabled: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: {Ref: SchedulerLogGroup}
+              awslogs-region: {Ref: "AWS::Region"}
+              awslogs-stream-prefix: migration
+          ReadonlyRootFilesystem: true
+          User: app
+          Environment:
+            - {Name: DB_HOST, Value: {Fn::GetAtt: [ResearchDatabase, Endpoint.Address]}}
+            - {Name: DB_PORT, Value: {Fn::GetAtt: [ResearchDatabase, Endpoint.Port]}}
+            - {Name: DB_NAME, Value: {Ref: DatabaseName}}
+          Secrets:
+            - Name: DB_USERNAME
+              ValueFrom: {Fn::Sub: "${ResearchDatabase.MasterUserSecret.SecretArn}:username::"}
+            - Name: DB_PASSWORD
+              ValueFrom: {Fn::Sub: "${ResearchDatabase.MasterUserSecret.SecretArn}:password::"}
+
+  ApiTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Condition: HasImageDigest
+    Properties:
+      Cpu: "512"
+      ExecutionRoleArn: {Fn::GetAtt: [ExecutionRole, Arn]}
+      Family: {Fn::Sub: "${AWS::StackName}-api"}
+      Memory: "1024"
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      RuntimePlatform: {CpuArchitecture: ARM64, OperatingSystemFamily: LINUX}
+      TaskRoleArn: {Fn::GetAtt: [RuntimeTaskRole, Arn]}
+      ContainerDefinitions:
+        - Name: api
+          HealthCheck:
+            Command: [CMD, python, -m, apps.runtime.health]
+            Interval: 60
+            Timeout: 10
+            Retries: 3
+            StartPeriod: 90
+          Command: [uvicorn, apps.api.main:app, --host, 0.0.0.0, --port, "8000"]
+          Essential: true
+          Image: {Fn::Sub: "${RuntimeRepository.RepositoryUri}@${ImageDigest}"}
+          LinuxParameters:
+            Capabilities: {Drop: [ALL]}
+            InitProcessEnabled: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: {Ref: ApiLogGroup}
+              awslogs-region: {Ref: "AWS::Region"}
+              awslogs-stream-prefix: api
+          PortMappings: [{ContainerPort: 8000, Name: http, Protocol: tcp}]
+          ReadonlyRootFilesystem: true
+          User: app
+          Environment:
+            - {Name: APP_ENV, Value: preview}
+            - {Name: AWS_REGION, Value: {Ref: "AWS::Region"}}
+            - {Name: ENABLE_R1_FIXTURE, Value: "false"}
+            - {Name: ENABLE_R1_DEV_LIVE, Value: "false"}
+            - {Name: R1_RUNTIME_MODE, Value: demo_replay}
+            - {Name: ENABLE_R2_SYNTHETIC_RESEARCH, Value: "false"}
+            - {Name: ENABLE_R2_REAL_RESEARCH, Value: "true"}
+            - {Name: ENABLE_R2_PRIVATE_PREVIEW, Value: "true"}
+            - {Name: PRODUCT_COMMIT, Value: {Ref: ProductSha}}
+            - {Name: R2_ARTIFACT_BUCKET, Value: {Ref: ResearchArtifactBucket}}
+            - {Name: WEB_ORIGIN, Value: {Ref: PublicBaseUrl}}
+            - {Name: COGNITO_CLIENT_ID, Value: {Ref: UserPoolClient}}
+            - Name: COGNITO_ISSUER
+              Value: {Fn::Sub: "https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}"}
+            - Name: COGNITO_JWKS_URL
+              Value: {Fn::Sub: "https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}/.well-known/jwks.json"}
+            - Name: COGNITO_JWKS_PROXY_URL
+              Value: {Fn::Sub: "http://egress.${AWS::StackName}.internal:3128"}
+            - {Name: DB_HOST, Value: {Fn::GetAtt: [ResearchDatabase, Endpoint.Address]}}
+            - {Name: DB_PORT, Value: {Fn::GetAtt: [ResearchDatabase, Endpoint.Port]}}
+            - {Name: DB_NAME, Value: {Ref: DatabaseName}}
+            - {Name: VALKEY_HOST, Value: {Fn::GetAtt: [ResearchValkey, PrimaryEndPoint.Address]}}
+            - {Name: VALKEY_PORT, Value: {Fn::GetAtt: [ResearchValkey, PrimaryEndPoint.Port]}}
+          Secrets:
+            - Name: DB_USERNAME
+              ValueFrom: {Fn::Sub: "${ResearchDatabase.MasterUserSecret.SecretArn}:username::"}
+            - Name: DB_PASSWORD
+              ValueFrom: {Fn::Sub: "${ResearchDatabase.MasterUserSecret.SecretArn}:password::"}
+            - Name: VALKEY_AUTH_TOKEN
+              ValueFrom: {Fn::Sub: "${ValkeyAuthSecret}:auth_token::"}
+
+  WorkerTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Condition: HasImageDigest
+    Properties:
+      Cpu: "1024"
+      ExecutionRoleArn: {Fn::GetAtt: [WorkerExecutionRole, Arn]}
+      Family: {Fn::Sub: "${AWS::StackName}-worker"}
+      Memory: "2048"
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      RuntimePlatform: {CpuArchitecture: ARM64, OperatingSystemFamily: LINUX}
+      TaskRoleArn: {Fn::GetAtt: [RuntimeTaskRole, Arn]}
+      Volumes:
+        - Name: worker-tmp
+      ContainerDefinitions:
+        - Name: worker
+          HealthCheck:
+            Command: [CMD, python, -m, apps.runtime.health]
+            Interval: 60
+            Timeout: 10
+            Retries: 3
+            StartPeriod: 90
+          Command: [celery, -A, "apps.worker.celery_app:celery_app", worker, --loglevel=INFO]
+          Essential: true
+          Image: {Fn::Sub: "${RuntimeRepository.RepositoryUri}@${ImageDigest}"}
+          LinuxParameters:
+            Capabilities: {Drop: [ALL]}
+            InitProcessEnabled: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: {Ref: WorkerLogGroup}
+              awslogs-region: {Ref: "AWS::Region"}
+              awslogs-stream-prefix: worker
+          MountPoints:
+            - ContainerPath: /tmp
+              ReadOnly: false
+              SourceVolume: worker-tmp
+          ReadonlyRootFilesystem: true
+          User: app
+          Environment:
+            - {Name: APP_ENV, Value: preview}
+            - {Name: AWS_REGION, Value: {Ref: "AWS::Region"}}
+            - {Name: ENABLE_R1_FIXTURE, Value: "false"}
+            - {Name: ENABLE_R1_DEV_LIVE, Value: "false"}
+            - {Name: R1_RUNTIME_MODE, Value: demo_replay}
+            - {Name: ENABLE_R2_SYNTHETIC_RESEARCH, Value: "false"}
+            - {Name: ENABLE_R2_REAL_RESEARCH, Value: "true"}
+            - {Name: ENABLE_R2_PRIVATE_PREVIEW, Value: "true"}
+            - {Name: DEEPSEEK_ENABLED, Value: "true"}
+            - {Name: ENABLE_R2_DEEPSEEK_RESEARCH, Value: "true"}
+            - {Name: ENABLE_R2_WEB_FALLBACK, Value: "true"}
+            - {Name: HTTPS_PROXY, Value: {Fn::Sub: "http://egress.${AWS::StackName}.internal:3128"}}
+            - {Name: HTTP_PROXY, Value: {Fn::Sub: "http://egress.${AWS::StackName}.internal:3128"}}
+            - Name: NO_PROXY
+              Value:
+                Fn::Join:
+                  - ","
+                  - - localhost
+                    - "127.0.0.1"
+                    - "169.254.170.2"
+                    - {Fn::GetAtt: [ResearchDatabase, Endpoint.Address]}
+                    - {Fn::GetAtt: [ResearchValkey, PrimaryEndPoint.Address]}
+            - {Name: PRODUCT_COMMIT, Value: {Ref: ProductSha}}
+            - {Name: R2_ARTIFACT_BUCKET, Value: {Ref: ResearchArtifactBucket}}
+            - {Name: WEB_ORIGIN, Value: {Ref: PublicBaseUrl}}
+            - {Name: DB_HOST, Value: {Fn::GetAtt: [ResearchDatabase, Endpoint.Address]}}
+            - {Name: DB_PORT, Value: {Fn::GetAtt: [ResearchDatabase, Endpoint.Port]}}
+            - {Name: DB_NAME, Value: {Ref: DatabaseName}}
+            - {Name: VALKEY_HOST, Value: {Fn::GetAtt: [ResearchValkey, PrimaryEndPoint.Address]}}
+            - {Name: VALKEY_PORT, Value: {Fn::GetAtt: [ResearchValkey, PrimaryEndPoint.Port]}}
+          Secrets:
+            - Name: DB_USERNAME
+              ValueFrom: {Fn::Sub: "${ResearchDatabase.MasterUserSecret.SecretArn}:username::"}
+            - Name: DB_PASSWORD
+              ValueFrom: {Fn::Sub: "${ResearchDatabase.MasterUserSecret.SecretArn}:password::"}
+            - Name: VALKEY_AUTH_TOKEN
+              ValueFrom: {Fn::Sub: "${ValkeyAuthSecret}:auth_token::"}
+            - Name: DEEPSEEK_API_KEY
+              ValueFrom: {Ref: DeepSeekApiSecretArn}
+            - Name: TAVILY_API_KEY
+              ValueFrom: {Ref: TavilyApiSecretArn}
+
+  EgressProxyNamespace:
+    Type: AWS::ServiceDiscovery::PrivateDnsNamespace
+    Properties:
+      Name: {Fn::Sub: "${AWS::StackName}.internal"}
+      Vpc: {Ref: PreviewVpc}
+  EgressProxyDiscoveryService:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: egress
+      DnsConfig:
+        NamespaceId: {Ref: EgressProxyNamespace}
+        RoutingPolicy: MULTIVALUE
+        DnsRecords:
+          - Type: A
+            TTL: 10
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+
+  EgressProxyTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Condition: HasImageDigest
+    Properties:
+      Cpu: "512"
+      ExecutionRoleArn: {Fn::GetAtt: [ExecutionRole, Arn]}
+      Family: {Fn::Sub: "${AWS::StackName}-egress-proxy"}
+      Memory: "1024"
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      RuntimePlatform: {CpuArchitecture: ARM64, OperatingSystemFamily: LINUX}
+      ContainerDefinitions:
+        - Name: egress-proxy
+          Command:
+            - python
+            - -m
+            - apps.egress_proxy.main
+            - --allowed-hosts
+            - Fn::Sub: >-
+                api.deepseek.com,api.tavily.com,www.gov.cn,www.csrc.gov.cn,
+                www.sse.com.cn,www.szse.cn,www.bse.cn,www.cninfo.com.cn,
+                static.cninfo.com.cn,www.reuters.com,www.stcn.com,www.cnstock.com,
+                www.zmax-opt.com,www.cjsc.com.cn,www.moutai.com.cn,www.catl.com,www.midea.com.cn,
+                cognito-idp.${AWS::Region}.amazonaws.com,
+                s3.${AWS::Region}.amazonaws.com,
+                ${ResearchArtifactBucket}.s3.${AWS::Region}.amazonaws.com
+          Essential: true
+          Image: {Fn::Sub: "${RuntimeRepository.RepositoryUri}@${ImageDigest}"}
+          LinuxParameters:
+            Capabilities: {Drop: [ALL]}
+            InitProcessEnabled: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: {Ref: EgressProxyLogGroup}
+              awslogs-region: {Ref: "AWS::Region"}
+              awslogs-stream-prefix: egress-proxy
+          PortMappings: [{ContainerPort: 3128, Name: connect, Protocol: tcp}]
+          ReadonlyRootFilesystem: true
+          User: app
+
+  SchedulerTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Condition: HasImageDigest
+    Properties:
+      Cpu: "512"
+      ExecutionRoleArn: {Fn::GetAtt: [ExecutionRole, Arn]}
+      Family: {Fn::Sub: "${AWS::StackName}-scheduler"}
+      Memory: "1024"
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      RuntimePlatform: {CpuArchitecture: ARM64, OperatingSystemFamily: LINUX}
+      TaskRoleArn: {Fn::GetAtt: [RuntimeTaskRole, Arn]}
+      ContainerDefinitions:
+        - Name: scheduler
+          HealthCheck:
+            Command: [CMD, python, -m, apps.runtime.health]
+            Interval: 60
+            Timeout: 10
+            Retries: 3
+            StartPeriod: 90
+          Command: [python, -m, apps.scheduler.main]
+          Essential: true
+          Image: {Fn::Sub: "${RuntimeRepository.RepositoryUri}@${ImageDigest}"}
+          LinuxParameters:
+            Capabilities: {Drop: [ALL]}
+            InitProcessEnabled: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: {Ref: SchedulerLogGroup}
+              awslogs-region: {Ref: "AWS::Region"}
+              awslogs-stream-prefix: scheduler
+          ReadonlyRootFilesystem: true
+          User: app
+          Environment:
+            - {Name: APP_ENV, Value: preview}
+            - {Name: AWS_REGION, Value: {Ref: "AWS::Region"}}
+            - {Name: ENABLE_R1_FIXTURE, Value: "false"}
+            - {Name: ENABLE_R1_DEV_LIVE, Value: "false"}
+            - {Name: R1_RUNTIME_MODE, Value: demo_replay}
+            - {Name: ENABLE_R2_SYNTHETIC_RESEARCH, Value: "false"}
+            - {Name: ENABLE_R2_REAL_RESEARCH, Value: "true"}
+            - {Name: ENABLE_R2_PRIVATE_PREVIEW, Value: "true"}
+            - {Name: PRODUCT_COMMIT, Value: {Ref: ProductSha}}
+            - {Name: R2_ARTIFACT_BUCKET, Value: {Ref: ResearchArtifactBucket}}
+            - {Name: WEB_ORIGIN, Value: {Ref: PublicBaseUrl}}
+            - {Name: DB_HOST, Value: {Fn::GetAtt: [ResearchDatabase, Endpoint.Address]}}
+            - {Name: DB_PORT, Value: {Fn::GetAtt: [ResearchDatabase, Endpoint.Port]}}
+            - {Name: DB_NAME, Value: {Ref: DatabaseName}}
+            - {Name: VALKEY_HOST, Value: {Fn::GetAtt: [ResearchValkey, PrimaryEndPoint.Address]}}
+            - {Name: VALKEY_PORT, Value: {Fn::GetAtt: [ResearchValkey, PrimaryEndPoint.Port]}}
+          Secrets:
+            - Name: DB_USERNAME
+              ValueFrom: {Fn::Sub: "${ResearchDatabase.MasterUserSecret.SecretArn}:username::"}
+            - Name: DB_PASSWORD
+              ValueFrom: {Fn::Sub: "${ResearchDatabase.MasterUserSecret.SecretArn}:password::"}
+            - Name: VALKEY_AUTH_TOKEN
+              ValueFrom: {Fn::Sub: "${ValkeyAuthSecret}:auth_token::"}
+
+  ApiLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internet-facing
+      SecurityGroups: [{Fn::GetAtt: [LoadBalancerSecurityGroup, GroupId]}]
+      Subnets: [{Ref: PublicSubnetA}, {Ref: PublicSubnetB}]
+      Type: application
+  ApiTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckEnabled: true
+      HealthCheckPath: /api/v1/health/live
+      Matcher: {HttpCode: "200"}
+      Port: 8000
+      Protocol: HTTP
+      TargetType: ip
+      VpcId: {Ref: PreviewVpc}
+  ApiListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            ContentType: application/json
+            MessageBody: '{"detail":"origin not authorized"}'
+            StatusCode: "403"
+      LoadBalancerArn: {Ref: ApiLoadBalancer}
+      Port: 80
+      Protocol: HTTP
+  ApiListenerDenyPublicHealthPaths:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            ContentType: application/json
+            MessageBody: '{"detail":"not found"}'
+            StatusCode: "404"
+      Conditions:
+        - Field: path-pattern
+          PathPatternConfig:
+            Values: [/api/v1/health/*]
+      ListenerArn: {Ref: ApiListener}
+      Priority: 5
+  ApiListenerForwardFromProjectCloudFront:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: {Ref: ApiTargetGroup}
+      Conditions:
+        - Field: http-header
+          HttpHeaderConfig:
+            HttpHeaderName: X-StockMarketAgent-Origin-Verify
+            Values:
+              - Fn::Sub: "{{resolve:secretsmanager:${CloudFrontOriginVerifySecret}:SecretString:header_value}}"
+      ListenerArn: {Ref: ApiListener}
+      Priority: 10
+
+  ApiService:
+    Type: AWS::ECS::Service
+    Condition: HasImageDigest
+    DependsOn: ApiListenerForwardFromProjectCloudFront
+    Properties:
+      Cluster: {Ref: RuntimeCluster}
+      DesiredCount: {Ref: RuntimeDesiredCount}
+      EnableECSManagedTags: true
+      HealthCheckGracePeriodSeconds: 90
+      LaunchType: FARGATE
+      LoadBalancers:
+        - ContainerName: api
+          ContainerPort: 8000
+          TargetGroupArn: {Ref: ApiTargetGroup}
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups: [{Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}]
+          Subnets: [{Ref: PublicSubnetA}, {Ref: PublicSubnetB}]
+      PlatformVersion: 1.4.0
+      TaskDefinition: {Ref: ApiTaskDefinition}
+  WorkerService:
+    Type: AWS::ECS::Service
+    Condition: HasImageDigest
+    DependsOn: EgressProxyService
+    Properties:
+      Cluster: {Ref: RuntimeCluster}
+      DesiredCount: {Ref: RuntimeDesiredCount}
+      EnableECSManagedTags: true
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups: [{Fn::GetAtt: [WorkerTaskSecurityGroup, GroupId]}]
+          Subnets: [{Ref: PublicSubnetA}, {Ref: PublicSubnetB}]
+      PlatformVersion: 1.4.0
+      TaskDefinition: {Ref: WorkerTaskDefinition}
+  SchedulerService:
+    Type: AWS::ECS::Service
+    Condition: HasImageDigest
+    Properties:
+      Cluster: {Ref: RuntimeCluster}
+      DesiredCount: {Ref: RuntimeDesiredCount}
+      EnableECSManagedTags: true
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups: [{Fn::GetAtt: [SchedulerTaskSecurityGroup, GroupId]}]
+          Subnets: [{Ref: PublicSubnetA}, {Ref: PublicSubnetB}]
+      PlatformVersion: 1.4.0
+      TaskDefinition: {Ref: SchedulerTaskDefinition}
+
+  EgressProxyService:
+    Type: AWS::ECS::Service
+    Condition: HasImageDigest
+    Properties:
+      Cluster: {Ref: RuntimeCluster}
+      DesiredCount: {Ref: RuntimeDesiredCount}
+      EnableECSManagedTags: true
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups: [{Fn::GetAtt: [EgressProxySecurityGroup, GroupId]}]
+          Subnets: [{Ref: PublicSubnetA}, {Ref: PublicSubnetB}]
+      PlatformVersion: 1.4.0
+      ServiceRegistries:
+        - RegistryArn: {Fn::GetAtt: [EgressProxyDiscoveryService, Arn]}
+          ContainerName: egress-proxy
+      TaskDefinition: {Ref: EgressProxyTaskDefinition}
+
+  ApiWebAcl:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      DefaultAction: {Allow: {}}
+      Description: Bounded regional request-rate protection for the private R2 API
+      Name: {Fn::Sub: "${AWS::StackName}-api"}
+      Scope: REGIONAL
+      VisibilityConfig:
+        CloudWatchMetricsEnabled: true
+        MetricName: {Fn::Sub: "${AWS::StackName}-api"}
+        SampledRequestsEnabled: true
+      Rules:
+        - Name: bounded-viewer-rate
+          Priority: 0
+          Action: {Block: {}}
+          Statement:
+            RateBasedStatement:
+              AggregateKeyType: FORWARDED_IP
+              Limit: 600
+              EvaluationWindowSec: 300
+              ForwardedIPConfig:
+                FallbackBehavior: NO_MATCH
+                HeaderName: X-Forwarded-For
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: bounded-viewer-rate
+            SampledRequestsEnabled: true
+  ApiWebAclAssociation:
+    Type: AWS::WAFv2::WebACLAssociation
+    Properties:
+      ResourceArn: {Ref: ApiLoadBalancer}
+      WebACLArn: {Fn::GetAtt: [ApiWebAcl, Arn]}
+
+  ApiUnhealthyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Private R2 API has an unhealthy target
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: LoadBalancer
+          Value: {Fn::GetAtt: [ApiLoadBalancer, LoadBalancerFullName]}
+        - Name: TargetGroup
+          Value: {Fn::GetAtt: [ApiTargetGroup, TargetGroupFullName]}
+      EvaluationPeriods: 2
+      MetricName: UnHealthyHostCount
+      Namespace: AWS/ApplicationELB
+      Period: 60
+      Statistic: Maximum
+      Threshold: 0
+      TreatMissingData: notBreaching
+  WorkerStoppedAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: HasImageDigest
+    Properties:
+      AlarmDescription: Worker service has no running task after activation
+      ComparisonOperator: LessThanThreshold
+      Dimensions:
+        - Name: ClusterName
+          Value: {Ref: RuntimeCluster}
+        - Name: ServiceName
+          Value: {Fn::GetAtt: [WorkerService, Name]}
+      EvaluationPeriods: 2
+      MetricName: RunningTaskCount
+      Namespace: ECS/ContainerInsights
+      Period: 60
+      Statistic: Minimum
+      Threshold: {Ref: RuntimeDesiredCount}
+      TreatMissingData: breaching
+  EgressProxyStoppedAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: HasImageDigest
+    Properties:
+      AlarmDescription: Egress proxy service has no running task after activation
+      ComparisonOperator: LessThanThreshold
+      Dimensions:
+        - Name: ClusterName
+          Value: {Ref: RuntimeCluster}
+        - Name: ServiceName
+          Value: {Fn::GetAtt: [EgressProxyService, Name]}
+      EvaluationPeriods: 2
+      MetricName: RunningTaskCount
+      Namespace: ECS/ContainerInsights
+      Period: 60
+      Statistic: Minimum
+      Threshold: {Ref: RuntimeDesiredCount}
+      TreatMissingData: breaching
+
+Outputs:
+  ProductSha:
+    Value: {Ref: ProductSha}
+  ImageDigest:
+    Value: {Ref: ImageDigest}
+  RuntimeDesiredCount:
+    Value: {Ref: RuntimeDesiredCount}
+  RepositoryUri:
+    Value: {Fn::GetAtt: [RuntimeRepository, RepositoryUri]}
+  ArtifactBucketName:
+    Value: {Ref: ResearchArtifactBucket}
+  CloudFrontOriginVerifySecretArn:
+    Value: {Ref: CloudFrontOriginVerifySecret}
+  ApiOriginDomainName:
+    Value: {Fn::GetAtt: [ApiLoadBalancer, DNSName]}
+  ClusterName:
+    Value: {Ref: RuntimeCluster}
+  MigrationTaskDefinitionArn:
+    Condition: HasImageDigest
+    Value: {Ref: MigrationTaskDefinition}
+  PublicSubnetIds:
+    Value: {Fn::Join: [",", [{Ref: PublicSubnetA}, {Ref: PublicSubnetB}]]}
+  TaskSecurityGroupId:
+    Value: {Fn::GetAtt: [TaskSecurityGroup, GroupId]}
+  ApiTaskSecurityGroupId:
+    Value: {Fn::GetAtt: [ApiTaskSecurityGroup, GroupId]}
+  WorkerTaskSecurityGroupId:
+    Value: {Fn::GetAtt: [WorkerTaskSecurityGroup, GroupId]}
+  SchedulerTaskSecurityGroupId:
+    Value: {Fn::GetAtt: [SchedulerTaskSecurityGroup, GroupId]}
+  UserPoolId:
+    Value: {Ref: UserPool}
+  UserPoolClientId:
+    Value: {Ref: UserPoolClient}
+  CognitoIssuer:
+    Value: {Fn::Sub: "https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}"}
+  CognitoDomainName:
+    Value: {Fn::Sub: "${CognitoDomainPrefix}.auth.${AWS::Region}.amazoncognito.com"}

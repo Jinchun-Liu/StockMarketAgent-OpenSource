@@ -1,0 +1,55 @@
+version: "2026-07-21.1"
+
+quality_formula:
+  authority: 0.35
+  relevance: 0.25
+  freshness: 0.15
+  corroboration: 0.15
+  completeness: 0.10
+  conflict_penalty: -0.20
+
+authority_priors:
+  statutory_disclosure: 1.00
+  regulator: 1.00
+  issuer_official: 0.98
+  official_policy: 0.95
+  licensed_broker_research: 0.75
+  authoritative_financial_media: 0.60
+  licensed_aggregator: 0.60
+  social_aggregate: 0.15
+  development_only: 0.00
+
+gates:
+  statutory_disclosure:
+    persist_minimum: 0.0
+    notify_minimum: 0.55
+    never_drop_for_sentiment: true
+  official_policy:
+    persist_minimum: 0.0
+    notify_minimum: 0.60
+    never_drop_for_sentiment: true
+  licensed_broker_research:
+    persist_minimum: 0.45
+    notify_minimum: 0.68
+  authoritative_financial_media:
+    persist_minimum: 0.50
+    notify_minimum: 0.72
+  licensed_aggregator:
+    persist_minimum: 0.50
+    notify_minimum: 0.72
+    fact_eligible: false
+    requires_capability_tier: true
+  market_data:
+    persist_minimum: 0.0
+    notify_minimum: 1.0
+    event_notification_allowed: false
+  social_aggregate:
+    persist_minimum: 0.55
+    notify_minimum: 0.85
+    may_trigger_alone: false
+
+notification:
+  materiality_minimum: 0.65
+  confidence_minimum: 0.70
+  allowed_change_types: [new, update, correction, contradiction]
+  duplicate_cooldown_minutes: 1440

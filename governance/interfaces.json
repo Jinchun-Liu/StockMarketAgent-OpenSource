@@ -1,0 +1,1827 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_version": "1.0",
+  "description": "Machine-verified registry of interfaces that exist in the current repository.",
+  "change_policy": {
+    "search_existing_before_change": true,
+    "reuse_semantic_equivalent": true,
+    "duplicate_semantics_forbidden": true,
+    "breaking_change_requires_new_major": true,
+    "synchronize_all_affected_standards": true
+  },
+  "status_definitions": {
+    "implemented": "The callable endpoint, task or event producer exists and serves its documented behavior.",
+    "registered_stub": "The task name and callable exist but the business workflow is not implemented. A schema-bound stub validates its frozen request and returns a typed SKIPPED result; a name-only deferred stub is disabled and fails closed.",
+    "published": "The immutable versioned schema is checked in and generated from its contract model.",
+    "declared": "The public Protocol exists; this does not claim that a production adapter is implemented."
+  },
+  "parallel_consumption_policy": {
+    "registered_stubs_are_name_reservations_only": true,
+    "declared_ports_do_not_imply_adapters": true,
+    "adapter_and_consumer_maturity_registry": "governance/delivery.json",
+    "contract_freeze_protocol": "docs/engineering/parallel-development-protocol.md"
+  },
+  "direction_definitions": {
+    "inbound_use_case": "A driving adapter calls this application capability to initiate a use case.",
+    "outbound_dependency": "Application or domain code calls this dependency and an adapter supplies it.",
+    "lifecycle_utility": "A cross-cutting lifecycle, health, clock, capability or identifier utility."
+  },
+  "http_endpoints": [
+    {
+      "id": "http:active-targets.active-target.get-active-target:v1",
+      "version": "1.0",
+      "method": "GET",
+      "path": "/api/v1/active-target",
+      "handler": "apps.api.routes.active_target.get_active_target",
+      "file": "apps/api/routes/active_target.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.active_targets.ActiveTargetState]",
+      "status": "implemented",
+      "owner": "active-targets",
+      "compatibility": "major-versioned",
+      "maturity": "fixture-backed-postgresql-read"
+    },
+    {
+      "id": "http:briefings.premarket.get-latest-briefing:v1",
+      "version": "1.0",
+      "method": "GET",
+      "path": "/api/v1/briefings/premarket/latest",
+      "handler": "apps.api.routes.premarket.get_latest_briefing",
+      "file": "apps/api/routes/premarket.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.r1_http.PremarketBriefingHttpData]",
+      "status": "implemented",
+      "owner": "briefings",
+      "compatibility": "major-versioned",
+      "maturity": "fixture-backed-postgresql-read"
+    },
+    {
+      "id": "http:events.premarket.get-event-evidence:v1",
+      "version": "1.0",
+      "method": "GET",
+      "path": "/api/v1/events/{event_id}/evidence",
+      "handler": "apps.api.routes.premarket.get_event_evidence",
+      "file": "apps/api/routes/premarket.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.r1_http.EventEvidenceHttpData]",
+      "status": "implemented",
+      "owner": "events",
+      "compatibility": "major-versioned",
+      "maturity": "fixture-backed-postgresql-pit-read"
+    },
+    {
+      "id": "http:today.research.get-today:v1",
+      "version": "1.0",
+      "method": "GET",
+      "path": "/api/v1/today",
+      "handler": "apps.api.routes.research.get_today",
+      "file": "apps/api/routes/research.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.premarket_views.PremarketBriefingViewV1_3]",
+      "status": "implemented",
+      "owner": "today",
+      "compatibility": "major-versioned",
+      "maturity": "research-product-v1.3-postgresql-read"
+    },
+    {
+      "id": "http:behavior.research.get-behavior-pressure-snapshots:v1",
+      "version": "1.0",
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/behavior-pressure-snapshots",
+      "handler": "apps.api.routes.research.get_behavior_pressure_snapshots",
+      "file": "apps/api/routes/research.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.behavior.BehaviorPressurePage]",
+      "status": "implemented",
+      "owner": "behavior",
+      "compatibility": "major-versioned",
+      "maturity": "research-index-postgresql-pit-read"
+    },
+    {
+      "id": "http:today.today-stream.get-today-stream:v1",
+      "version": "1.0",
+      "method": "GET",
+      "path": "/api/v1/today/stream",
+      "handler": "apps.api.routes.today_stream.get_today_stream",
+      "file": "apps/api/routes/today_stream.py",
+      "response_contract": "stock_assistant.contracts.messaging.MessageEnvelope[stock_assistant.contracts.behavior.BehaviorBandTransitionV1]",
+      "status": "implemented",
+      "owner": "today",
+      "compatibility": "major-versioned",
+      "maturity": "postgresql-user-inbox-sse"
+    },
+    {
+      "id": "http:research.research-sessions.search-instruments:v1",
+      "version": "1.0",
+      "method": "GET",
+      "path": "/api/v1/instruments/search",
+      "handler": "apps.api.routes.research_sessions.search_instruments",
+      "file": "apps/api/routes/research_sessions.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.instruments.InstrumentSearchResult]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "maturity": "private-official-directory-a-share-pit-search"
+    },
+    {
+      "id": "http:research.research-sessions.create-research-session:v1",
+      "version": "1.0",
+      "method": "POST",
+      "path": "/api/v1/research-sessions",
+      "handler": "apps.api.routes.research_sessions.create_research_session",
+      "file": "apps/api/routes/research_sessions.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchSessionAccepted]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "maturity": "synthetic-transactional-outbox"
+    },
+    {
+      "id": "http:research.research-sessions.list-research-sessions:v1",
+      "version": "1.1",
+      "method": "GET",
+      "path": "/api/v1/research-sessions",
+      "handler": "apps.api.routes.research_sessions.list_research_sessions",
+      "file": "apps/api/routes/research_sessions.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research_legacy_sessions.ResearchSessionPage]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "maturity": "seven-day-postgresql-history"
+    },
+    {
+      "id": "http:research.research-sessions.get-research-session:v1",
+      "version": "1.1",
+      "method": "GET",
+      "path": "/api/v1/research-sessions/{session_id}",
+      "handler": "apps.api.routes.research_sessions.get_research_session",
+      "file": "apps/api/routes/research_sessions.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research_legacy_sessions.ResearchSessionView]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "maturity": "postgresql-stage-heartbeat"
+    },
+    {
+      "id": "http:research.research-sessions.get-research-report:v1",
+      "version": "1.0",
+      "method": "GET",
+      "path": "/api/v1/research-sessions/{session_id}/report",
+      "handler": "apps.api.routes.research_sessions.get_research_report",
+      "file": "apps/api/routes/research_sessions.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research_v1.ResearchReport]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "maturity": "validated-complete-report-only"
+    },
+    {
+      "id": "http:research.research-sessions.cancel-research-session:v1",
+      "version": "1.0",
+      "method": "POST",
+      "path": "/api/v1/research-sessions/{session_id}/cancel",
+      "handler": "apps.api.routes.research_sessions.cancel_research_session",
+      "file": "apps/api/routes/research_sessions.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchSessionMutationResult]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "maturity": "idempotent-cancel"
+    },
+    {
+      "id": "http:research.research-sessions.retry-research-session:v1",
+      "version": "1.0",
+      "method": "POST",
+      "path": "/api/v1/research-sessions/{session_id}/retry",
+      "handler": "apps.api.routes.research_sessions.retry_research_session",
+      "file": "apps/api/routes/research_sessions.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchSessionMutationResult]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "maturity": "checkpoint-retry"
+    },
+    {
+      "id": "http:research.research-sessions.delete-research-session:v1",
+      "version": "1.0",
+      "method": "DELETE",
+      "path": "/api/v1/research-sessions/{session_id}",
+      "handler": "apps.api.routes.research_sessions.delete_research_session",
+      "file": "apps/api/routes/research_sessions.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchSessionMutationResult]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "maturity": "inaccessible-now-purge-within-24h"
+    },
+    {
+      "id": "http:research.research-sessions-v2.search-instruments-v2:v2",
+      "version": "2.0",
+      "method": "GET",
+      "path": "/api/v2/instruments/search",
+      "handler": "apps.api.routes.research_sessions_v2.search_instruments_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.instruments.InstrumentSearchResult]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "authenticated-private-official-directory-a-share-pit-search"
+    },
+    {
+      "id": "http:research.research-sessions-v2.search-instrument-directory-v2:v2",
+      "version": "2.0",
+      "method": "GET",
+      "path": "/api/v2/instruments/directory-search",
+      "handler": "apps.api.routes.research_sessions_v2.search_instrument_directory_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.instruments.InstrumentSearchResultV1_1]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "authenticated-private-official-directory-a-share-pit-search-v1.1"
+    },
+    {
+      "id": "http:research.research-sessions-v2.create-research-session-v2:v2",
+      "version": "2.0",
+      "method": "POST",
+      "path": "/api/v2/research-sessions",
+      "handler": "apps.api.routes.research_sessions_v2.create_research_session_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchSessionAccepted]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-synthetic-transactional-outbox"
+    },
+    {
+      "id": "http:research.research-sessions-v2.list-research-skills-v2:v2",
+      "version": "2.0",
+      "method": "GET",
+      "path": "/api/v2/research-skills",
+      "handler": "apps.api.routes.research_sessions_v2.list_research_skills_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research_skills.ResearchSkillCatalog]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "project-owned-adapted-method-catalog"
+    },
+    {
+      "id": "http:research.research-sessions-v2.list-research-sessions-v2:v2",
+      "version": "2.1",
+      "method": "GET",
+      "path": "/api/v2/research-sessions",
+      "handler": "apps.api.routes.research_sessions_v2.list_research_sessions_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research_legacy_sessions.ResearchSessionPage]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-seven-day-postgresql-history"
+    },
+    {
+      "id": "http:research.research-sessions-v2.list-current-research-sessions-v2:v2",
+      "version": "2.1",
+      "method": "GET",
+      "path": "/api/v2/research-sessions-v2.0",
+      "handler": "apps.api.routes.research_sessions_v2.list_current_research_sessions_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchSessionPage]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-seven-day-postgresql-history"
+    },
+    {
+      "id": "http:research.research-sessions-v2.get-research-session-v2:v2",
+      "version": "2.1",
+      "method": "GET",
+      "path": "/api/v2/research-sessions/{session_id}",
+      "handler": "apps.api.routes.research_sessions_v2.get_research_session_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research_legacy_sessions.ResearchSessionView]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-postgresql-stage-heartbeat"
+    },
+    {
+      "id": "http:research.research-sessions-v2.get-current-research-session-v2:v2",
+      "version": "2.1",
+      "method": "GET",
+      "path": "/api/v2/research-sessions/{session_id}/view-v2.0",
+      "handler": "apps.api.routes.research_sessions_v2.get_current_research_session_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchSessionView]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-postgresql-stage-heartbeat"
+    },
+    {
+      "id": "http:research.research-sessions-v2.get-research-report-v2:v2",
+      "version": "2.0",
+      "method": "GET",
+      "path": "/api/v2/research-sessions/{session_id}/report",
+      "handler": "apps.api.routes.research_sessions_v2.get_research_report_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research_v1.ResearchReport]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-validated-complete-report-only"
+    },
+    {
+      "id": "http:research.research-sessions-v2.get-readable-research-report-v2:v2",
+      "version": "2.0",
+      "method": "GET",
+      "path": "/api/v2/research-sessions/{session_id}/report-v1.1",
+      "handler": "apps.api.routes.research_sessions_v2.get_readable_research_report_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchReportV1_1]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-retained-readable-report-v1.1"
+    },
+    {
+      "id": "http:research.research-sessions-v2.get-scored-research-report-v2:v2",
+      "version": "2.0",
+      "method": "GET",
+      "path": "/api/v2/research-sessions/{session_id}/report-v1.2",
+      "handler": "apps.api.routes.research_sessions_v2.get_scored_research_report_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchReportV1_2]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-scored-report-v1.2-with-explicit-scoring-basis"
+    },
+    {
+      "id": "http:research.research-sessions-v2.get-current-research-report-v2:v2",
+      "version": "2.0",
+      "method": "GET",
+      "path": "/api/v2/research-sessions/{session_id}/report-v2.0",
+      "handler": "apps.api.routes.research_sessions_v2.get_current_research_report_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchReportV2|stock_assistant.contracts.research.ResearchReportV1_2]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-jointly-verified-report-v2"
+    },
+    {
+      "id": "http:research.research-sessions-v2.cancel-research-session-v2:v2",
+      "version": "2.0",
+      "method": "POST",
+      "path": "/api/v2/research-sessions/{session_id}/cancel",
+      "handler": "apps.api.routes.research_sessions_v2.cancel_research_session_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchSessionMutationResult]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-idempotent-cancel"
+    },
+    {
+      "id": "http:research.research-sessions-v2.retry-research-session-v2:v2",
+      "version": "2.0",
+      "method": "POST",
+      "path": "/api/v2/research-sessions/{session_id}/retry",
+      "handler": "apps.api.routes.research_sessions_v2.retry_research_session_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchSessionMutationResult]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-checkpoint-retry"
+    },
+    {
+      "id": "http:research.research-sessions-v2.delete-research-session-v2:v2",
+      "version": "2.0",
+      "method": "DELETE",
+      "path": "/api/v2/research-sessions/{session_id}",
+      "handler": "apps.api.routes.research_sessions_v2.delete_research_session_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchSessionMutationResult]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-inaccessible-now-purge-within-24h"
+    },
+    {
+      "id": "http:system.health.live:v1",
+      "version": "1.0",
+      "method": "GET",
+      "path": "/api/v1/health/live",
+      "handler": "apps.api.routes.health.live",
+      "file": "apps/api/routes/health.py",
+      "response_contract": "stock_assistant.contracts.system.HealthResponse",
+      "status": "implemented",
+      "owner": "system",
+      "compatibility": "major-versioned"
+    },
+    {
+      "id": "http:system.health.ready:v1",
+      "version": "1.0",
+      "method": "GET",
+      "path": "/api/v1/health/ready",
+      "handler": "apps.api.routes.health.ready",
+      "file": "apps/api/routes/health.py",
+      "response_contract": "stock_assistant.contracts.system.HealthResponse",
+      "status": "implemented",
+      "owner": "system",
+      "compatibility": "major-versioned",
+      "maturity": "foundation-process-readiness"
+    },
+    {
+      "id": "http:system.meta.capabilities:v1",
+      "version": "1.0",
+      "method": "GET",
+      "path": "/api/v1/meta/capabilities",
+      "handler": "apps.api.routes.meta.capabilities",
+      "file": "apps/api/routes/meta.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.system.RuntimeCapabilities]",
+      "status": "implemented",
+      "owner": "system",
+      "compatibility": "major-versioned"
+    },
+    {
+      "id": "http:research.research-sessions-v2.get-real-research-report-v2:v2",
+      "version": "2.0",
+      "method": "GET",
+      "path": "/api/v2/research-sessions/{session_id}/report-v2.1",
+      "handler": "apps.api.routes.research_sessions_v2.get_real_research_report_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchReportV2_1|stock_assistant.contracts.research.ResearchReportV2|stock_assistant.contracts.research.ResearchReportV1_2]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-jointly-verified-report-v2"
+    },
+    {
+      "id": "http:research.research-sessions-v2.get-formal-research-report-v2:v2",
+      "version": "2.0",
+      "method": "GET",
+      "path": "/api/v2/research-sessions/{session_id}/report-v2.2",
+      "handler": "apps.api.routes.research_sessions_v2.get_formal_research_report_v2",
+      "file": "apps/api/routes/research_sessions_v2.py",
+      "response_contract": "stock_assistant.contracts.api.ApiResponse[stock_assistant.contracts.research.ResearchReportV2_2|stock_assistant.contracts.research.ResearchReportV2_1|stock_assistant.contracts.research.ResearchReportV2|stock_assistant.contracts.research.ResearchReportV1_2]",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "major-versioned",
+      "security": "oauth2-authorization-code-pkce",
+      "maturity": "owner-isolated-jointly-verified-report-v2"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task:policies.refresh:v1",
+      "version": "1.0",
+      "key": "policy_refresh",
+      "name": "stock_assistant.policies.refresh.v1",
+      "callable": "apps.worker.tasks.policy_refresh",
+      "file": "apps/worker/tasks.py",
+      "status": "implemented",
+      "owner": "policies",
+      "compatibility": "stable-name-v1",
+      "request_schema": "schema:jobs.policy-refresh-request:v1.0",
+      "result_schema": "schema:jobs.policy-refresh-result:v1.0",
+      "maturity": "stock-agnostic-synthetic-hourly-refresh"
+    },
+    {
+      "id": "task:ingestion.premarket-ingest:v1",
+      "version": "1.0",
+      "key": "premarket_ingest",
+      "name": "stock_assistant.ingestion.premarket_ingest.v1",
+      "callable": "apps.worker.tasks.premarket_ingest",
+      "file": "apps/worker/tasks.py",
+      "status": "implemented",
+      "owner": "ingestion",
+      "compatibility": "stable-name-v1",
+      "request_schema": "schema:jobs.premarket-ingest-request:v1.2",
+      "result_schema": "schema:jobs.premarket-ingest-result:v1.2",
+      "backward_compatible_request_schemas": [
+        "schema:jobs.premarket-ingest-request:v1.0",
+        "schema:jobs.premarket-ingest-request:v1.1"
+      ],
+      "backward_compatible_result_schemas": [
+        "schema:jobs.premarket-ingest-result:v1.0",
+        "schema:jobs.premarket-ingest-result:v1.1"
+      ]
+    },
+    {
+      "id": "task:briefings.premarket-generate:v1",
+      "version": "1.0",
+      "key": "premarket_brief",
+      "name": "stock_assistant.briefings.premarket_generate.v1",
+      "callable": "apps.worker.tasks.premarket_brief",
+      "file": "apps/worker/tasks.py",
+      "status": "implemented",
+      "owner": "briefings",
+      "compatibility": "stable-name-v1",
+      "request_schema": "schema:jobs.premarket-generate-request:v1.0",
+      "result_schema": "schema:jobs.premarket-generate-result:v1.0"
+    },
+    {
+      "id": "task:behavior.compute:v1",
+      "version": "1.0",
+      "key": "behavior_compute",
+      "name": "stock_assistant.behavior.compute.v1",
+      "callable": "apps.worker.tasks.behavior_compute",
+      "file": "apps/worker/tasks.py",
+      "status": "implemented",
+      "owner": "behavior",
+      "compatibility": "stable-name-v1",
+      "request_schema": "schema:jobs.behavior-compute-request:v1.0",
+      "result_schema": "schema:behavior.behavior-pressure-snapshot:v1.0"
+    },
+    {
+      "id": "task:sectors.quote-snapshot:v1",
+      "version": "1.0",
+      "key": "quote_snapshot",
+      "name": "stock_assistant.sectors.quote_snapshot.v1",
+      "callable": "apps.worker.tasks.quote_snapshot",
+      "file": "apps/worker/tasks.py",
+      "status": "registered_stub",
+      "stub_behavior": "fail_closed_disabled",
+      "owner": "sectors",
+      "compatibility": "stable-name-v1"
+    },
+    {
+      "id": "task:research.generate-report:v1",
+      "version": "1.1",
+      "key": "research_generate",
+      "name": "stock_assistant.research.generate_report.v1",
+      "callable": "apps.worker.tasks.research_generate_report",
+      "file": "apps/worker/tasks.py",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "stable-name-v1",
+      "request_schema": "schema:jobs.research-generate-request:v1.1",
+      "result_schema": "schema:jobs.research-generate-result:v1.0",
+      "backward_compatible_request_schemas": [
+        "schema:jobs.research-generate-request:v1.0"
+      ]
+    },
+    {
+      "id": "task:sectors.rotation-tick:v1",
+      "version": "1.0",
+      "key": "sector_rotation",
+      "name": "stock_assistant.sectors.rotation_tick.v1",
+      "callable": "apps.worker.tasks.sector_rotation_tick",
+      "file": "apps/worker/tasks.py",
+      "status": "registered_stub",
+      "stub_behavior": "fail_closed_disabled",
+      "owner": "sectors",
+      "compatibility": "stable-name-v1"
+    },
+    {
+      "id": "task:forecasting.observe-outcome:v1",
+      "version": "1.0",
+      "key": "postmarket_outcome",
+      "name": "stock_assistant.forecasting.observe_outcome.v1",
+      "callable": "apps.worker.tasks.postmarket_outcome",
+      "file": "apps/worker/tasks.py",
+      "status": "registered_stub",
+      "stub_behavior": "fail_closed_disabled",
+      "owner": "forecasting",
+      "compatibility": "stable-name-v1"
+    }
+  ],
+  "events": [
+    {
+      "id": "event:behavior.band-transition:v1",
+      "version": "1.0",
+      "name": "com.stockassistant.behavior.band_transition.v1",
+      "producer": "stock_assistant.modules.behavior.service.BehaviorPressureApplicationService.persist",
+      "file": "src/stock_assistant/modules/behavior/service.py",
+      "payload_schema": "schema:events.behavior-band-transition:v1.0",
+      "status": "implemented",
+      "owner": "behavior",
+      "compatibility": "stable-name-v1"
+    },
+    {
+      "id": "event:research.report.ready:v1",
+      "version": "1.0",
+      "name": "com.stockassistant.research.report.ready.v1",
+      "producer": "stock_assistant.platform.db.research.PostgresResearchRepository.save_report",
+      "file": "src/stock_assistant/platform/db/research.py",
+      "payload_schema": "schema:events.research-report-ready:v1.0",
+      "status": "implemented",
+      "owner": "research",
+      "compatibility": "stable-name-v1"
+    }
+  ],
+  "schemas": [
+    {
+      "id": "schema:briefings.briefing:v1.0",
+      "version": "1.0",
+      "path": "schemas/briefings/briefing.v1.0.schema.json",
+      "model": "stock_assistant.contracts.briefings.Briefing",
+      "status": "published",
+      "owner": "briefings",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:events.market-event:v1.0",
+      "version": "1.0",
+      "path": "schemas/events/market-event.v1.0.schema.json",
+      "model": "stock_assistant.contracts.events.MarketEvent",
+      "status": "published",
+      "owner": "events",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:jobs.policy-refresh-request:v1.0",
+      "version": "1.0",
+      "path": "schemas/jobs/policy-refresh-request.v1.0.schema.json",
+      "model": "stock_assistant.contracts.global_events.PolicyRefreshRequest",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:jobs.policy-refresh-result:v1.0",
+      "version": "1.0",
+      "path": "schemas/jobs/policy-refresh-result.v1.0.schema.json",
+      "model": "stock_assistant.contracts.global_events.PolicyRefreshResult",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:notifications.notification:v1.0",
+      "version": "1.0",
+      "path": "schemas/notifications/notification.v1.0.schema.json",
+      "model": "stock_assistant.contracts.notifications.Notification",
+      "status": "published",
+      "owner": "notifications",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:jobs.premarket-ingest-request:v1.0",
+      "version": "1.0",
+      "path": "schemas/jobs/premarket-ingest-request.v1.0.schema.json",
+      "model": "stock_assistant.contracts.premarket_jobs.PremarketIngestJobRequest",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:jobs.premarket-ingest-result:v1.0",
+      "version": "1.0",
+      "path": "schemas/jobs/premarket-ingest-result.v1.0.schema.json",
+      "model": "stock_assistant.contracts.premarket_jobs.PremarketIngestJobResult",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:jobs.premarket-generate-request:v1.0",
+      "version": "1.0",
+      "path": "schemas/jobs/premarket-generate-request.v1.0.schema.json",
+      "model": "stock_assistant.contracts.premarket_jobs.PremarketBriefJobRequest",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:jobs.premarket-generate-result:v1.0",
+      "version": "1.0",
+      "path": "schemas/jobs/premarket-generate-result.v1.0.schema.json",
+      "model": "stock_assistant.contracts.premarket_jobs.PremarketBriefJobResult",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:active-targets.selection-request:v1.0",
+      "version": "1.0",
+      "path": "schemas/active-targets/selection-request.v1.0.schema.json",
+      "model": "stock_assistant.contracts.active_targets.ActiveTargetSelectionRequest",
+      "status": "published",
+      "owner": "active-targets",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:active-targets.state:v1.0",
+      "version": "1.0",
+      "path": "schemas/active-targets/state.v1.0.schema.json",
+      "model": "stock_assistant.contracts.active_targets.ActiveTargetState",
+      "status": "published",
+      "owner": "active-targets",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:active-targets.mutation-result:v1.0",
+      "version": "1.0",
+      "path": "schemas/active-targets/mutation-result.v1.0.schema.json",
+      "model": "stock_assistant.contracts.active_targets.ActiveTargetMutationResult",
+      "status": "published",
+      "owner": "active-targets",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:briefings.premarket-view:v1.0",
+      "version": "1.0",
+      "path": "schemas/briefings/premarket-view.v1.0.schema.json",
+      "model": "stock_assistant.contracts.premarket_views.PremarketBriefingView",
+      "status": "published",
+      "owner": "briefings",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:events.event-evidence-view:v1.0",
+      "version": "1.0",
+      "path": "schemas/events/event-evidence-view.v1.0.schema.json",
+      "model": "stock_assistant.contracts.event_views.EventEvidenceView",
+      "status": "published",
+      "owner": "events",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:events.event-evidence-selector:v1.0",
+      "version": "1.0",
+      "path": "schemas/events/event-evidence-selector.v1.0.schema.json",
+      "model": "stock_assistant.contracts.event_views.EventEvidenceRevisionSelector",
+      "status": "published",
+      "owner": "events",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:ingestion.rights-check:v1.1",
+      "version": "1.1",
+      "path": "schemas/ingestion/rights-check.v1.1.schema.json",
+      "model": "stock_assistant.contracts.ingestion.RightsCheckV1_1",
+      "status": "published",
+      "owner": "ingestion",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:ingestion.rights-decision:v1.1",
+      "version": "1.1",
+      "path": "schemas/ingestion/rights-decision.v1.1.schema.json",
+      "model": "stock_assistant.contracts.ingestion.RightsDecisionV1_1",
+      "status": "published",
+      "owner": "ingestion",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:ingestion.source-provenance:v1.1",
+      "version": "1.1",
+      "path": "schemas/ingestion/source-provenance.v1.1.schema.json",
+      "model": "stock_assistant.contracts.ingestion.SourceProvenance",
+      "status": "published",
+      "owner": "ingestion",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:jobs.premarket-ingest-request:v1.1",
+      "version": "1.1",
+      "path": "schemas/jobs/premarket-ingest-request.v1.1.schema.json",
+      "model": "stock_assistant.contracts.premarket_jobs.PremarketIngestJobRequestV1_1",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:jobs.premarket-ingest-result:v1.1",
+      "version": "1.1",
+      "path": "schemas/jobs/premarket-ingest-result.v1.1.schema.json",
+      "model": "stock_assistant.contracts.premarket_jobs.PremarketIngestJobResultV1_1",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:briefings.premarket-view:v1.1",
+      "version": "1.1",
+      "path": "schemas/briefings/premarket-view.v1.1.schema.json",
+      "model": "stock_assistant.contracts.premarket_views.PremarketBriefingViewV1_1",
+      "status": "published",
+      "owner": "briefings",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:events.event-evidence-view:v1.1",
+      "version": "1.1",
+      "path": "schemas/events/event-evidence-view.v1.1.schema.json",
+      "model": "stock_assistant.contracts.event_views.EventEvidenceViewV1_1",
+      "status": "published",
+      "owner": "events",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:ingestion.source-provenance:v1.2",
+      "version": "1.2",
+      "path": "schemas/ingestion/source-provenance.v1.2.schema.json",
+      "model": "stock_assistant.contracts.ingestion.SourceProvenanceV1_2",
+      "status": "published",
+      "owner": "ingestion",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:jobs.premarket-ingest-request:v1.2",
+      "version": "1.2",
+      "path": "schemas/jobs/premarket-ingest-request.v1.2.schema.json",
+      "model": "stock_assistant.contracts.premarket_jobs.PremarketIngestJobRequestV1_2",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version",
+      "runtime_consumer_status": "implemented",
+      "runtime_consumer": "apps.worker.tasks.premarket_ingest"
+    },
+    {
+      "id": "schema:jobs.premarket-ingest-result:v1.2",
+      "version": "1.2",
+      "path": "schemas/jobs/premarket-ingest-result.v1.2.schema.json",
+      "model": "stock_assistant.contracts.premarket_jobs.PremarketIngestJobResultV1_2",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version",
+      "runtime_consumer_status": "implemented",
+      "runtime_consumer": "apps.worker.tasks.premarket_ingest"
+    },
+    {
+      "id": "schema:briefings.premarket-view:v1.2",
+      "version": "1.2",
+      "path": "schemas/briefings/premarket-view.v1.2.schema.json",
+      "model": "stock_assistant.contracts.premarket_views.PremarketBriefingViewV1_2",
+      "status": "published",
+      "owner": "briefings",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:briefings.premarket-view:v1.3",
+      "version": "1.3",
+      "path": "schemas/briefings/premarket-view.v1.3.schema.json",
+      "model": "stock_assistant.contracts.premarket_views.PremarketBriefingViewV1_3",
+      "status": "published",
+      "owner": "briefings",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:behavior.behavior-pressure-snapshot:v1.0",
+      "version": "1.0",
+      "path": "schemas/behavior/behavior-pressure-snapshot.v1.0.schema.json",
+      "model": "stock_assistant.contracts.behavior.BehaviorPressureSnapshotV1_0",
+      "status": "published",
+      "owner": "behavior",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:jobs.behavior-compute-request:v1.0",
+      "version": "1.0",
+      "path": "schemas/jobs/behavior-compute-request.v1.0.schema.json",
+      "model": "stock_assistant.contracts.behavior.BehaviorComputeRequest",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:events.behavior-band-transition:v1.0",
+      "version": "1.0",
+      "path": "schemas/events/behavior-band-transition.v1.0.schema.json",
+      "model": "stock_assistant.contracts.behavior.BehaviorBandTransitionV1",
+      "status": "published",
+      "owner": "events",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:events.event-evidence-view:v1.2",
+      "version": "1.2",
+      "path": "schemas/events/event-evidence-view.v1.2.schema.json",
+      "model": "stock_assistant.contracts.event_views.EventEvidenceViewV1_2",
+      "status": "published",
+      "owner": "events",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:public-snapshots.pointer:v1.0",
+      "version": "1.0",
+      "path": "schemas/public-snapshots/pointer.v1.0.schema.json",
+      "model": "stock_assistant.contracts.public_snapshots.PublicSnapshotPointerV1",
+      "status": "published",
+      "owner": "public-snapshots",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:public-snapshots.manifest:v1.1",
+      "version": "1.1",
+      "path": "schemas/public-snapshots/manifest.v1.1.schema.json",
+      "model": "stock_assistant.contracts.public_snapshots.PublicSnapshotManifestV1_1",
+      "status": "published",
+      "owner": "public-snapshots",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:public-snapshots.evidence-index:v1.0",
+      "version": "1.0",
+      "path": "schemas/public-snapshots/evidence-index.v1.0.schema.json",
+      "model": "stock_assistant.contracts.public_snapshots.PublicEvidenceIndexV1",
+      "status": "published",
+      "owner": "public-snapshots",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:public-snapshots.run-status:v1.0",
+      "version": "1.0",
+      "path": "schemas/public-snapshots/run-status.v1.0.schema.json",
+      "model": "stock_assistant.contracts.public_snapshots.PublicRunStatusV1",
+      "status": "published",
+      "owner": "public-snapshots",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:public-snapshots.run-status:v1.1",
+      "version": "1.1",
+      "path": "schemas/public-snapshots/run-status.v1.1.schema.json",
+      "model": "stock_assistant.contracts.public_snapshots.PublicRunStatusV1_1",
+      "status": "published",
+      "owner": "public-snapshots",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:instruments.search-result:v1.0",
+      "version": "1.0",
+      "path": "schemas/instruments/search-result.v1.0.schema.json",
+      "model": "stock_assistant.contracts.instruments.InstrumentSearchResult",
+      "status": "published",
+      "owner": "instruments",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:instruments.search-result:v1.1",
+      "version": "1.1",
+      "path": "schemas/instruments/search-result.v1.1.schema.json",
+      "model": "stock_assistant.contracts.instruments.InstrumentSearchResultV1_1",
+      "status": "published",
+      "owner": "instruments",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:jobs.research-generate-request:v1.0",
+      "version": "1.0",
+      "path": "schemas/jobs/research-generate-request.v1.0.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchGenerateRequest",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:jobs.research-generate-request:v1.1",
+      "version": "1.1",
+      "path": "schemas/jobs/research-generate-request.v1.1.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchGenerateRequestV1_1",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:jobs.research-generate-result:v1.0",
+      "version": "1.0",
+      "path": "schemas/jobs/research-generate-result.v1.0.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchGenerateResult",
+      "status": "published",
+      "owner": "jobs",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:events.research-report-ready:v1.0",
+      "version": "1.0",
+      "path": "schemas/events/research-report-ready.v1.0.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchReportReadyV1",
+      "status": "published",
+      "owner": "events",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:research.report:v1.0",
+      "version": "1.0",
+      "path": "schemas/research/report.v1.0.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchReport",
+      "status": "published",
+      "owner": "research",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:research.report:v1.1",
+      "version": "1.1",
+      "path": "schemas/research/report.v1.1.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchReportV1_1",
+      "status": "published",
+      "owner": "research",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:research.report:v1.2",
+      "version": "1.2",
+      "path": "schemas/research/report.v1.2.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchReportV1_2",
+      "status": "published",
+      "owner": "research",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:research.report:v2.0",
+      "version": "2.0",
+      "path": "schemas/research/report.v2.0.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchReportV2",
+      "status": "published",
+      "owner": "research",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:security.runtime-web-config:v1.0",
+      "version": "1.0",
+      "path": "schemas/security/runtime-web-config.v1.0.schema.json",
+      "model": "stock_assistant.contracts.security.RuntimeWebConfig",
+      "status": "published",
+      "owner": "security",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:research.report:v2.1",
+      "version": "2.1",
+      "path": "schemas/research/report.v2.1.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchReportV2_1",
+      "status": "published",
+      "owner": "research",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:security.runtime-web-config:v1.1",
+      "version": "1.1",
+      "path": "schemas/security/runtime-web-config.v1.1.schema.json",
+      "model": "stock_assistant.contracts.security.RuntimeRealWebConfig",
+      "status": "published",
+      "owner": "security",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:discovery.result:v1.2",
+      "version": "1.2",
+      "path": "schemas/discovery/result.v1.2.schema.json",
+      "model": "stock_assistant.contracts.discovery.SourceDiscoveryResult",
+      "status": "published",
+      "owner": "discovery",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:research.acquisition-state:v1.2",
+      "version": "1.2",
+      "path": "schemas/research/acquisition-state.v1.2.schema.json",
+      "model": "stock_assistant.contracts.discovery.ResearchAcquisitionState",
+      "status": "published",
+      "owner": "research",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:research.checkpoint:v1.8",
+      "version": "1.8",
+      "path": "schemas/research/checkpoint.v1.8.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchCheckpoint",
+      "status": "published",
+      "owner": "research",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:discovery.result:v1.3",
+      "version": "1.3",
+      "path": "schemas/discovery/result.v1.3.schema.json",
+      "model": "stock_assistant.contracts.discovery.SourceDiscoveryResult",
+      "status": "published",
+      "owner": "discovery",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:research.acquisition-state:v1.3",
+      "version": "1.3",
+      "path": "schemas/research/acquisition-state.v1.3.schema.json",
+      "model": "stock_assistant.contracts.discovery.ResearchAcquisitionState",
+      "status": "published",
+      "owner": "research",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:research.checkpoint:v1.9",
+      "version": "1.9",
+      "path": "schemas/research/checkpoint.v1.9.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchCheckpoint",
+      "status": "published",
+      "owner": "research",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:research.report:v2.2",
+      "version": "2.2",
+      "path": "schemas/research/report.v2.2.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchReportV2_2",
+      "status": "published",
+      "owner": "research",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:research.packet:v1.1",
+      "version": "1.1",
+      "path": "schemas/research/packet.v1.1.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchEvidencePacket",
+      "status": "published",
+      "owner": "research",
+      "compatibility": "immutable-version"
+    },
+    {
+      "id": "schema:research.available-result:v2.1",
+      "version": "2.1",
+      "path": "schemas/research/available-result.v2.1.schema.json",
+      "model": "stock_assistant.contracts.research.ResearchAvailableResult",
+      "status": "published",
+      "owner": "research",
+      "compatibility": "immutable-version"
+    }
+  ],
+  "ports": [
+    {
+      "id": "port:base.lifecycle:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.base.LifecyclePort",
+      "file": "src/stock_assistant/ports/base.py",
+      "status": "declared",
+      "owner": "base",
+      "compatibility": "source-compatible-minor",
+      "direction": "lifecycle_utility"
+    },
+    {
+      "id": "port:base.health-check:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.base.HealthCheckPort",
+      "file": "src/stock_assistant/ports/base.py",
+      "status": "declared",
+      "owner": "base",
+      "compatibility": "source-compatible-minor",
+      "direction": "lifecycle_utility"
+    },
+    {
+      "id": "port:base.capability-discovery:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.base.CapabilityDiscoveryPort",
+      "file": "src/stock_assistant/ports/base.py",
+      "status": "declared",
+      "owner": "base",
+      "compatibility": "source-compatible-minor",
+      "direction": "lifecycle_utility"
+    },
+    {
+      "id": "port:briefings.briefing-generator:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.briefings.BriefingGeneratorPort",
+      "file": "src/stock_assistant/ports/briefings.py",
+      "status": "declared",
+      "owner": "briefings",
+      "compatibility": "source-compatible-minor",
+      "direction": "inbound_use_case"
+    },
+    {
+      "id": "port:briefings.briefing-validation:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.briefings.BriefingValidationPort",
+      "file": "src/stock_assistant/ports/briefings.py",
+      "status": "declared",
+      "owner": "briefings",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:briefings.briefing-repository:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.briefings.BriefingRepositoryPort",
+      "file": "src/stock_assistant/ports/briefings.py",
+      "status": "declared",
+      "owner": "briefings",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:chat.chat-intent-classifier:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.chat.ChatIntentClassifierPort",
+      "file": "src/stock_assistant/ports/chat.py",
+      "status": "declared",
+      "owner": "chat",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:chat.chat-evidence-retrieval:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.chat.ChatEvidenceRetrievalPort",
+      "file": "src/stock_assistant/ports/chat.py",
+      "status": "declared",
+      "owner": "chat",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:chat.chat-grounding:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.chat.ChatGroundingPort",
+      "file": "src/stock_assistant/ports/chat.py",
+      "status": "declared",
+      "owner": "chat",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:chat.chat-agent:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.chat.ChatAgentPort",
+      "file": "src/stock_assistant/ports/chat.py",
+      "status": "declared",
+      "owner": "chat",
+      "compatibility": "source-compatible-minor",
+      "direction": "inbound_use_case"
+    },
+    {
+      "id": "port:chat.chat-history:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.chat.ChatHistoryPort",
+      "file": "src/stock_assistant/ports/chat.py",
+      "status": "declared",
+      "owner": "chat",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:content.content-normalization:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.content.ContentNormalizationPort",
+      "file": "src/stock_assistant/ports/content.py",
+      "status": "declared",
+      "owner": "content",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:events.event-extraction:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.events.EventExtractionPort",
+      "file": "src/stock_assistant/ports/events.py",
+      "status": "declared",
+      "owner": "events",
+      "compatibility": "source-compatible-minor",
+      "direction": "inbound_use_case"
+    },
+    {
+      "id": "port:events.event-validation:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.events.EventValidationPort",
+      "file": "src/stock_assistant/ports/events.py",
+      "status": "declared",
+      "owner": "events",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:events.event-revision:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.events.EventRevisionPort",
+      "file": "src/stock_assistant/ports/events.py",
+      "status": "declared",
+      "owner": "events",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:forecasting.quantitative-forecast:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.forecasting.QuantitativeForecastPort",
+      "file": "src/stock_assistant/ports/forecasting.py",
+      "status": "declared",
+      "owner": "forecasting",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:forecasting.text-signal:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.forecasting.TextSignalPort",
+      "file": "src/stock_assistant/ports/forecasting.py",
+      "status": "declared",
+      "owner": "forecasting",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:forecasting.forecast-fusion:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.forecasting.ForecastFusionPort",
+      "file": "src/stock_assistant/ports/forecasting.py",
+      "status": "declared",
+      "owner": "forecasting",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:forecasting.forecast-outcome:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.forecasting.ForecastOutcomePort",
+      "file": "src/stock_assistant/ports/forecasting.py",
+      "status": "declared",
+      "owner": "forecasting",
+      "compatibility": "source-compatible-minor",
+      "direction": "inbound_use_case"
+    },
+    {
+      "id": "port:infrastructure.object-store:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.infrastructure.ObjectStorePort",
+      "file": "src/stock_assistant/ports/infrastructure.py",
+      "status": "declared",
+      "owner": "infrastructure",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:infrastructure.cache:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.infrastructure.CachePort",
+      "file": "src/stock_assistant/ports/infrastructure.py",
+      "status": "declared",
+      "owner": "infrastructure",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:infrastructure.distributed-lock:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.infrastructure.DistributedLockPort",
+      "file": "src/stock_assistant/ports/infrastructure.py",
+      "status": "declared",
+      "owner": "infrastructure",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:infrastructure.clock:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.infrastructure.ClockPort",
+      "file": "src/stock_assistant/ports/infrastructure.py",
+      "status": "declared",
+      "owner": "infrastructure",
+      "compatibility": "source-compatible-minor",
+      "direction": "lifecycle_utility"
+    },
+    {
+      "id": "port:infrastructure.identifier:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.infrastructure.IdentifierPort",
+      "file": "src/stock_assistant/ports/infrastructure.py",
+      "status": "declared",
+      "owner": "infrastructure",
+      "compatibility": "source-compatible-minor",
+      "direction": "lifecycle_utility"
+    },
+    {
+      "id": "port:ingestion.source-connector:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.ingestion.SourceConnectorPort",
+      "file": "src/stock_assistant/ports/ingestion.py",
+      "status": "declared",
+      "owner": "ingestion",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:ingestion.source-registry:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.ingestion.SourceRegistryPort",
+      "file": "src/stock_assistant/ports/ingestion.py",
+      "status": "declared",
+      "owner": "ingestion",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:ingestion.rights-policy:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.ingestion.RightsPolicyPort",
+      "file": "src/stock_assistant/ports/ingestion.py",
+      "status": "declared",
+      "owner": "ingestion",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:instruments.instrument-master-data:v1.1",
+      "version": "1.1",
+      "symbol": "stock_assistant.ports.instruments.InstrumentMasterDataPort",
+      "file": "src/stock_assistant/ports/instruments.py",
+      "status": "declared",
+      "owner": "instruments",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:instruments.instrument-master-data-v2:v2.0",
+      "version": "2.0",
+      "symbol": "stock_assistant.ports.instruments.InstrumentMasterDataV2Port",
+      "file": "src/stock_assistant/ports/instruments.py",
+      "status": "declared",
+      "owner": "instruments",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:intelligence.llm-provider:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.intelligence.LLMProviderPort",
+      "file": "src/stock_assistant/ports/intelligence.py",
+      "status": "declared",
+      "owner": "intelligence",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:intelligence.embedding-provider:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.intelligence.EmbeddingProviderPort",
+      "file": "src/stock_assistant/ports/intelligence.py",
+      "status": "declared",
+      "owner": "intelligence",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:intelligence.reranker:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.intelligence.RerankerPort",
+      "file": "src/stock_assistant/ports/intelligence.py",
+      "status": "declared",
+      "owner": "intelligence",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:memory.short-term-memory:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.memory.ShortTermMemoryPort",
+      "file": "src/stock_assistant/ports/memory.py",
+      "status": "declared",
+      "owner": "memory",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:memory.episodic-memory:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.memory.EpisodicMemoryPort",
+      "file": "src/stock_assistant/ports/memory.py",
+      "status": "declared",
+      "owner": "memory",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:memory.semantic-memory:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.memory.SemanticMemoryPort",
+      "file": "src/stock_assistant/ports/memory.py",
+      "status": "declared",
+      "owner": "memory",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:memory.memory-comparison:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.memory.MemoryComparisonPort",
+      "file": "src/stock_assistant/ports/memory.py",
+      "status": "declared",
+      "owner": "memory",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:messaging.message-publisher:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.messaging.MessagePublisherPort",
+      "file": "src/stock_assistant/ports/messaging.py",
+      "status": "declared",
+      "owner": "messaging",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:messaging.message-consumer:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.messaging.MessageConsumerPort",
+      "file": "src/stock_assistant/ports/messaging.py",
+      "status": "declared",
+      "owner": "messaging",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:messaging.notification-delivery:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.messaging.NotificationDeliveryPort",
+      "file": "src/stock_assistant/ports/messaging.py",
+      "status": "declared",
+      "owner": "messaging",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:models.training-dataset-registry:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.models.TrainingDatasetRegistryPort",
+      "file": "src/stock_assistant/ports/models.py",
+      "status": "declared",
+      "owner": "models",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:models.lora-training:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.models.LoRATrainingPort",
+      "file": "src/stock_assistant/ports/models.py",
+      "status": "declared",
+      "owner": "models",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:models.model-registry:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.models.ModelRegistryPort",
+      "file": "src/stock_assistant/ports/models.py",
+      "status": "declared",
+      "owner": "models",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:persistence.unit-of-work:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.persistence.UnitOfWorkPort",
+      "file": "src/stock_assistant/ports/persistence.py",
+      "status": "declared",
+      "owner": "persistence",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:persistence.market-event-repository:v1.1",
+      "version": "1.1",
+      "symbol": "stock_assistant.ports.persistence.MarketEventRepositoryPort",
+      "file": "src/stock_assistant/ports/persistence.py",
+      "status": "declared",
+      "owner": "persistence",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency",
+      "adapter": "stock_assistant.platform.db.market_events.PostgresMarketEventRepository",
+      "adapter_maturity": "implemented_and_integration_tested",
+      "backward_compatible_contracts": [
+        "stock_assistant.contracts.persistence.MarketEventQuery"
+      ]
+    },
+    {
+      "id": "port:persistence.market-data-repository:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.persistence.MarketDataRepositoryPort",
+      "file": "src/stock_assistant/ports/persistence.py",
+      "status": "declared",
+      "owner": "persistence",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:persistence.behavior-pressure-repository:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.persistence.BehaviorPressureRepositoryPort",
+      "file": "src/stock_assistant/ports/persistence.py",
+      "status": "declared",
+      "owner": "persistence",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:persistence.portfolio-repository:v1.1",
+      "version": "1.1",
+      "symbol": "stock_assistant.ports.persistence.PortfolioRepositoryPort",
+      "file": "src/stock_assistant/ports/persistence.py",
+      "status": "declared",
+      "owner": "persistence",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency",
+      "signature_status": "frozen"
+    },
+    {
+      "id": "port:policies.policy-search:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.policies.PolicySearchPort",
+      "file": "src/stock_assistant/ports/policies.py",
+      "status": "declared",
+      "owner": "policies",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:policies.policy-matching:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.policies.PolicyMatchingPort",
+      "file": "src/stock_assistant/ports/policies.py",
+      "status": "declared",
+      "owner": "policies",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:quality.content-quality:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.quality.ContentQualityPort",
+      "file": "src/stock_assistant/ports/quality.py",
+      "status": "declared",
+      "owner": "quality",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:scheduling.job-dispatcher:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.scheduling.JobDispatcherPort",
+      "file": "src/stock_assistant/ports/scheduling.py",
+      "status": "declared",
+      "owner": "scheduling",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:research.research-repository:v1.2",
+      "version": "1.2",
+      "symbol": "stock_assistant.ports.research.ResearchRepositoryPort",
+      "file": "src/stock_assistant/ports/research.py",
+      "status": "declared",
+      "owner": "research",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency",
+      "maturity": "postgresql-cutoff-mode-checkpoint-1.8-original-document-windows-durable-audit-reservations-summary-context-stable-item-patch-support-3.2-from-leaf-wire-4.0-and-atomic-report-publication"
+    },
+    {
+      "id": "port:discovery.source-discovery:v1.2",
+      "version": "1.2",
+      "symbol": "stock_assistant.ports.discovery.SourceDiscoveryPort",
+      "file": "src/stock_assistant/ports/discovery.py",
+      "status": "declared",
+      "owner": "discovery",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency",
+      "maturity": "typed-discovery-1.2-origin-scoped-robots-stop"
+    },
+    {
+      "id": "port:discovery.research-web-retrieval-receipt-repository:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.discovery.ResearchWebRetrievalReceiptRepositoryPort",
+      "file": "src/stock_assistant/ports/discovery.py",
+      "status": "declared",
+      "owner": "discovery",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency",
+      "maturity": "postgresql-hash-only-seven-day-receipts"
+    },
+    {
+      "id": "port:scheduling.scheduler:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.scheduling.SchedulerPort",
+      "file": "src/stock_assistant/ports/scheduling.py",
+      "status": "declared",
+      "owner": "scheduling",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:sectors.trading-calendar:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.sectors.TradingCalendarPort",
+      "file": "src/stock_assistant/ports/sectors.py",
+      "status": "declared",
+      "owner": "sectors",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:sectors.market-quote:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.sectors.MarketQuotePort",
+      "file": "src/stock_assistant/ports/sectors.py",
+      "status": "declared",
+      "owner": "sectors",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:sectors.sector-catalog:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.sectors.SectorCatalogPort",
+      "file": "src/stock_assistant/ports/sectors.py",
+      "status": "declared",
+      "owner": "sectors",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:sectors.sector-heat:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.sectors.SectorHeatPort",
+      "file": "src/stock_assistant/ports/sectors.py",
+      "status": "declared",
+      "owner": "sectors",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:sectors.fair-sector-rotation:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.sectors.FairSectorRotationPort",
+      "file": "src/stock_assistant/ports/sectors.py",
+      "status": "declared",
+      "owner": "sectors",
+      "compatibility": "source-compatible-minor",
+      "direction": "inbound_use_case"
+    },
+    {
+      "id": "port:sectors.sector-visit-state:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.sectors.SectorVisitStatePort",
+      "file": "src/stock_assistant/ports/sectors.py",
+      "status": "declared",
+      "owner": "sectors",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:security.authorization:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.security.AuthorizationPort",
+      "file": "src/stock_assistant/ports/security.py",
+      "status": "declared",
+      "owner": "security",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:security.authorization-identity:v1.1",
+      "version": "1.1",
+      "symbol": "stock_assistant.ports.security.AuthorizationIdentityPort",
+      "file": "src/stock_assistant/ports/security.py",
+      "status": "declared",
+      "owner": "security",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency",
+      "maturity": "cognito-rs256-adapter-implemented"
+    },
+    {
+      "id": "port:security.audit-sink:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.security.AuditSinkPort",
+      "file": "src/stock_assistant/ports/security.py",
+      "status": "declared",
+      "owner": "security",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:security.redaction:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.security.RedactionPort",
+      "file": "src/stock_assistant/ports/security.py",
+      "status": "declared",
+      "owner": "security",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    },
+    {
+      "id": "port:security.secret-provider:v1.0",
+      "version": "1.0",
+      "symbol": "stock_assistant.ports.security.SecretProviderPort",
+      "file": "src/stock_assistant/ports/security.py",
+      "status": "declared",
+      "owner": "security",
+      "compatibility": "source-compatible-minor",
+      "direction": "outbound_dependency"
+    }
+  ]
+}

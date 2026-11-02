@@ -1,0 +1,972 @@
+{
+  "$defs": {
+    "BriefingChangeType": {
+      "enum": [
+        "new",
+        "update",
+        "correction",
+        "contradiction"
+      ],
+      "title": "BriefingChangeType",
+      "type": "string"
+    },
+    "DecimalFactValue": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "decimal",
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$",
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "value"
+      ],
+      "title": "DecimalFactValue",
+      "type": "object"
+    },
+    "EventEvidenceSourceV1_1": {
+      "additionalProperties": false,
+      "description": "R1 1.1 evidence metadata with event time and provider lineage.",
+      "properties": {
+        "content_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "correction_relation": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "replacement": "#/$defs/ReplacementEvidenceRelation",
+                  "retraction": "#/$defs/RetractionEvidenceRelation"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/ReplacementEvidenceRelation"
+                },
+                {
+                  "$ref": "#/$defs/RetractionEvidenceRelation"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Correction Relation"
+        },
+        "event_time": {
+          "format": "date-time",
+          "title": "Event Time",
+          "type": "string"
+        },
+        "evidence_id": {
+          "format": "uuid",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "fetched_at": {
+          "format": "date-time",
+          "title": "Fetched At",
+          "type": "string"
+        },
+        "first_seen_at": {
+          "format": "date-time",
+          "title": "First Seen At",
+          "type": "string"
+        },
+        "license_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "License Id",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/SourceProvenance"
+        },
+        "published_at": {
+          "format": "date-time",
+          "title": "Published At",
+          "type": "string"
+        },
+        "revision_known_at": {
+          "format": "date-time",
+          "title": "Revision Known At",
+          "type": "string"
+        },
+        "rights_snapshot_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Rights Snapshot Hash",
+          "type": "string"
+        },
+        "source_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_role": {
+          "$ref": "#/$defs/SourceRole"
+        },
+        "source_url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Source Url",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "source_id",
+        "source_role",
+        "source_url",
+        "title",
+        "published_at",
+        "first_seen_at",
+        "fetched_at",
+        "revision_known_at",
+        "content_sha256",
+        "license_id",
+        "rights_snapshot_hash",
+        "event_time",
+        "provenance"
+      ],
+      "title": "EventEvidenceSourceV1_1",
+      "type": "object",
+      "x-runtime-invariants": [
+        "event_time is not later than first_seen_at"
+      ]
+    },
+    "EventFactSlot": {
+      "additionalProperties": false,
+      "description": "One normalized fact value with explicit evidence support.",
+      "properties": {
+        "evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 50,
+          "minItems": 1,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
+        },
+        "slot": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Slot",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "value": {
+          "discriminator": {
+            "mapping": {
+              "decimal": "#/$defs/DecimalFactValue",
+              "text": "#/$defs/TextFactValue"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/TextFactValue"
+            },
+            {
+              "$ref": "#/$defs/DecimalFactValue"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "slot",
+        "value",
+        "evidence_ids"
+      ],
+      "title": "EventFactSlot",
+      "type": "object",
+      "x-runtime-invariants": [
+        "evidence_ids entries are unique"
+      ]
+    },
+    "EventRevisionTimeline": {
+      "additionalProperties": false,
+      "description": "A descending, bounded page of revision identities.",
+      "properties": {
+        "before_revision": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Before Revision"
+        },
+        "has_older": {
+          "title": "Has Older",
+          "type": "boolean"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/EventRevisionTimelineItem"
+          },
+          "maxItems": 50,
+          "title": "Items",
+          "type": "array"
+        },
+        "next_before_revision": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Next Before Revision"
+        }
+      },
+      "required": [
+        "has_older"
+      ],
+      "title": "EventRevisionTimeline",
+      "type": "object",
+      "x-runtime-invariants": [
+        "items revisions are unique and strictly descending",
+        "before_revision=null is the first page and must not be empty",
+        "continuation page items have revision < before_revision",
+        "an empty page is permitted only for before_revision=1 termination",
+        "has_older=true requires next_before_revision to equal the oldest returned revision and to be greater than 1",
+        "has_older=false requires next_before_revision=null"
+      ]
+    },
+    "EventRevisionTimelineItem": {
+      "additionalProperties": false,
+      "description": "One immutable revision identity safe to expose in the evidence timeline.",
+      "properties": {
+        "audit_id": {
+          "format": "uuid",
+          "title": "Audit Id",
+          "type": "string"
+        },
+        "change_type": {
+          "$ref": "#/$defs/BriefingChangeType"
+        },
+        "extraction_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Extraction Version",
+          "type": "string"
+        },
+        "revision": {
+          "minimum": 1,
+          "title": "Revision",
+          "type": "integer"
+        },
+        "revision_known_at": {
+          "format": "date-time",
+          "title": "Revision Known At",
+          "type": "string"
+        },
+        "ruleset_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Ruleset Version",
+          "type": "string"
+        },
+        "supersedes_revision": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Supersedes Revision"
+        }
+      },
+      "required": [
+        "revision",
+        "change_type",
+        "revision_known_at",
+        "extraction_version",
+        "ruleset_version",
+        "audit_id"
+      ],
+      "title": "EventRevisionTimelineItem",
+      "type": "object"
+    },
+    "ReplacementCorrection": {
+      "additionalProperties": false,
+      "description": "Directional old-to-new fact replacement with evidence on both sides.",
+      "properties": {
+        "current_evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 50,
+          "minItems": 1,
+          "title": "Current Evidence Ids",
+          "type": "array"
+        },
+        "current_value": {
+          "discriminator": {
+            "mapping": {
+              "decimal": "#/$defs/DecimalFactValue",
+              "text": "#/$defs/TextFactValue"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/TextFactValue"
+            },
+            {
+              "$ref": "#/$defs/DecimalFactValue"
+            }
+          ],
+          "title": "Current Value"
+        },
+        "kind": {
+          "const": "replacement",
+          "title": "Kind",
+          "type": "string"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
+        },
+        "previous_evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 50,
+          "minItems": 1,
+          "title": "Previous Evidence Ids",
+          "type": "array"
+        },
+        "previous_value": {
+          "discriminator": {
+            "mapping": {
+              "decimal": "#/$defs/DecimalFactValue",
+              "text": "#/$defs/TextFactValue"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/TextFactValue"
+            },
+            {
+              "$ref": "#/$defs/DecimalFactValue"
+            }
+          ],
+          "title": "Previous Value"
+        },
+        "slot": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Slot",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "kind",
+        "slot",
+        "previous_value",
+        "current_value",
+        "previous_evidence_ids",
+        "current_evidence_ids"
+      ],
+      "title": "ReplacementCorrection",
+      "type": "object"
+    },
+    "ReplacementEvidenceRelation": {
+      "additionalProperties": false,
+      "description": "A current evidence record explicitly replaces a prior record.",
+      "properties": {
+        "kind": {
+          "const": "replacement",
+          "title": "Kind",
+          "type": "string"
+        },
+        "prior_evidence_id": {
+          "format": "uuid",
+          "title": "Prior Evidence Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "prior_evidence_id"
+      ],
+      "title": "ReplacementEvidenceRelation",
+      "type": "object"
+    },
+    "RetractionCorrection": {
+      "additionalProperties": false,
+      "description": "Directional retraction with prior-value and retraction-notice evidence.",
+      "properties": {
+        "current_evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 50,
+          "minItems": 1,
+          "title": "Current Evidence Ids",
+          "type": "array"
+        },
+        "current_value": {
+          "const": null,
+          "default": null,
+          "title": "Current Value",
+          "type": "null"
+        },
+        "kind": {
+          "const": "retraction",
+          "title": "Kind",
+          "type": "string"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
+        },
+        "previous_evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 50,
+          "minItems": 1,
+          "title": "Previous Evidence Ids",
+          "type": "array"
+        },
+        "previous_value": {
+          "discriminator": {
+            "mapping": {
+              "decimal": "#/$defs/DecimalFactValue",
+              "text": "#/$defs/TextFactValue"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/TextFactValue"
+            },
+            {
+              "$ref": "#/$defs/DecimalFactValue"
+            }
+          ],
+          "title": "Previous Value"
+        },
+        "slot": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Slot",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "kind",
+        "slot",
+        "previous_value",
+        "previous_evidence_ids",
+        "current_evidence_ids"
+      ],
+      "title": "RetractionCorrection",
+      "type": "object"
+    },
+    "RetractionEvidenceRelation": {
+      "additionalProperties": false,
+      "description": "A current evidence record explicitly retracts a prior record.",
+      "properties": {
+        "kind": {
+          "const": "retraction",
+          "title": "Kind",
+          "type": "string"
+        },
+        "prior_evidence_id": {
+          "format": "uuid",
+          "title": "Prior Evidence Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "prior_evidence_id"
+      ],
+      "title": "RetractionEvidenceRelation",
+      "type": "object"
+    },
+    "SourceAccessChannel": {
+      "description": "Auditable access channel used to obtain one source record.",
+      "enum": [
+        "demo_replay",
+        "akshare",
+        "official_http",
+        "authorized_api"
+      ],
+      "title": "SourceAccessChannel",
+      "type": "string"
+    },
+    "SourceProvenance": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "demo_replay"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "demo_replay"
+              },
+              "release_tier": {
+                "const": "dev_only"
+              },
+              "rights_status": {
+                "not": {
+                  "const": "approved"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "dev_live"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "akshare"
+              },
+              "release_tier": {
+                "const": "dev_only"
+              },
+              "rights_status": {
+                "const": "unverified"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "runtime_mode": {
+                "const": "authorized"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "access_channel": {
+                "const": "authorized_api"
+              },
+              "release_tier": {
+                "const": "authorized"
+              },
+              "rights_status": {
+                "const": "approved"
+              }
+            }
+          }
+        }
+      ],
+      "description": "Stable source lineage shared by ingestion, storage and public read models.",
+      "properties": {
+        "access_channel": {
+          "$ref": "#/$defs/SourceAccessChannel"
+        },
+        "adapter_name": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Adapter Name",
+          "type": "string"
+        },
+        "adapter_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Adapter Version",
+          "type": "string"
+        },
+        "endpoint_name": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,199}$",
+          "title": "Endpoint Name",
+          "type": "string"
+        },
+        "provider": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+          "title": "Provider",
+          "type": "string"
+        },
+        "release_tier": {
+          "$ref": "#/$defs/SourceReleaseTier"
+        },
+        "rights_status": {
+          "$ref": "#/$defs/SourceRightsStatus"
+        },
+        "runtime_mode": {
+          "$ref": "#/$defs/SourceRuntimeMode"
+        },
+        "schema_version": {
+          "const": "1.1",
+          "default": "1.1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_identifier": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Source Identifier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "provider",
+        "access_channel",
+        "adapter_name",
+        "adapter_version",
+        "endpoint_name",
+        "source_identifier",
+        "runtime_mode",
+        "release_tier",
+        "rights_status"
+      ],
+      "title": "SourceProvenance",
+      "type": "object",
+      "x-runtime-invariants": [
+        "runtime_mode determines access_channel, release_tier, and rights_status"
+      ]
+    },
+    "SourceReleaseTier": {
+      "description": "Whether a source result may leave development-only surfaces.",
+      "enum": [
+        "dev_only",
+        "authorized"
+      ],
+      "title": "SourceReleaseTier",
+      "type": "string"
+    },
+    "SourceRightsStatus": {
+      "description": "Publicly safe rights state without exposing contract evidence.",
+      "enum": [
+        "unverified",
+        "approved",
+        "blocked"
+      ],
+      "title": "SourceRightsStatus",
+      "type": "string"
+    },
+    "SourceRole": {
+      "description": "Permitted public source roles.",
+      "enum": [
+        "statutory",
+        "professional_market",
+        "professional_information",
+        "discovery"
+      ],
+      "title": "SourceRole",
+      "type": "string"
+    },
+    "SourceRuntimeMode": {
+      "description": "Mutually exclusive R1 source execution modes.",
+      "enum": [
+        "demo_replay",
+        "dev_live",
+        "authorized"
+      ],
+      "title": "SourceRuntimeMode",
+      "type": "string"
+    },
+    "TextFactValue": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "text",
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "value"
+      ],
+      "title": "TextFactValue",
+      "type": "object"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/events/event-evidence-view.v1.1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "R1 1.1 evidence response with a single explicit runtime mode.",
+  "properties": {
+    "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+    },
+    "audit_id": {
+      "format": "uuid",
+      "title": "Audit Id",
+      "type": "string"
+    },
+    "change_type": {
+      "$ref": "#/$defs/BriefingChangeType"
+    },
+    "cluster_id": {
+      "format": "uuid",
+      "title": "Cluster Id",
+      "type": "string"
+    },
+    "correction": {
+      "anyOf": [
+        {
+          "discriminator": {
+            "mapping": {
+              "replacement": "#/$defs/ReplacementCorrection",
+              "retraction": "#/$defs/RetractionCorrection"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ReplacementCorrection"
+            },
+            {
+              "$ref": "#/$defs/RetractionCorrection"
+            }
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Correction"
+    },
+    "event_id": {
+      "format": "uuid",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "event_type": {
+      "pattern": "^[a-z][a-z0-9_.-]{1,99}$",
+      "title": "Event Type",
+      "type": "string"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/EventEvidenceSourceV1_1"
+      },
+      "maxItems": 50,
+      "minItems": 1,
+      "title": "Evidence",
+      "type": "array"
+    },
+    "extraction_version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Extraction Version",
+      "type": "string"
+    },
+    "facts": {
+      "items": {
+        "$ref": "#/$defs/EventFactSlot"
+      },
+      "maxItems": 100,
+      "title": "Facts",
+      "type": "array"
+    },
+    "instrument_ids": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 100,
+      "minItems": 1,
+      "title": "Instrument Ids",
+      "type": "array"
+    },
+    "revision": {
+      "minimum": 1,
+      "title": "Revision",
+      "type": "integer"
+    },
+    "revision_known_at": {
+      "format": "date-time",
+      "title": "Revision Known At",
+      "type": "string"
+    },
+    "revision_timeline": {
+      "$ref": "#/$defs/EventRevisionTimeline"
+    },
+    "ruleset_version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Ruleset Version",
+      "type": "string"
+    },
+    "runtime_mode": {
+      "$ref": "#/$defs/SourceRuntimeMode"
+    },
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "supersedes_revision": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Supersedes Revision"
+    },
+    "title": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "event_id",
+    "cluster_id",
+    "revision",
+    "change_type",
+    "instrument_ids",
+    "event_type",
+    "title",
+    "as_of",
+    "revision_known_at",
+    "extraction_version",
+    "ruleset_version",
+    "audit_id",
+    "revision_timeline",
+    "evidence",
+    "runtime_mode"
+  ],
+  "title": "EventEvidenceViewV1_1",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.event_views.EventEvidenceViewV1_1",
+  "x-runtime-invariants": [
+    "every evidence provenance runtime_mode equals runtime_mode"
+  ],
+  "x-schema-version": "1.1"
+}

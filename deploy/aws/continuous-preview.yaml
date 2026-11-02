@@ -1,0 +1,1547 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Two-stage, development-only R1 refresh runtime. An empty ImageDigest creates only
+  the retained ECR, network, database and runtime credential. A sha256 digest adds
+  one-shot Fargate task definitions, disabled schedules and task-failure alarms.
+
+Parameters:
+  ProductSha:
+    Type: String
+    AllowedPattern: "^[0-9a-f]{40}$"
+  ImageDigest:
+    Type: String
+    Default: ""
+    AllowedPattern: "^$|^sha256:[0-9a-f]{64}$"
+  PublicSnapshotBucketName:
+    Type: String
+    AllowedPattern: "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$"
+  PublicBaseUrl:
+    Type: String
+    AllowedPattern: "^https://[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?/?$"
+  DatabaseName:
+    Type: String
+    Default: stock_assistant
+    AllowedPattern: "^[a-z][a-z0-9_]{2,62}$"
+  MasterUsername:
+    Type: String
+    Default: stock_admin
+    AllowedPattern: "^[a-z][a-z0-9_]{2,62}$"
+  DeepSeekApiSecretArn:
+    Type: String
+    Default: ""
+    AllowedPattern: >-
+      ^$|^arn:aws:secretsmanager:ap-northeast-1:[0-9]{12}:secret:stockmarketagent/deepseek-[A-Za-z0-9/_+=.@-]{6,}$
+  ResearchDataApiSecretArn:
+    Type: String
+    Default: ""
+    AllowedPattern: >-
+      ^$|^arn:aws:secretsmanager:ap-northeast-1:[0-9]{12}:secret:stockmarketagent/research-data-(?!promax-)[A-Za-z0-9/_+=.@-]{6,}$
+  PromaxApiSecretArn:
+    Type: String
+    Default: ""
+    AllowedPattern: >-
+      ^$|^arn:aws:secretsmanager:ap-northeast-1:[0-9]{12}:secret:stockmarketagent/research-data-promax-[A-Za-z0-9/_+=.@-]{6,}$
+  CloudFrontOriginFacingPrefixListId:
+    Type: String
+    Default: ""
+    AllowedPattern: "^$|^pl-[0-9a-f]{8,17}$"
+    Description: >-
+      Exact ap-northeast-1 AWS-managed prefix list ID for
+      com.amazonaws.global.cloudfront.origin-facing; required when ImageDigest is set.
+Rules:
+  CloudFrontOriginPrefixListRequiredForRuntime:
+    Assertions:
+      - Assert:
+          Fn::Or:
+            - Fn::Equals:
+                - Ref: ImageDigest
+                - ""
+            - Fn::Not:
+                - Fn::Equals:
+                    - Ref: CloudFrontOriginFacingPrefixListId
+                    - ""
+        AssertDescription: >-
+          CloudFrontOriginFacingPrefixListId is required when ImageDigest is set.
+  ResearchDataSecretRequiredForRuntime:
+    Assertions:
+      - Assert:
+          Fn::Or:
+            - Fn::Equals:
+                - Ref: ImageDigest
+                - ""
+            - Fn::Not:
+                - Fn::Equals:
+                    - Ref: ResearchDataApiSecretArn
+                    - ""
+        AssertDescription: >-
+          ResearchDataApiSecretArn is required when ImageDigest is set.
+  PromaxSecretRequiredForRuntime:
+    Assertions:
+      - Assert:
+          Fn::Or:
+            - Fn::Equals:
+                - Ref: ImageDigest
+                - ""
+            - Fn::Not:
+                - Fn::Equals:
+                    - Ref: PromaxApiSecretArn
+                    - ""
+        AssertDescription: >-
+          PromaxApiSecretArn is required when ImageDigest is set.
+  ProviderSecretsMustBeDistinct:
+    Assertions:
+      - Assert:
+          Fn::Or:
+            - Fn::Equals:
+                - Ref: ImageDigest
+                - ""
+            - Fn::Not:
+                - Fn::Equals:
+                    - Ref: ResearchDataApiSecretArn
+                    - Ref: PromaxApiSecretArn
+        AssertDescription: >-
+          ResearchDataApiSecretArn and PromaxApiSecretArn must be distinct.
+Conditions:
+  HasImageDigest:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: ImageDigest
+          - ""
+  HasDeepSeekSecret:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: DeepSeekApiSecretArn
+          - ""
+  HasResearchDataSecret:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: ResearchDataApiSecretArn
+          - ""
+  HasPromaxSecret:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: PromaxApiSecretArn
+          - ""
+
+Resources:
+  RefreshRepository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      EmptyOnDelete: false
+      EncryptionConfiguration:
+        EncryptionType: AES256
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      ImageTagMutability: IMMUTABLE
+      LifecyclePolicy:
+        LifecyclePolicyText: >-
+          {"rules":[{"rulePriority":1,"description":"retain latest 20 images",
+          "selection":{"tagStatus":"any","countType":"imageCountMoreThan","countNumber":20},
+          "action":{"type":"expire"}}]}
+      RepositoryName: stockmarketagent-refresh
+
+  RefreshVpc:
+    Type: AWS::EC2::VPC
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      CidrBlock: 10.73.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Sub: "${AWS::StackName}-vpc"
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId:
+        Ref: InternetGateway
+      VpcId:
+        Ref: RefreshVpc
+
+  PublicSubnetA:
+    Type: AWS::EC2::Subnet
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      CidrBlock: 10.73.0.0/24
+      MapPublicIpOnLaunch: false
+      VpcId:
+        Ref: RefreshVpc
+
+  PublicSubnetB:
+    Type: AWS::EC2::Subnet
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      CidrBlock: 10.73.1.0/24
+      MapPublicIpOnLaunch: false
+      VpcId:
+        Ref: RefreshVpc
+
+  PrivateDbSubnetA:
+    Type: AWS::EC2::Subnet
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      CidrBlock: 10.73.10.0/24
+      MapPublicIpOnLaunch: false
+      VpcId:
+        Ref: RefreshVpc
+
+  PrivateDbSubnetB:
+    Type: AWS::EC2::Subnet
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      CidrBlock: 10.73.11.0/24
+      MapPublicIpOnLaunch: false
+      VpcId:
+        Ref: RefreshVpc
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: RefreshVpc
+
+  PublicDefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: InternetGateway
+      RouteTableId:
+        Ref: PublicRouteTable
+
+  PublicSubnetARouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: PublicRouteTable
+      SubnetId:
+        Ref: PublicSubnetA
+
+  PublicSubnetBRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: PublicRouteTable
+      SubnetId:
+        Ref: PublicSubnetB
+
+  TaskSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      GroupDescription: No ingress; bounded HTTPS and PostgreSQL egress only
+      SecurityGroupEgress: []
+      VpcId:
+        Ref: RefreshVpc
+
+  ApiSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: HasImageDigest
+    Properties:
+      GroupDescription: API ingress only from its load balancer
+      SecurityGroupEgress: []
+      VpcId:
+        Ref: RefreshVpc
+
+  ApiLoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: HasImageDigest
+    Properties:
+      GroupDescription: CloudFront-only HTTP origin for API behavior
+      SecurityGroupEgress: []
+      SecurityGroupIngress:
+        - FromPort: 80
+          IpProtocol: tcp
+          SourcePrefixListId:
+            Ref: CloudFrontOriginFacingPrefixListId
+          ToPort: 80
+      VpcId:
+        Ref: RefreshVpc
+
+  ApiLoadBalancerEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Condition: HasImageDigest
+    Properties:
+      DestinationSecurityGroupId:
+        Fn::GetAtt:
+          - ApiSecurityGroup
+          - GroupId
+      FromPort: 8000
+      GroupId:
+        Fn::GetAtt:
+          - ApiLoadBalancerSecurityGroup
+          - GroupId
+      IpProtocol: tcp
+      ToPort: 8000
+
+  ApiLoadBalancerIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: HasImageDigest
+    Properties:
+      FromPort: 8000
+      GroupId:
+        Fn::GetAtt:
+          - ApiSecurityGroup
+          - GroupId
+      IpProtocol: tcp
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - ApiLoadBalancerSecurityGroup
+          - GroupId
+      ToPort: 8000
+
+  ApiDatabaseEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Condition: HasImageDigest
+    Properties:
+      DestinationSecurityGroupId:
+        Fn::GetAtt:
+          - DatabaseSecurityGroup
+          - GroupId
+      FromPort: 5432
+      GroupId:
+        Fn::GetAtt:
+          - ApiSecurityGroup
+          - GroupId
+      IpProtocol: tcp
+      ToPort: 5432
+
+  ApiHttpsEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Condition: HasImageDigest
+    Properties:
+      CidrIp: 0.0.0.0/0
+      Description: Fargate image pull and log delivery only
+      FromPort: 443
+      GroupId:
+        Fn::GetAtt:
+          - ApiSecurityGroup
+          - GroupId
+      IpProtocol: tcp
+      ToPort: 443
+
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      GroupDescription: PostgreSQL ingress only from the refresh task security group
+      SecurityGroupEgress: []
+      VpcId:
+        Ref: RefreshVpc
+
+  TaskHttpsEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      CidrIp: 0.0.0.0/0
+      Description: Official HTTPS sources and AWS public endpoints
+      FromPort: 443
+      GroupId:
+        Fn::GetAtt:
+          - TaskSecurityGroup
+          - GroupId
+      IpProtocol: tcp
+      ToPort: 443
+
+  TaskDatabaseEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      DestinationSecurityGroupId:
+        Fn::GetAtt:
+          - DatabaseSecurityGroup
+          - GroupId
+      FromPort: 5432
+      GroupId:
+        Fn::GetAtt:
+          - TaskSecurityGroup
+          - GroupId
+      IpProtocol: tcp
+      ToPort: 5432
+
+  DatabaseTaskIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      FromPort: 5432
+      GroupId:
+        Fn::GetAtt:
+          - DatabaseSecurityGroup
+          - GroupId
+      IpProtocol: tcp
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - TaskSecurityGroup
+          - GroupId
+      ToPort: 5432
+
+  DatabaseApiIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: HasImageDigest
+    Properties:
+      FromPort: 5432
+      GroupId:
+        Fn::GetAtt:
+          - DatabaseSecurityGroup
+          - GroupId
+      IpProtocol: tcp
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - ApiSecurityGroup
+          - GroupId
+      ToPort: 5432
+
+  DatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      DBSubnetGroupDescription: Two-AZ private database subnets
+      SubnetIds:
+        - Ref: PrivateDbSubnetA
+        - Ref: PrivateDbSubnetB
+
+  DatabaseParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: Force TLS for the retained R1 preview PostgreSQL instance
+      Family: postgres16
+      Parameters:
+        rds.force_ssl: "1"
+
+  RefreshDatabase:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AllocatedStorage: "20"
+      AutoMinorVersionUpgrade: true
+      BackupRetentionPeriod: 7
+      CopyTagsToSnapshot: true
+      DBInstanceClass: db.t4g.micro
+      DBName:
+        Ref: DatabaseName
+      DBParameterGroupName:
+        Ref: DatabaseParameterGroup
+      DBSubnetGroupName:
+        Ref: DatabaseSubnetGroup
+      DeleteAutomatedBackups: false
+      DeletionProtection: true
+      Engine: postgres
+      EngineVersion: "16"
+      ManageMasterUserPassword: true
+      MasterUsername:
+        Ref: MasterUsername
+      MaxAllocatedStorage: 100
+      MultiAZ: false
+      PubliclyAccessible: false
+      StorageEncrypted: true
+      StorageType: gp3
+      VPCSecurityGroups:
+        - Fn::GetAtt:
+            - DatabaseSecurityGroup
+            - GroupId
+
+  RuntimeDatabaseSecret:
+    Type: AWS::SecretsManager::Secret
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: Least-privilege runtime PostgreSQL credential rotated by migration task
+      GenerateSecretString:
+        ExcludeCharacters: '"@/\\'
+        GenerateStringKey: password
+        PasswordLength: 40
+        SecretStringTemplate: '{"username":"stock_preview"}'
+
+  RefreshCluster:
+    Type: AWS::ECS::Cluster
+    Condition: HasImageDigest
+    Properties:
+      ClusterName:
+        Fn::Sub: "${AWS::StackName}-cluster"
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+
+  RefreshLogGroup:
+    Type: AWS::Logs::LogGroup
+    Condition: HasImageDigest
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName:
+        Fn::Sub: "/stockmarketagent/${AWS::StackName}/refresh"
+      RetentionInDays: 30
+
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Condition: HasImageDigest
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName:
+        Fn::Sub: "/stockmarketagent/${AWS::StackName}/api"
+      RetentionInDays: 30
+
+  SchedulerDeliveryQueue:
+    Type: AWS::SQS::Queue
+    Condition: HasImageDigest
+    Properties:
+      MessageRetentionPeriod: 1209600
+      QueueName:
+        Fn::Sub: "${AWS::StackName}-scheduler-delivery"
+      SqsManagedSseEnabled: true
+
+  TaskFailureQueue:
+    Type: AWS::SQS::Queue
+    Condition: HasImageDigest
+    Properties:
+      MessageRetentionPeriod: 1209600
+      QueueName:
+        Fn::Sub: "${AWS::StackName}-task-failure"
+      SqsManagedSseEnabled: true
+
+  TaskFailureQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Condition: HasImageDigest
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowOnlyRefreshFailureRule
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sqs:SendMessage
+            Resource:
+              Fn::GetAtt:
+                - TaskFailureQueue
+                - Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn:
+                  Fn::Sub: >-
+                    arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:rule/${AWS::StackName}-task-failed
+      Queues:
+        - Ref: TaskFailureQueue
+
+  TaskFailureAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: HasImageDigest
+    Properties:
+      AlarmDescription: One-shot ECS task failed to start or exited nonzero
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: QueueName
+          Value:
+            Fn::GetAtt:
+              - TaskFailureQueue
+              - QueueName
+      EvaluationPeriods: 1
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Period: 60
+      Statistic: Maximum
+      Threshold: 0
+      TreatMissingData: notBreaching
+
+  SchedulerDeliveryAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: HasImageDigest
+    Properties:
+      AlarmDescription: Scheduled ECS task delivery exhausted its bounded retries
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: QueueName
+          Value:
+            Fn::GetAtt:
+              - SchedulerDeliveryQueue
+              - QueueName
+      EvaluationPeriods: 1
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Period: 60
+      Statistic: Maximum
+      Threshold: 0
+      TreatMissingData: notBreaching
+
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Condition: HasImageDigest
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: pull-fixed-refresh-image
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: EcrAuthorization
+                Effect: Allow
+                Action: ecr:GetAuthorizationToken
+                Resource: "*"
+              - Sid: PullOnlyThisRepository
+                Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                Resource:
+                  Fn::GetAtt:
+                    - RefreshRepository
+                    - Arn
+              - Sid: WriteRefreshLogs
+                Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  Fn::Sub: "${RefreshLogGroup.Arn}:*"
+              - Sid: ReadInjectedDatabaseSecrets
+                Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource:
+                  - Fn::GetAtt:
+                      - RefreshDatabase
+                      - MasterUserSecret.SecretArn
+                  - Ref: RuntimeDatabaseSecret
+              - Fn::If:
+                  - HasDeepSeekSecret
+                  - Sid: ReadOnlyDeepSeekSecretForRefreshInjection
+                    Effect: Allow
+                    Action: secretsmanager:GetSecretValue
+                    Resource:
+                      Ref: DeepSeekApiSecretArn
+                  - Ref: AWS::NoValue
+              - Fn::If:
+                  - HasResearchDataSecret
+                  - Sid: ReadOnlyResearchDataSecretForRefreshInjection
+                    Effect: Allow
+                    Action: secretsmanager:GetSecretValue
+                    Resource:
+                      Ref: ResearchDataApiSecretArn
+                  - Ref: AWS::NoValue
+              - Fn::If:
+                  - HasPromaxSecret
+                  - Sid: ReadOnlyPromaxSecretForRefreshInjection
+                    Effect: Allow
+                    Action: secretsmanager:GetSecretValue
+                    Resource:
+                      Ref: PromaxApiSecretArn
+                  - Ref: AWS::NoValue
+
+  ApiExecutionRole:
+    Type: AWS::IAM::Role
+    Condition: HasImageDigest
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: pull-api-image-log-and-inject-database-only
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: EcrAuthorization
+                Effect: Allow
+                Action: ecr:GetAuthorizationToken
+                Resource: "*"
+              - Sid: PullOnlyThisRepository
+                Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                Resource:
+                  Fn::GetAtt:
+                    - RefreshRepository
+                    - Arn
+              - Sid: WriteApiLogs
+                Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  Fn::Sub: "${ApiLogGroup.Arn}:*"
+              - Sid: ReadOnlyRuntimeDatabaseSecret
+                Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource:
+                  Ref: RuntimeDatabaseSecret
+
+  ApiTaskRole:
+    Type: AWS::IAM::Role
+    Condition: HasImageDigest
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+
+  TaskRole:
+    Type: AWS::IAM::Role
+    Condition: HasImageDigest
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: publish-versioned-preview-snapshots
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                Resource:
+                  - Fn::Sub: >-
+                      arn:${AWS::Partition}:s3:::${PublicSnapshotBucketName}/data/current.json
+                  - Fn::Sub: >-
+                      arn:${AWS::Partition}:s3:::${PublicSnapshotBucketName}/data/snapshots/*
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource:
+                  Fn::Sub: arn:${AWS::Partition}:s3:::${PublicSnapshotBucketName}
+                Condition:
+                  StringEquals:
+                    s3:prefix: data/current.json
+
+  BootstrapTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Condition: HasImageDigest
+    Properties:
+      Cpu: "512"
+      ExecutionRoleArn:
+        Fn::GetAtt:
+          - ExecutionRole
+          - Arn
+      Family:
+        Fn::Sub: "${AWS::StackName}-bootstrap"
+      Memory: "1024"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      RuntimePlatform:
+        CpuArchitecture: ARM64
+        OperatingSystemFamily: LINUX
+      TaskRoleArn:
+        Fn::GetAtt:
+          - TaskRole
+          - Arn
+      Volumes:
+        - Name: tmp
+      ContainerDefinitions:
+        - Name: refresh
+          Command:
+            - migrate
+          EntryPoint:
+            - python
+            - -m
+            - apps.refresh.entrypoint
+          Environment:
+            - Name: APP_ENV
+              Value: preview
+            - Name: ENABLE_R1_DEV_LIVE
+              Value: "true"
+            - Name: ENABLE_R1_FIXTURE
+              Value: "false"
+            - Name: R1_RUNTIME_MODE
+              Value: dev_live
+            - Name: AWS_REGION
+              Value:
+                Ref: AWS::Region
+            - Name: PUBLIC_SNAPSHOT_BUCKET
+              Value:
+                Ref: PublicSnapshotBucketName
+            - Name: PUBLIC_BASE_URL
+              Value:
+                Ref: PublicBaseUrl
+            - Name: PUBLIC_SMOKE_ATTEMPTS
+              Value: "3"
+            - Name: PRODUCT_COMMIT
+              Value:
+                Ref: ProductSha
+            - Name: DB_HOST
+              Value:
+                Fn::GetAtt:
+                  - RefreshDatabase
+                  - Endpoint.Address
+            - Name: DB_PORT
+              Value:
+                Fn::GetAtt:
+                  - RefreshDatabase
+                  - Endpoint.Port
+            - Name: DB_NAME
+              Value:
+                Ref: DatabaseName
+          Essential: true
+          Image:
+            Fn::Sub: "${RefreshRepository.RepositoryUri}@${ImageDigest}"
+          LinuxParameters:
+            Capabilities:
+              Drop:
+                - ALL
+            InitProcessEnabled: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group:
+                Ref: RefreshLogGroup
+              awslogs-region:
+                Ref: AWS::Region
+              awslogs-stream-prefix: refresh
+          MountPoints:
+            - ContainerPath: /tmp
+              ReadOnly: false
+              SourceVolume: tmp
+          ReadonlyRootFilesystem: true
+          StopTimeout: 30
+          User: app
+          Secrets:
+            - Name: MASTER_DB_USERNAME
+              ValueFrom:
+                Fn::Sub: "${RefreshDatabase.MasterUserSecret.SecretArn}:username::"
+            - Name: MASTER_DB_PASSWORD
+              ValueFrom:
+                Fn::Sub: "${RefreshDatabase.MasterUserSecret.SecretArn}:password::"
+            - Name: DB_USERNAME
+              ValueFrom:
+                Fn::Sub: "${RuntimeDatabaseSecret}:username::"
+            - Name: DB_PASSWORD
+              ValueFrom:
+                Fn::Sub: "${RuntimeDatabaseSecret}:password::"
+
+  RefreshTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Condition: HasImageDigest
+    Properties:
+      Cpu: "512"
+      ExecutionRoleArn:
+        Fn::GetAtt:
+          - ExecutionRole
+          - Arn
+      Family:
+        Fn::Sub: "${AWS::StackName}-refresh"
+      Memory: "1024"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      RuntimePlatform:
+        CpuArchitecture: ARM64
+        OperatingSystemFamily: LINUX
+      TaskRoleArn:
+        Fn::GetAtt:
+          - TaskRole
+          - Arn
+      Volumes:
+        - Name: tmp
+      ContainerDefinitions:
+        - Name: refresh
+          Command:
+            - ingest
+          EntryPoint:
+            - python
+            - -m
+            - apps.refresh.entrypoint
+          Environment:
+            - Name: APP_ENV
+              Value: preview
+            - Name: ENABLE_R1_DEV_LIVE
+              Value: "true"
+            - Name: ENABLE_R1_FIXTURE
+              Value: "false"
+            - Name: R1_RUNTIME_MODE
+              Value: dev_live
+            - Name: AWS_REGION
+              Value:
+                Ref: AWS::Region
+            - Name: PUBLIC_SNAPSHOT_BUCKET
+              Value:
+                Ref: PublicSnapshotBucketName
+            - Name: PUBLIC_BASE_URL
+              Value:
+                Ref: PublicBaseUrl
+            - Name: PUBLIC_SMOKE_ATTEMPTS
+              Value: "3"
+            - Name: PRODUCT_COMMIT
+              Value:
+                Ref: ProductSha
+            - Name: DEEPSEEK_ENABLED
+              Value:
+                Fn::If:
+                  - HasDeepSeekSecret
+                  - "true"
+                  - "false"
+            - Name: DB_HOST
+              Value:
+                Fn::GetAtt:
+                  - RefreshDatabase
+                  - Endpoint.Address
+            - Name: DB_PORT
+              Value:
+                Fn::GetAtt:
+                  - RefreshDatabase
+                  - Endpoint.Port
+            - Name: DB_NAME
+              Value:
+                Ref: DatabaseName
+          Essential: true
+          Image:
+            Fn::Sub: "${RefreshRepository.RepositoryUri}@${ImageDigest}"
+          LinuxParameters:
+            Capabilities:
+              Drop:
+                - ALL
+            InitProcessEnabled: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group:
+                Ref: RefreshLogGroup
+              awslogs-region:
+                Ref: AWS::Region
+              awslogs-stream-prefix: refresh
+          MountPoints:
+            - ContainerPath: /tmp
+              ReadOnly: false
+              SourceVolume: tmp
+          ReadonlyRootFilesystem: true
+          StopTimeout: 30
+          User: app
+          Secrets:
+            - Name: DB_USERNAME
+              ValueFrom:
+                Fn::Sub: "${RuntimeDatabaseSecret}:username::"
+            - Name: DB_PASSWORD
+              ValueFrom:
+                Fn::Sub: "${RuntimeDatabaseSecret}:password::"
+            - Fn::If:
+                - HasDeepSeekSecret
+                - Name: DEEPSEEK_API_KEY
+                  ValueFrom:
+                    Ref: DeepSeekApiSecretArn
+                - Ref: AWS::NoValue
+            - Fn::If:
+                - HasResearchDataSecret
+                - Name: R1_RESEARCH_DATA_API_TOKEN
+                  ValueFrom:
+                    Ref: ResearchDataApiSecretArn
+                - Ref: AWS::NoValue
+            - Fn::If:
+                - HasPromaxSecret
+                - Name: R1_PROMAX_API_KEY
+                  ValueFrom:
+                    Ref: PromaxApiSecretArn
+                - Ref: AWS::NoValue
+
+  ApiTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Condition: HasImageDigest
+    Properties:
+      Cpu: "512"
+      ExecutionRoleArn:
+        Fn::GetAtt:
+          - ApiExecutionRole
+          - Arn
+      Family:
+        Fn::Sub: "${AWS::StackName}-api"
+      Memory: "1024"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      RuntimePlatform:
+        CpuArchitecture: ARM64
+        OperatingSystemFamily: LINUX
+      TaskRoleArn:
+        Fn::GetAtt:
+          - ApiTaskRole
+          - Arn
+      Volumes:
+        - Name: tmp
+      ContainerDefinitions:
+        - Name: api
+          Command:
+            - uvicorn
+            - apps.api.main:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8000"
+          Environment:
+            - Name: APP_ENV
+              Value: preview
+            - Name: ENABLE_R1_DEV_LIVE
+              Value: "true"
+            - Name: ENABLE_R1_FIXTURE
+              Value: "false"
+            - Name: R1_RUNTIME_MODE
+              Value: dev_live
+            - Name: AWS_REGION
+              Value:
+                Ref: AWS::Region
+            - Name: PUBLIC_SNAPSHOT_BUCKET
+              Value:
+                Ref: PublicSnapshotBucketName
+            - Name: PUBLIC_BASE_URL
+              Value:
+                Ref: PublicBaseUrl
+            - Name: PRODUCT_COMMIT
+              Value:
+                Ref: ProductSha
+            - Name: WEB_ORIGIN
+              Value:
+                Ref: PublicBaseUrl
+            - Name: DB_HOST
+              Value:
+                Fn::GetAtt:
+                  - RefreshDatabase
+                  - Endpoint.Address
+            - Name: DB_PORT
+              Value:
+                Fn::GetAtt:
+                  - RefreshDatabase
+                  - Endpoint.Port
+            - Name: DB_NAME
+              Value:
+                Ref: DatabaseName
+          Essential: true
+          Image:
+            Fn::Sub: "${RefreshRepository.RepositoryUri}@${ImageDigest}"
+          LinuxParameters:
+            Capabilities:
+              Drop:
+                - ALL
+            InitProcessEnabled: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group:
+                Ref: ApiLogGroup
+              awslogs-region:
+                Ref: AWS::Region
+              awslogs-stream-prefix: api
+          MountPoints:
+            - ContainerPath: /tmp
+              ReadOnly: false
+              SourceVolume: tmp
+          PortMappings:
+            - ContainerPort: 8000
+              Name: http
+              Protocol: tcp
+          ReadonlyRootFilesystem: true
+          StopTimeout: 30
+          User: app
+          Secrets:
+            - Name: DB_USERNAME
+              ValueFrom:
+                Fn::Sub: "${RuntimeDatabaseSecret}:username::"
+            - Name: DB_PASSWORD
+              ValueFrom:
+                Fn::Sub: "${RuntimeDatabaseSecret}:password::"
+
+  ApiLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Condition: HasImageDigest
+    Properties:
+      Scheme: internet-facing
+      SecurityGroups:
+        - Fn::GetAtt:
+            - ApiLoadBalancerSecurityGroup
+            - GroupId
+      Subnets:
+        - Ref: PublicSubnetA
+        - Ref: PublicSubnetB
+      Type: application
+
+  ApiTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Condition: HasImageDigest
+    Properties:
+      HealthCheckEnabled: true
+      HealthCheckPath: /api/v1/health/live
+      HealthCheckProtocol: HTTP
+      Matcher:
+        HttpCode: "200"
+      Port: 8000
+      Protocol: HTTP
+      TargetType: ip
+      VpcId:
+        Ref: RefreshVpc
+
+  ApiListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Condition: HasImageDigest
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn:
+            Ref: ApiTargetGroup
+      LoadBalancerArn:
+        Ref: ApiLoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  ApiService:
+    Type: AWS::ECS::Service
+    Condition: HasImageDigest
+    DependsOn: ApiListener
+    Properties:
+      Cluster:
+        Ref: RefreshCluster
+      DesiredCount: 1
+      EnableECSManagedTags: true
+      HealthCheckGracePeriodSeconds: 60
+      LaunchType: FARGATE
+      LoadBalancers:
+        - ContainerName: api
+          ContainerPort: 8000
+          TargetGroupArn:
+            Ref: ApiTargetGroup
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - Fn::GetAtt:
+                - ApiSecurityGroup
+                - GroupId
+          Subnets:
+            - Ref: PublicSubnetA
+            - Ref: PublicSubnetB
+      PlatformVersion: 1.4.0
+      TaskDefinition:
+        Ref: ApiTaskDefinition
+
+  SchedulerRole:
+    Type: AWS::IAM::Role
+    Condition: HasImageDigest
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: run-only-the-refresh-task
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: ecs:RunTask
+                Resource:
+                  Ref: RefreshTaskDefinition
+                Condition:
+                  ArnEquals:
+                    ecs:cluster:
+                      Fn::GetAtt:
+                        - RefreshCluster
+                        - Arn
+              - Effect: Allow
+                Action: iam:PassRole
+                Resource:
+                  - Fn::GetAtt:
+                      - ExecutionRole
+                      - Arn
+                  - Fn::GetAtt:
+                      - TaskRole
+                      - Arn
+                Condition:
+                  StringEquals:
+                    iam:PassedToService: ecs-tasks.amazonaws.com
+              - Effect: Allow
+                Action: sqs:SendMessage
+                Resource:
+                  Fn::GetAtt:
+                    - SchedulerDeliveryQueue
+                    - Arn
+
+  IngestSchedule:
+    Type: AWS::Scheduler::Schedule
+    Condition: HasImageDigest
+    Properties:
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name:
+        Fn::Sub: "${AWS::StackName}-ingest"
+      ScheduleExpression: "cron(55 8 ? * MON-FRI *)"
+      ScheduleExpressionTimezone: Asia/Shanghai
+      State: DISABLED
+      Target:
+        Arn:
+          Fn::GetAtt:
+            - RefreshCluster
+            - Arn
+        DeadLetterConfig:
+          Arn:
+            Fn::GetAtt:
+              - SchedulerDeliveryQueue
+              - Arn
+        EcsParameters:
+          LaunchType: FARGATE
+          NetworkConfiguration:
+            AwsvpcConfiguration:
+              AssignPublicIp: ENABLED
+              SecurityGroups:
+                - Fn::GetAtt:
+                    - TaskSecurityGroup
+                    - GroupId
+              Subnets:
+                - Ref: PublicSubnetA
+                - Ref: PublicSubnetB
+          PlatformVersion: 1.4.0
+          TaskCount: 1
+          TaskDefinitionArn:
+            Ref: RefreshTaskDefinition
+        Input: '{"containerOverrides":[{"name":"refresh","command":["ingest"]}]}'
+        RetryPolicy:
+          MaximumEventAgeInSeconds: 900
+          MaximumRetryAttempts: 2
+        RoleArn:
+          Fn::GetAtt:
+            - SchedulerRole
+            - Arn
+
+  PublishSchedule:
+    Type: AWS::Scheduler::Schedule
+    Condition: HasImageDigest
+    Properties:
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name:
+        Fn::Sub: "${AWS::StackName}-publish"
+      ScheduleExpression: "cron(5 9 ? * MON-FRI *)"
+      ScheduleExpressionTimezone: Asia/Shanghai
+      State: DISABLED
+      Target:
+        Arn:
+          Fn::GetAtt:
+            - RefreshCluster
+            - Arn
+        DeadLetterConfig:
+          Arn:
+            Fn::GetAtt:
+              - SchedulerDeliveryQueue
+              - Arn
+        EcsParameters:
+          LaunchType: FARGATE
+          NetworkConfiguration:
+            AwsvpcConfiguration:
+              AssignPublicIp: ENABLED
+              SecurityGroups:
+                - Fn::GetAtt:
+                    - TaskSecurityGroup
+                    - GroupId
+              Subnets:
+                - Ref: PublicSubnetA
+                - Ref: PublicSubnetB
+          PlatformVersion: 1.4.0
+          TaskCount: 1
+          TaskDefinitionArn:
+            Ref: RefreshTaskDefinition
+        Input: '{"containerOverrides":[{"name":"refresh","command":["publish"]}]}'
+        RetryPolicy:
+          MaximumEventAgeInSeconds: 900
+          MaximumRetryAttempts: 2
+        RoleArn:
+          Fn::GetAtt:
+            - SchedulerRole
+            - Arn
+
+  CatchUpSchedule:
+    Type: AWS::Scheduler::Schedule
+    Condition: HasImageDigest
+    Properties:
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name:
+        Fn::Sub: "${AWS::StackName}-catch-up"
+      ScheduleExpression: "cron(20 9 ? * MON-FRI *)"
+      ScheduleExpressionTimezone: Asia/Shanghai
+      State: DISABLED
+      Target:
+        Arn:
+          Fn::GetAtt:
+            - RefreshCluster
+            - Arn
+        DeadLetterConfig:
+          Arn:
+            Fn::GetAtt:
+              - SchedulerDeliveryQueue
+              - Arn
+        EcsParameters:
+          LaunchType: FARGATE
+          NetworkConfiguration:
+            AwsvpcConfiguration:
+              AssignPublicIp: ENABLED
+              SecurityGroups:
+                - Fn::GetAtt:
+                    - TaskSecurityGroup
+                    - GroupId
+              Subnets:
+                - Ref: PublicSubnetA
+                - Ref: PublicSubnetB
+          PlatformVersion: 1.4.0
+          TaskCount: 1
+          TaskDefinitionArn:
+            Ref: RefreshTaskDefinition
+        Input: '{"containerOverrides":[{"name":"refresh","command":["catch-up"]}]}'
+        RetryPolicy:
+          MaximumEventAgeInSeconds: 900
+          MaximumRetryAttempts: 2
+        RoleArn:
+          Fn::GetAtt:
+            - SchedulerRole
+            - Arn
+
+  BehaviorIntradaySchedule:
+    Type: AWS::Scheduler::Schedule
+    Condition: HasImageDigest
+    Properties:
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name:
+        Fn::Sub: "${AWS::StackName}-behavior-intraday"
+      ScheduleExpression: "cron(0/10 9-15 ? * MON-FRI *)"
+      ScheduleExpressionTimezone: Asia/Shanghai
+      State: DISABLED
+      Target:
+        Arn:
+          Fn::GetAtt:
+            - RefreshCluster
+            - Arn
+        DeadLetterConfig:
+          Arn:
+            Fn::GetAtt:
+              - SchedulerDeliveryQueue
+              - Arn
+        EcsParameters:
+          LaunchType: FARGATE
+          NetworkConfiguration:
+            AwsvpcConfiguration:
+              AssignPublicIp: ENABLED
+              SecurityGroups:
+                - Fn::GetAtt:
+                    - TaskSecurityGroup
+                    - GroupId
+              Subnets:
+                - Ref: PublicSubnetA
+                - Ref: PublicSubnetB
+          PlatformVersion: 1.4.0
+          TaskCount: 1
+          TaskDefinitionArn:
+            Ref: RefreshTaskDefinition
+        Input: '{"containerOverrides":[{"name":"refresh","command":["behavior-intraday"]}]}'
+        RetryPolicy:
+          MaximumEventAgeInSeconds: 900
+          MaximumRetryAttempts: 2
+        RoleArn:
+          Fn::GetAtt:
+            - SchedulerRole
+            - Arn
+
+  BehaviorPostCloseSchedule:
+    Type: AWS::Scheduler::Schedule
+    Condition: HasImageDigest
+    Properties:
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name:
+        Fn::Sub: "${AWS::StackName}-behavior-post-close"
+      ScheduleExpression: "cron(10 15 ? * MON-FRI *)"
+      ScheduleExpressionTimezone: Asia/Shanghai
+      State: DISABLED
+      Target:
+        Arn:
+          Fn::GetAtt:
+            - RefreshCluster
+            - Arn
+        DeadLetterConfig:
+          Arn:
+            Fn::GetAtt:
+              - SchedulerDeliveryQueue
+              - Arn
+        EcsParameters:
+          LaunchType: FARGATE
+          NetworkConfiguration:
+            AwsvpcConfiguration:
+              AssignPublicIp: ENABLED
+              SecurityGroups:
+                - Fn::GetAtt:
+                    - TaskSecurityGroup
+                    - GroupId
+              Subnets:
+                - Ref: PublicSubnetA
+                - Ref: PublicSubnetB
+          PlatformVersion: 1.4.0
+          TaskCount: 1
+          TaskDefinitionArn:
+            Ref: RefreshTaskDefinition
+        Input: '{"containerOverrides":[{"name":"refresh","command":["behavior-post-close"]}]}'
+        RetryPolicy:
+          MaximumEventAgeInSeconds: 900
+          MaximumRetryAttempts: 2
+        RoleArn:
+          Fn::GetAtt:
+            - SchedulerRole
+            - Arn
+
+  TaskFailureRule:
+    Type: AWS::Events::Rule
+    Condition: HasImageDigest
+    Properties:
+      EventPattern:
+        source:
+          - aws.ecs
+        detail-type:
+          - ECS Task State Change
+        detail:
+          clusterArn:
+            - Fn::GetAtt:
+                - RefreshCluster
+                - Arn
+          lastStatus:
+            - STOPPED
+          taskDefinitionArn:
+            - Ref: BootstrapTaskDefinition
+            - Ref: RefreshTaskDefinition
+          $or:
+            - stoppedReason:
+                - prefix: Task failed to start
+            - containers:
+                exitCode:
+                  - anything-but: 0
+      Name:
+        Fn::Sub: "${AWS::StackName}-task-failed"
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - TaskFailureQueue
+              - Arn
+          Id: task-failure-queue
+
+Outputs:
+  ProductSha:
+    Value:
+      Ref: ProductSha
+  ImageDigest:
+    Condition: HasImageDigest
+    Value:
+      Ref: ImageDigest
+  RepositoryUri:
+    Value:
+      Fn::GetAtt:
+        - RefreshRepository
+        - RepositoryUri
+  DatabaseEndpoint:
+    Value:
+      Fn::GetAtt:
+        - RefreshDatabase
+        - Endpoint.Address
+  RuntimeDatabaseSecretArn:
+    Value:
+      Ref: RuntimeDatabaseSecret
+  PublicSnapshotBucketName:
+    Value:
+      Ref: PublicSnapshotBucketName
+  PublicBaseUrl:
+    Value:
+      Ref: PublicBaseUrl
+  RefreshClusterArn:
+    Condition: HasImageDigest
+    Value:
+      Fn::GetAtt:
+        - RefreshCluster
+        - Arn
+  BootstrapTaskDefinitionArn:
+    Condition: HasImageDigest
+    Value:
+      Ref: BootstrapTaskDefinition
+  RefreshTaskDefinitionArn:
+    Condition: HasImageDigest
+    Value:
+      Ref: RefreshTaskDefinition
+  ApiOriginDomainName:
+    Condition: HasImageDigest
+    Value:
+      Fn::GetAtt:
+        - ApiLoadBalancer
+        - DNSName
+  TaskSecurityGroupId:
+    Condition: HasImageDigest
+    Value:
+      Fn::GetAtt:
+        - TaskSecurityGroup
+        - GroupId
+  SchedulerRoleArn:
+    Condition: HasImageDigest
+    Value:
+      Fn::GetAtt:
+        - SchedulerRole
+        - Arn
+  SchedulerDeliveryQueueArn:
+    Condition: HasImageDigest
+    Value:
+      Fn::GetAtt:
+        - SchedulerDeliveryQueue
+        - Arn
+  PublicSubnetIds:
+    Condition: HasImageDigest
+    Value:
+      Fn::Join:
+        - ","
+        - - Ref: PublicSubnetA
+          - Ref: PublicSubnetB

@@ -1,0 +1,374 @@
+{
+  "$defs": {
+    "ContentTier": {
+      "description": "Per-record authority tier after resolving capability-specific overrides.",
+      "enum": [
+        "statutory_disclosure",
+        "regulator",
+        "issuer_official",
+        "official_policy",
+        "market_data",
+        "licensed_broker_research",
+        "authoritative_financial_media",
+        "licensed_aggregator",
+        "social_aggregate",
+        "development_only"
+      ],
+      "title": "ContentTier",
+      "type": "string"
+    },
+    "Direction": {
+      "enum": [
+        "positive",
+        "negative",
+        "neutral",
+        "mixed",
+        "unknown"
+      ],
+      "title": "Direction",
+      "type": "string"
+    },
+    "EventFact": {
+      "additionalProperties": false,
+      "description": "A normalized claim with a required evidence pointer.",
+      "properties": {
+        "evidence_id": {
+          "format": "uuid",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "evidence_span": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Evidence Span",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "value": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "value",
+        "evidence_id",
+        "evidence_span"
+      ],
+      "title": "EventFact",
+      "type": "object"
+    },
+    "EventStatus": {
+      "enum": [
+        "rumor",
+        "announced",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "corrected"
+      ],
+      "title": "EventStatus",
+      "type": "string"
+    },
+    "EvidenceRef": {
+      "additionalProperties": false,
+      "description": "Pointer to immutable source material stored outside prompts.",
+      "properties": {
+        "content_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "content_tier": {
+          "$ref": "#/$defs/ContentTier"
+        },
+        "evidence_id": {
+          "format": "uuid",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "fact_eligibility": {
+          "$ref": "#/$defs/FactEligibility"
+        },
+        "first_seen_at": {
+          "format": "date-time",
+          "title": "First Seen At",
+          "type": "string"
+        },
+        "license_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "License Id",
+          "type": "string"
+        },
+        "object_key": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Key"
+        },
+        "published_at": {
+          "format": "date-time",
+          "title": "Published At",
+          "type": "string"
+        },
+        "rights_snapshot_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Rights Snapshot Hash",
+          "type": "string"
+        },
+        "source_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_url": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Source Url",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "source_url",
+        "title",
+        "published_at",
+        "first_seen_at",
+        "content_sha256",
+        "license_id",
+        "rights_snapshot_hash",
+        "content_tier",
+        "fact_eligibility"
+      ],
+      "title": "EvidenceRef",
+      "type": "object"
+    },
+    "FactEligibility": {
+      "description": "Permitted downstream use; consumers fail closed on incompatible purposes.",
+      "enum": [
+        "company_fact",
+        "policy_fact",
+        "market_observation",
+        "context_only",
+        "sentiment_only",
+        "ineligible"
+      ],
+      "title": "FactEligibility",
+      "type": "string"
+    },
+    "ImpactHorizon": {
+      "enum": [
+        "intraday",
+        "days",
+        "weeks",
+        "long_term",
+        "unknown"
+      ],
+      "title": "ImpactHorizon",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/events/market-event.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Versioned market event shared by memory, briefing and forecasting.",
+  "properties": {
+    "cluster_id": {
+      "format": "uuid",
+      "title": "Cluster Id",
+      "type": "string"
+    },
+    "company_ids": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Company Ids",
+      "type": "array"
+    },
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "direction": {
+      "$ref": "#/$defs/Direction"
+    },
+    "event_id": {
+      "format": "uuid",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "event_status": {
+      "$ref": "#/$defs/EventStatus"
+    },
+    "event_time": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Event Time"
+    },
+    "event_type": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Event Type",
+      "type": "string"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/EvidenceRef"
+      },
+      "maxItems": 50,
+      "minItems": 1,
+      "title": "Evidence",
+      "type": "array"
+    },
+    "extractor_version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Extractor Version",
+      "type": "string"
+    },
+    "facts": {
+      "items": {
+        "$ref": "#/$defs/EventFact"
+      },
+      "maxItems": 100,
+      "title": "Facts",
+      "type": "array"
+    },
+    "first_seen_at": {
+      "format": "date-time",
+      "title": "First Seen At",
+      "type": "string"
+    },
+    "impact_horizon": {
+      "$ref": "#/$defs/ImpactHorizon"
+    },
+    "materiality": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Materiality",
+      "type": "number"
+    },
+    "published_at": {
+      "format": "date-time",
+      "title": "Published At",
+      "type": "string"
+    },
+    "region_ids": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Region Ids",
+      "type": "array"
+    },
+    "revision": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Revision",
+      "type": "integer"
+    },
+    "revision_known_at": {
+      "format": "date-time",
+      "title": "Revision Known At",
+      "type": "string"
+    },
+    "rule_version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Rule Version",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "security_ids": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Security Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "event_type",
+    "event_status",
+    "direction",
+    "materiality",
+    "impact_horizon",
+    "confidence",
+    "published_at",
+    "first_seen_at",
+    "revision_known_at",
+    "evidence",
+    "extractor_version",
+    "rule_version"
+  ],
+  "title": "MarketEvent",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.events.MarketEvent",
+  "x-schema-version": "1.0"
+}

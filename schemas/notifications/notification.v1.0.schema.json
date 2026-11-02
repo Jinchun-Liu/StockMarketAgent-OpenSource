@@ -1,0 +1,98 @@
+{
+  "$defs": {
+    "NotificationChangeType": {
+      "enum": [
+        "new",
+        "update",
+        "correction",
+        "contradiction"
+      ],
+      "title": "NotificationChangeType",
+      "type": "string"
+    },
+    "NotificationSeverity": {
+      "enum": [
+        "critical",
+        "high",
+        "normal",
+        "low"
+      ],
+      "title": "NotificationSeverity",
+      "type": "string"
+    }
+  },
+  "$id": "https://stock-market-agent.local/schemas/notifications/notification.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "change_type": {
+      "$ref": "#/$defs/NotificationChangeType"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "event_cluster_id": {
+      "format": "uuid",
+      "title": "Event Cluster Id",
+      "type": "string"
+    },
+    "event_revision": {
+      "minimum": 1,
+      "title": "Event Revision",
+      "type": "integer"
+    },
+    "evidence_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "minItems": 1,
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "idempotency_key": {
+      "maxLength": 200,
+      "minLength": 32,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "notification_id": {
+      "format": "uuid",
+      "title": "Notification Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "severity": {
+      "$ref": "#/$defs/NotificationSeverity"
+    },
+    "title": {
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "event_cluster_id",
+    "event_revision",
+    "change_type",
+    "severity",
+    "title",
+    "evidence_ids",
+    "created_at",
+    "idempotency_key"
+  ],
+  "title": "Notification",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.notifications.Notification",
+  "x-schema-version": "1.0"
+}

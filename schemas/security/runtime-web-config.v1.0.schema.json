@@ -1,0 +1,87 @@
+{
+  "$id": "https://stock-market-agent.local/schemas/security/runtime-web-config.v1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Non-secret browser bootstrap values emitted as runtime-config.json.",
+  "properties": {
+    "api_base_path": {
+      "const": "/api/v2",
+      "default": "/api/v2",
+      "title": "Api Base Path",
+      "type": "string"
+    },
+    "authorization_endpoint": {
+      "format": "uri",
+      "minLength": 1,
+      "title": "Authorization Endpoint",
+      "type": "string"
+    },
+    "client_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Client Id",
+      "type": "string"
+    },
+    "end_session_endpoint": {
+      "format": "uri",
+      "minLength": 1,
+      "title": "End Session Endpoint",
+      "type": "string"
+    },
+    "environment_label": {
+      "const": "私有合成 R2 预览",
+      "default": "私有合成 R2 预览",
+      "title": "Environment Label",
+      "type": "string"
+    },
+    "issuer": {
+      "format": "uri",
+      "minLength": 1,
+      "title": "Issuer",
+      "type": "string"
+    },
+    "product_sha": {
+      "pattern": "^[a-f0-9]{40}$",
+      "title": "Product Sha",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scope": {
+      "maxLength": 256,
+      "pattern": "^openid(?: [a-zA-Z0-9:._/-]+)*$",
+      "title": "Scope",
+      "type": "string"
+    },
+    "synthetic_data": {
+      "const": true,
+      "default": true,
+      "title": "Synthetic Data",
+      "type": "boolean"
+    },
+    "token_endpoint": {
+      "format": "uri",
+      "minLength": 1,
+      "title": "Token Endpoint",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "issuer",
+    "authorization_endpoint",
+    "token_endpoint",
+    "end_session_endpoint",
+    "client_id",
+    "scope",
+    "product_sha"
+  ],
+  "title": "RuntimeWebConfig",
+  "type": "object",
+  "x-contract-model": "stock_assistant.contracts.security.RuntimeWebConfig",
+  "x-schema-version": "1.0"
+}
